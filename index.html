@@ -74,10 +74,61 @@
         font-size: clamp(0.98rem, 1.6vw, 1.1rem);
       }
 
-      .overview {
+      .overview-panel {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg-strong);
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .overview-panel summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        list-style: none;
+        margin: 0;
+        padding: 16px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--accent-strong);
+        font-size: 1.02rem;
+      }
+
+      .overview-panel summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .overview-panel summary::after {
+        content: "+";
+        font-size: 1.2rem;
+        line-height: 1;
+        font-weight: 600;
+        color: var(--accent-strong);
+        transition: transform var(--transition);
+      }
+
+      .overview-panel[open] summary {
+        border-bottom: 1px solid var(--border);
+        background: rgba(185, 137, 76, 0.08);
+      }
+
+      .overview-panel[open] summary::after {
+        content: "-";
+      }
+
+      .overview-panel summary:focus-visible {
+        outline: 2px solid rgba(185, 137, 76, 0.4);
+        outline-offset: 4px;
+      }
+
+      .overview-content {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 18px;
+        padding: 18px 20px 20px;
       }
 
       .overview-card {
@@ -411,6 +462,11 @@
         justify-content: center;
       }
 
+      .actions-wrap {
+        display: grid;
+        gap: 18px;
+      }
+
       #results {
         display: none;
         gap: 20px;
@@ -558,7 +614,7 @@
           gap: 28px;
         }
 
-        .overview {
+        .overview-content {
           grid-template-columns: 1fr;
         }
 
@@ -568,6 +624,16 @@
 
         .actions {
           flex-direction: column;
+        }
+
+        .actions-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .actions-wrap .progress-area {
+          order: -1;
         }
 
         button,
@@ -692,45 +758,50 @@
         </p>
       </header>
 
-      <section class="overview" aria-label="Casting guidance">
-        <article class="overview-card">
-          <h2>Preparing Your Cast</h2>
-          <ul class="guide-list">
-            <li>Work from the bottom line upward—Line 1 anchors the hexagram.</li>
-            <li>Each coin toss produces 0–3 heads. Tails are counted automatically.</li>
-            <li>Solid lines represent yang (movement); broken lines show yin (receptive).</li>
-          </ul>
-        </article>
-        <article class="overview-card highlight">
-          <h2>Coin Method Quick Math</h2>
-          <ul class="guide-list">
-            <li>Heads count as 3, tails count as 2—sum to find each line.</li>
-            <li>6 = old yin (changing to yang); 7 = young yang; 8 = young yin; 9 = old yang (changing to yin).</li>
-            <li>Changing lines reveal a relating hexagram—trace both for nuance.</li>
-          </ul>
-        </article>
-      </section>
-
-      <section class="progress-area" aria-live="polite">
-        <div class="progress-heading">
-          <strong>Line Progress</strong>
-          <span id="progressLabel">0 / 6 lines set</span>
+      <details class="overview-panel" id="castingGuidance">
+        <summary>Guidance &amp; tips</summary>
+        <div class="overview-content" aria-label="Casting guidance">
+          <article class="overview-card">
+            <h2>Preparing Your Cast</h2>
+            <ul class="guide-list">
+              <li>Work from the bottom line upward—Line 1 anchors the hexagram.</li>
+              <li>Each coin toss produces 0–3 heads. Tails are counted automatically.</li>
+              <li>Solid lines represent yang (movement); broken lines show yin (receptive).</li>
+            </ul>
+          </article>
+          <article class="overview-card highlight">
+            <h2>Coin Method Quick Math</h2>
+            <ul class="guide-list">
+              <li>Heads count as 3, tails count as 2—sum to find each line.</li>
+              <li>6 = old yin (changing to yang); 7 = young yang; 8 = young yin; 9 = old yang (changing to yin).</li>
+              <li>Changing lines reveal a relating hexagram—trace both for nuance.</li>
+            </ul>
+          </article>
         </div>
-        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0">
-          <div class="progress-indicator" id="progressBar"></div>
-        </div>
-      </section>
+      </details>
 
       <section class="line-flow">
-        <nav class="line-steps" id="lineTimeline" aria-label="Line sequence"></nav>
         <section class="line-inputs" id="lineInputs" aria-label="Line inputs"></section>
+        <nav class="line-steps" id="lineTimeline" aria-label="Line sequence"></nav>
       </section>
 
-      <div class="actions">
-        <button id="tossAll" class="ghost" type="button">Toss All Lines</button>
-        <button id="calculate" type="button" disabled>Reveal Guidance</button>
-        <button id="reset" class="secondary" type="button">New Reading</button>
-      </div>
+      <section class="actions-wrap" aria-label="Actions and progress">
+        <div class="actions">
+          <button id="tossAll" class="ghost" type="button">Toss All Lines</button>
+          <button id="calculate" type="button" disabled>Reveal Guidance</button>
+          <button id="reset" class="secondary" type="button">New Reading</button>
+        </div>
+
+        <section class="progress-area" aria-live="polite">
+          <div class="progress-heading">
+            <strong>Line Progress</strong>
+            <span id="progressLabel">0 / 6 lines set</span>
+          </div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0">
+            <div class="progress-indicator" id="progressBar"></div>
+          </div>
+        </section>
+      </section>
 
       <section id="results">
         <article class="line-summary" aria-live="polite"></article>
