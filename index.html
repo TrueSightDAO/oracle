@@ -1004,7 +1004,10 @@
         border: 1px solid var(--border);
         background: var(--bg-strong);
         padding: 22px;
-        display: grid;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
         gap: 16px;
         box-shadow: 0 12px 24px rgba(36, 22, 11, 0.08);
       }
@@ -1059,6 +1062,16 @@
         line-height: 1.6;
         color: var(--ink-soft);
         font-size: 0.95rem;
+      }
+
+      .hexagram-info-block {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .hexagram-info-block strong {
+        color: var(--ink);
       }
 
       #secondaryNote {
@@ -1718,6 +1731,7 @@
       const lastReadingButton = document.getElementById("lastReadingButton");
       const heroGlass = document.getElementById("heroGlass");
       const lastReadingPreview = document.getElementById("lastReadingPreview");
+      const heroStatus = document.getElementById("heroStatus");
 
       const STORAGE_KEY = "truesight-oracle-last-reading";
 
@@ -1727,20 +1741,76 @@
       let currentLineIndex = 0;
       let currentReading = null;
 
-      const textEncoder = new TextEncoder();
+      hexagramDisplay.addEventListener(
+        "toggle",
+        (event) => {
+          if (event.target && event.target.classList.contains("hexagram-fulltext")) {
+            syncHexagramHeights();
+          }
+        },
+        true
+      );
+      window.addEventListener("resize", syncHexagramHeights);
+
       const textDecoder = new TextDecoder();
 
-      function encodeReadingPayload(reading) {
-        const json = JSON.stringify(reading);
-        const bytes = textEncoder.encode(json);
-        let binary = "";
-        bytes.forEach((byte) => {
-          binary += String.fromCharCode(byte);
-        });
-        return btoa(binary);
+      function linesToSignature(lines) {
+        if (!Array.isArray(lines)) return "";
+        const ordered = [...lines].sort((a, b) => (a.lineNumber || 0) - (b.lineNumber || 0));
+        return ordered
+          .map((line) => {
+            if (typeof line.sum === "number") return line.sum;
+            if (typeof line.sum === "string" && line.sum.trim() !== "") return Number(line.sum);
+            if (typeof line.heads === "number") {
+              const heads = line.heads;
+              const tails = 3 - heads;
+              return heads * 3 + tails * 2;
+            }
+            return "";
+          })
+          .filter((value) => value !== "")
+          .join("-");
       }
 
-      function decodeReadingPayload(payload) {
+      function signatureToReading(signature) {
+        const cleaned = (signature || "").trim();
+        if (!cleaned) {
+          throw new Error("Empty reading signature.");
+        }
+        const sums = cleaned
+          .split(/[^0-9]+/)
+          .filter(Boolean)
+          .map((value) => Number(value));
+        if (sums.length !== 6 || sums.some((sum) => ![6, 7, 8, 9].includes(sum))) {
+          throw new Error("Invalid reading signature.");
+        }
+        const lines = sums.map((sum, index) => {
+          const heads = sum === 9 ? 3 : sum === 8 ? 2 : sum === 7 ? 1 : 0;
+          const tails = 3 - heads;
+          const isSolid = sum % 2 === 1;
+          const isChanging = sum === 6 || sum === 9;
+          const nextIsSolid = sum === 6 ? true : sum === 9 ? false : isSolid;
+          return {
+            lineNumber: index + 1,
+            heads,
+            tails,
+            sum,
+            isSolid,
+            isChanging,
+            nextIsSolid
+          };
+        });
+        const primaryHexagram = getHexagram(lines);
+        const hasChanges = lines.some((line) => line.isChanging);
+        const relatedHexagram = hasChanges ? getHexagram(lines, true) : null;
+        const reading = buildReadingPayload({ lines, primaryHexagram, relatedHexagram });
+        if (!hasChanges) {
+          reading.hasChanges = false;
+        }
+        return reading;
+      }
+
+      function decodeLegacyPayload(payload) {
         const binary = atob(payload);
         const bytes = new Uint8Array(binary.length);
         for (let i = 0; i < binary.length; i += 1) {
@@ -1752,16 +1822,35 @@
 
       function createShareUrl(reading) {
         try {
-          const encoded = encodeReadingPayload(reading);
+          const signature = linesToSignature(reading.lines);
+          if (!signature) {
+            throw new Error("Unable to derive reading signature.");
+          }
           const url = new URL(window.location.href);
           url.search = "";
           url.hash = "";
-          url.searchParams.set("reading", encoded);
+          url.searchParams.set("reading", signature);
           return url.toString();
         } catch (error) {
           console.warn("Unable to encode reading for share link:", error);
           return reading.url || window.location.href.split("#")[0];
         }
+      }
+
+      function getJudgmentText(hexagram) {
+        if (!hexagram) return "";
+        const stored = window.hexagramTexts?.[hexagram.number]?.judgment;
+        const text = stored && stored.trim().length ? stored.trim() : hexagram.judgment || "";
+        return text;
+      }
+
+      function isMobileShareCapable() {
+        const uaData = navigator.userAgentData;
+        if (uaData && typeof uaData.mobile === "boolean") {
+          return uaData.mobile;
+        }
+        const ua = navigator.userAgent || "";
+        return /Android|iPhone|iPad|iPod|Mobile/i.test(ua);
       }
 
       function createLineCard({ lineNumber, tooltip }) {
@@ -2251,18 +2340,6 @@
           diagram.appendChild(lineDiv);
         }
 
-        const info = document.createElement("div");
-        info.className = "hexagram-info";
-        const heading = document.createElement("h3");
-        heading.textContent = `${hexagram.number} – ${hexagram.name}`;
-        const judgment = document.createElement("p");
-        judgment.innerHTML = `<strong>Judgment:</strong> ${hexagram.judgment}`;
-        const image = document.createElement("p");
-        image.innerHTML = `<strong>Image:</strong> ${hexagram.image}`;
-        info.append(heading, judgment, image);
-
-        card.append(title, diagram, info);
-
         const fullText = (window.hexagramTexts && window.hexagramTexts[hexagram.number]) || null;
         const introText = fullText && typeof fullText.intro === "string" ? fullText.intro.trim() : "";
         const judgmentText =
@@ -2277,6 +2354,39 @@
           (fullText && Array.isArray(fullText.lines) ? fullText.lines.filter((line) => line && line.trim().length > 0) : []) ||
           [];
         const hasFullContent = Boolean(introText || judgmentText || imageText || lineTexts.length > 0);
+
+        const info = document.createElement("div");
+        info.className = "hexagram-info";
+        const heading = document.createElement("h3");
+        heading.textContent = `${hexagram.number} – ${hexagram.name}`;
+        info.appendChild(heading);
+
+        const infoBlocks = [
+          {
+            label: "Judgment",
+            text: hexagram.judgment,
+            fullText: judgmentText
+          },
+          {
+            label: "Image",
+            text: hexagram.image,
+            fullText: imageText
+          }
+        ];
+
+        infoBlocks.forEach((block, blockIndex) => {
+          const blockWrap = document.createElement("div");
+          blockWrap.className = "hexagram-info-block";
+          blockWrap.dataset.blockIndex = String(blockIndex);
+          const labelEl = document.createElement("strong");
+          labelEl.textContent = `${block.label}:`;
+          const bodyEl = document.createElement("p");
+          bodyEl.textContent = block.fullText || block.text || "";
+          blockWrap.append(labelEl, bodyEl);
+          info.appendChild(blockWrap);
+        });
+
+        card.append(title, diagram, info);
 
         if (hasFullContent) {
           const fulltextDetails = document.createElement("details");
@@ -2335,6 +2445,41 @@
         }
 
         return card;
+      }
+
+      function syncHexagramHeights() {
+        const cards = Array.from(hexagramDisplay.querySelectorAll(".hexagram-card"));
+        cards.forEach((card) => {
+          card.style.minHeight = "";
+        });
+        if (cards.length <= 1) return;
+
+        requestAnimationFrame(() => {
+          const tallest = cards.reduce((acc, card) => Math.max(acc, card.offsetHeight), 0);
+          cards.forEach((card) => {
+            card.style.minHeight = `${tallest}px`;
+          });
+
+          const blockGroups = new Map();
+          cards.forEach((card) => {
+            const blocks = card.querySelectorAll(".hexagram-info-block");
+            blocks.forEach((block) => {
+              block.style.minHeight = "";
+              const index = block.dataset.blockIndex || "0";
+              if (!blockGroups.has(index)) {
+                blockGroups.set(index, []);
+              }
+              blockGroups.get(index).push(block);
+            });
+          });
+
+          blockGroups.forEach((group) => {
+            const maxHeight = group.reduce((acc, block) => Math.max(acc, block.offsetHeight), 0);
+            group.forEach((block) => {
+              block.style.minHeight = `${maxHeight}px`;
+            });
+          });
+        });
       }
 
       function renderHexagramReference() {
@@ -2454,6 +2599,8 @@
             secondaryNote.textContent = "Static hexagram—no relating changes.";
           }
 
+        syncHexagramHeights();
+
           resultsSection.classList.add("active");
         if (shareButton) {
           shareButton.disabled = false;
@@ -2552,10 +2699,23 @@
       function parseReadingFromUrl() {
         try {
           const params = new URLSearchParams(window.location.search);
-          const encoded = params.get("reading");
-          if (!encoded) return null;
-          const reading = decodeReadingPayload(encoded);
-          return reading;
+          const value = params.get("reading");
+          if (!value) return null;
+
+          if (/^[0-9,\-\s]+$/.test(value)) {
+            try {
+              return signatureToReading(value);
+            } catch (signatureError) {
+              console.warn("Unable to parse signature:", signatureError);
+            }
+          }
+
+          try {
+            return decodeLegacyPayload(value);
+          } catch (legacyError) {
+            console.warn("Unable to parse legacy payload:", legacyError);
+            return null;
+          }
         } catch (error) {
           console.warn("Unable to parse shared reading:", error);
           return null;
@@ -2568,20 +2728,36 @@
         const relatedTitle = reading.relatedHexagram
           ? formatHexagramTitle(reading.relatedHexagram)
           : null;
+        const primaryJudgment = getJudgmentText(reading.primaryHexagram);
+        const relatedJudgment = relatedTitle ? getJudgmentText(reading.relatedHexagram) : "";
         const url = createShareUrl(reading);
 
-        const bodyLines = [
+        const sections = [
           relatedTitle
-            ? `I just cast ${primaryTitle}, changing to ${relatedTitle}.`
-            : `I just cast ${primaryTitle}—a static hexagram.`,
-          "Read yours with the TrueSight I Ching Oracle:"
+            ? `Oracle casting for the day: ${primaryTitle}, changing to ${relatedTitle}.`
+            : `Oracle casting for the day: ${primaryTitle}.`,
+          "",
+          `${primaryTitle}`,
+          `Judgment: ${primaryJudgment}`
         ];
+
+        if (relatedTitle && relatedJudgment) {
+          sections.push("");
+          sections.push(`${relatedTitle}`);
+          sections.push(`Judgment: ${relatedJudgment}`);
+        }
+
+        sections.push("");
+        sections.push(`See the full reading or cast your own:`);
+        sections.push(url);
+
+        const composedText = sections.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 
         return {
           title: primaryTitle,
-          text: `${bodyLines.join(" ")} ${url}`,
+          text: composedText,
           url,
-          clipboardText: `${bodyLines.join("\n")}\n${url}`
+          clipboardText: composedText
         };
       }
 
@@ -2595,7 +2771,9 @@
         shareFeedback.hidden = true;
         shareFeedback.textContent = "";
 
-        if (navigator.share) {
+        const canUseShare = typeof navigator.share === "function" && isMobileShareCapable();
+
+        if (canUseShare) {
           try {
             await navigator.share({
               title: shareData.title,
