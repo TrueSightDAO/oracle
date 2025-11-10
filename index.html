@@ -2733,9 +2733,7 @@
         const url = createShareUrl(reading);
 
         const sections = [
-          relatedTitle
-            ? `Oracle casting for the day: ${primaryTitle}, changing to ${relatedTitle}.`
-            : `Oracle casting for the day: ${primaryTitle}.`,
+          "Oracle casting for the day:",
           "",
           `${primaryTitle}`,
           `Judgment: ${primaryJudgment}`
@@ -2748,7 +2746,7 @@
         }
 
         sections.push("");
-        sections.push(`See the full reading or cast your own:`);
+        sections.push("See the full reading or cast your own:");
         sections.push(url);
 
         const composedText = sections.join("\n").replace(/\n{3,}/g, "\n\n").trim();
