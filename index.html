@@ -2749,13 +2749,17 @@
         sections.push("See the full reading or cast your own:");
         sections.push(url);
 
-        const composedText = sections.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+        const sanitize = (lines) => lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+        const clipboardText = sanitize(sections);
+        const shareLines = [...sections];
+        shareLines.pop();
+        const textWithoutLink = sanitize(shareLines);
 
         return {
           title: primaryTitle,
-          text: composedText,
+          text: textWithoutLink,
           url,
-          clipboardText: composedText
+          clipboardText
         };
       }
 
