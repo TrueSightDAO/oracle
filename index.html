@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>I Ching Hexagram Calculator</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <script src="scripts/hexagram_texts.js" defer></script>
     <style>
       :root {
         color-scheme: light;
@@ -49,14 +50,142 @@
         border-radius: var(--radius-lg);
         padding: clamp(24px, 4vw, 48px);
         box-shadow: var(--shadow);
-        display: grid;
+        display: flex;
+        flex-direction: column;
         gap: clamp(24px, 4vw, 40px);
       }
 
-      header {
+      header.hero {
         display: grid;
+        gap: clamp(12px, 3vw, 28px);
+        text-align: left;
+      }
+
+      .hero-brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+
+      .brand-banner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .brand-logo {
+        width: clamp(120px, 18vw, 180px);
+        height: auto;
+        filter: drop-shadow(0 10px 24px rgba(36, 22, 11, 0.2));
+      }
+
+      .hero-badge {
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(185, 137, 76, 0.16);
+        color: var(--accent-strong);
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .hero-content {
+        display: grid;
+        gap: 18px;
+      }
+
+      .hero-content h1 {
+        margin: 0;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
         gap: 12px;
-        text-align: center;
+        align-items: center;
+      }
+
+      #beginCasting {
+        min-width: 180px;
+      }
+
+      .hero-glass {
+        margin-top: clamp(12px, 3vw, 20px);
+        padding: 18px 20px;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(185, 137, 76, 0.12));
+        box-shadow: 0 18px 32px rgba(36, 22, 11, 0.12);
+        display: grid;
+        gap: 8px;
+        color: var(--ink);
+      }
+
+      .hero-glass.has-reading {
+        border-color: rgba(185, 137, 76, 0.32);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(185, 137, 76, 0.18));
+      }
+
+      .hero-glass-title {
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        color: var(--accent-strong);
+      }
+
+      .hero-glass-body {
+        font-size: 0.95rem;
+        color: var(--ink-soft);
+        line-height: 1.5;
+      }
+
+      .hero-glass-status {
+        margin: 0;
+        font-size: 0.8rem;
+        color: rgba(36, 22, 11, 0.6);
+        letter-spacing: 0.02em;
+      }
+
+      .hero-glass-status.info {
+        color: rgba(36, 22, 11, 0.6);
+      }
+
+      .hero-glass-status.success {
+        color: var(--accent-strong);
+      }
+
+      .hero-glass-status.warning {
+        color: #ad711b;
+      }
+
+      .hero-glass-status.error {
+        color: #a13528;
+      }
+
+      .hero-glass-primary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin: 0;
+      }
+
+      .hero-glass-arrow {
+        font-weight: 600;
+        color: var(--accent-strong);
+      }
+
+      .hero-glass-static {
+        color: var(--ink-soft);
+        font-style: italic;
+      }
+
+      .hero-glass-meta {
+        margin: 0;
+        font-size: 0.82rem;
+        color: rgba(36, 22, 11, 0.6);
       }
 
       h1 {
@@ -81,6 +210,158 @@
         background: var(--bg-strong);
         padding: 0;
         overflow: hidden;
+      }
+
+      .reference-panel {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg-strong);
+        overflow: hidden;
+      }
+
+      .reference-details > summary {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px 20px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        color: var(--accent-strong);
+      }
+
+      .reference-details > summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .reference-details > summary::after {
+        content: "⯈";
+        font-size: 0.9rem;
+        transition: transform var(--transition);
+      }
+
+      .reference-details[open] > summary::after {
+        transform: rotate(90deg);
+      }
+
+      .reference-details[open] > summary {
+        border-bottom: 1px solid var(--border);
+        background: rgba(185, 137, 76, 0.08);
+      }
+
+      @media (min-width: 960px) {
+        .casting-shell {
+          grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+          align-items: start;
+        }
+
+        .line-steps {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          overflow: visible;
+          padding: 0;
+        }
+
+        .line-step {
+          min-width: 0;
+        }
+
+        .actions-wrap {
+          position: sticky;
+          top: 24px;
+        }
+      }
+
+      .reference-content {
+        display: grid;
+        gap: 16px;
+        padding: 20px;
+      }
+
+      .reference-intro {
+        font-size: 0.92rem;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      .reference-table-wrap {
+        overflow-x: auto;
+      }
+
+      #hexagramReferenceTable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+        background: white;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        box-shadow: 0 8px 18px rgba(36, 22, 11, 0.08);
+      }
+
+      #hexagramReferenceTable caption {
+        caption-side: top;
+        padding-bottom: 12px;
+        font-weight: 600;
+        color: var(--accent-strong);
+        text-align: left;
+      }
+
+      #hexagramReferenceTable th,
+      #hexagramReferenceTable td {
+        border: 1px solid rgba(36, 22, 11, 0.1);
+        padding: 10px 12px;
+        text-align: center;
+      }
+
+      #hexagramReferenceTable thead th {
+        background: rgba(185, 137, 76, 0.12);
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .reference-corner {
+        min-width: 150px;
+        text-align: left;
+      }
+
+      .reference-heading {
+        display: grid;
+        gap: 4px;
+        justify-items: center;
+      }
+
+      .reference-heading small {
+        display: block;
+        font-weight: 500;
+        color: var(--ink-soft);
+        font-size: 0.76rem;
+      }
+
+      .trigram-symbol {
+        font-size: 1.4rem;
+      }
+
+      #hexagramReferenceTable tbody th {
+        background: rgba(36, 22, 11, 0.05);
+        font-weight: 600;
+        text-align: left;
+      }
+
+      .reference-cell {
+        display: grid;
+        gap: 4px;
+      }
+
+      .reference-cell strong {
+        font-size: 1rem;
+        color: var(--ink);
+      }
+
+      .reference-cell span {
+        font-size: 0.78rem;
+        color: var(--ink-soft);
       }
 
       .overview-panel summary {
@@ -212,13 +493,38 @@
 
       .line-flow {
         display: grid;
-        gap: 18px;
+        gap: 20px;
+      }
+
+      .line-flow-header {
+        display: grid;
+        gap: 6px;
+      }
+
+      .line-flow-header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+        color: var(--ink);
+      }
+
+      .line-flow-header p {
+        margin: 0;
+        font-size: 0.92rem;
+        color: var(--ink-soft);
+      }
+
+      .casting-shell {
+        display: grid;
+        gap: clamp(20px, 4vw, 32px);
       }
 
       .line-steps {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        display: flex;
         gap: 12px;
+        overflow-x: auto;
+        padding: 2px 2px 6px;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
       }
 
       .line-step {
@@ -233,6 +539,8 @@
         cursor: pointer;
         transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
         font: inherit;
+        min-width: 200px;
+        scroll-snap-align: start;
       }
 
       .line-step:not(:disabled):hover {
@@ -277,7 +585,7 @@
 
       .line-inputs {
         position: relative;
-        min-height: 220px;
+        min-height: 240px;
       }
 
       .line-card {
@@ -385,6 +693,33 @@
         align-items: center;
       }
 
+      .select-group {
+        display: grid;
+        gap: 6px;
+        min-width: 180px;
+      }
+
+      .select-label {
+        font-size: 0.84rem;
+        letter-spacing: 0.01em;
+        color: var(--ink-soft);
+        font-weight: 600;
+      }
+
+      .auto-apply-hint {
+        font-size: 0.78rem;
+        color: var(--accent-strong);
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .auto-apply-hint::before {
+        content: "✓";
+        font-weight: 700;
+        font-size: 0.8rem;
+      }
+
       select {
         padding: 8px 12px;
         border-radius: var(--radius-sm);
@@ -442,6 +777,18 @@
         transform: none;
       }
 
+      .toss-button.optional-action {
+        background: rgba(36, 22, 11, 0.08);
+        color: var(--ink);
+        border: 1px dashed rgba(36, 22, 11, 0.26);
+      }
+
+      .toss-button.optional-action:hover {
+        box-shadow: none;
+        transform: none;
+        background: rgba(36, 22, 11, 0.12);
+      }
+
       .tooltip {
         display: inline-flex;
         align-items: center;
@@ -475,6 +822,130 @@
 
       #results.active {
         display: grid;
+      }
+
+      .results-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .share-button {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+        color: white;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 20px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+      }
+
+      .share-button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+      }
+
+      .share-button:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 30px rgba(143, 97, 36, 0.28);
+      }
+
+      .share-feedback {
+        font-size: 0.88rem;
+        color: var(--accent-strong);
+      }
+
+      .hexagram-fulltext {
+        border: 1px solid rgba(36, 22, 11, 0.1);
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.66);
+        overflow: hidden;
+      }
+
+      .hexagram-fulltext > summary {
+        margin: 0;
+        padding: 14px 16px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--accent-strong);
+      }
+
+      .hexagram-fulltext > summary::-webkit-details-marker {
+        display: none;
+      }
+
+      .hexagram-fulltext > summary::after {
+        content: "⯈";
+        font-size: 0.9rem;
+        transition: transform var(--transition);
+      }
+
+      .hexagram-fulltext[open] > summary::after {
+        transform: rotate(90deg);
+      }
+
+      .hexagram-fulltext[open] > summary {
+        background: rgba(185, 137, 76, 0.08);
+        border-bottom: 1px solid rgba(36, 22, 11, 0.08);
+      }
+
+      .hexagram-fulltext .fulltext-body {
+        padding: 18px 20px;
+        display: grid;
+        gap: 14px;
+        font-size: 0.95rem;
+        color: var(--ink-soft);
+        line-height: 1.6;
+      }
+
+      .hexagram-fulltext .fulltext-section {
+        display: grid;
+        gap: 6px;
+      }
+
+      .hexagram-fulltext .fulltext-section strong {
+        color: var(--ink);
+      }
+
+      .hexagram-fulltext .line-text-list {
+        margin: 0;
+        padding-left: 20px;
+        display: grid;
+        gap: 6px;
+      }
+
+      .hexagram-fulltext .line-text-entry.line-change {
+        position: relative;
+        padding: 6px 10px;
+        border-radius: var(--radius-sm);
+        background: rgba(185, 137, 76, 0.12);
+        color: var(--ink);
+      }
+
+      .hexagram-fulltext .line-text-entry.line-change::before {
+        content: "Changing line";
+        display: block;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent-strong);
+        margin-bottom: 2px;
+      }
+
+      .hexagram-fulltext .fulltext-empty {
+        font-style: italic;
+        color: rgba(36, 22, 11, 0.6);
       }
 
       .line-summary {
@@ -525,6 +996,7 @@
         display: grid;
         gap: 18px;
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        align-items: start;
       }
 
       .hexagram-card {
@@ -615,12 +1087,36 @@
           gap: 28px;
         }
 
-        .overview-content {
-          grid-template-columns: 1fr;
+        header.hero {
+          gap: 22px;
         }
 
-        .line-steps {
-          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        .hero-brand {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .hero-steps {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .hero-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .hero-actions button {
+          width: 100%;
+        }
+
+        .hero-glass {
+          order: 3;
+        }
+
+        .overview-content {
+          grid-template-columns: 1fr;
         }
 
         .actions {
@@ -637,9 +1133,7 @@
           order: -1;
         }
 
-        button,
-        button.ghost,
-        button.secondary {
+        .actions button {
           width: 100%;
         }
       }
@@ -682,10 +1176,6 @@
           gap: 6px;
         }
 
-        .line-steps {
-          grid-template-columns: 1fr;
-        }
-
         .line-role {
           font-size: 0.82rem;
         }
@@ -703,6 +1193,14 @@
         .mini-line {
           width: 100%;
           height: 16px;
+        }
+
+        .line-step {
+          min-width: 160px;
+        }
+
+        .hero-steps li {
+          width: 100%;
         }
 
         .line-grid,
@@ -751,12 +1249,32 @@
   </head>
   <body>
     <main>
-      <header>
+      <header class="hero" aria-label="TrueSight Oracle introduction">
+        <div class="hero-brand">
+          <div class="brand-banner" role="presentation">
+            <img src="assets/truesight-logo.png" alt="TrueSight DAO logo" class="brand-logo" />
+          </div>
+          <span class="hero-badge">Daily Oracle</span>
+        </div>
+        <div class="hero-content">
         <h1>I Ching Daily Guidance</h1>
         <p class="lead">
-          Generate your daily hexagram using the Wilhelm/Baynes three-coin method.
-          Choose the heads count for each line or let the oracle toss for you.
-        </p>
+            Tune into the moment with the Wilhelm/Baynes three-coin method. Set each line from the ground up
+            or let the oracle toss for you—insight arrives either way.
+          </p>
+          <div class="hero-actions">
+            <button id="beginCasting" type="button">Begin your cast</button>
+            <button id="lastReadingButton" class="ghost" type="button" hidden>View saved insight</button>
+            <button id="refreshAssets" class="ghost" type="button" hidden>Refresh assets</button>
+          </div>
+        </div>
+        <aside class="hero-glass" id="heroGlass" aria-live="polite">
+          <div class="hero-glass-title">Saved insight</div>
+          <div class="hero-glass-body" id="lastReadingPreview">
+            <p>Each reading auto-saves so you can revisit it later today.</p>
+          </div>
+          <p class="hero-glass-status" id="heroStatus" hidden></p>
+        </aside>
       </header>
 
       <details class="overview-panel" id="castingGuidance">
@@ -781,9 +1299,14 @@
         </div>
       </details>
 
+      <section class="casting-shell" aria-label="Casting workspace">
       <section class="line-flow">
-        <section class="line-inputs" id="lineInputs" aria-label="Line inputs"></section>
+          <div class="line-flow-header">
+            <h2>Cast your lines</h2>
+            <p>Follow the sequence below—each choice updates instantly.</p>
+          </div>
         <nav class="line-steps" id="lineTimeline" aria-label="Line sequence"></nav>
+          <section class="line-inputs" id="lineInputs" aria-label="Line inputs"></section>
       </section>
 
       <section class="actions-wrap" aria-label="Actions and progress">
@@ -801,15 +1324,39 @@
           <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0">
             <div class="progress-indicator" id="progressBar"></div>
           </div>
+          </section>
         </section>
       </section>
 
       <section id="results">
+        <div class="results-actions">
+          <button id="shareReading" class="share-button" type="button" disabled>Share today’s reading</button>
+          <span class="share-feedback" id="shareFeedback" hidden></span>
+        </div>
         <article class="line-summary" aria-live="polite"></article>
         <section class="hexagram-section">
           <div class="hexagram-layout" id="hexagramDisplay"></div>
           <p id="secondaryNote" hidden></p>
         </section>
+      </section>
+
+      <section class="reference-panel" aria-label="Hexagram reference guide">
+        <details id="hexagramReference" class="reference-details">
+          <summary>Explore the 64 hexagrams</summary>
+          <div class="reference-content">
+            <div class="reference-intro">
+              Use this lookup to cross-reference the primary and relating trigrams. Lower trigrams run along
+              the rows; upper trigrams span the columns.
+            </div>
+            <div class="reference-table-wrap">
+              <table id="hexagramReferenceTable" aria-describedby="referenceCaption">
+                <caption id="referenceCaption">
+                  Hexagram numbers by lower (rows) and upper (columns) trigram combinations
+                </caption>
+              </table>
+            </div>
+          </div>
+        </details>
       </section>
 
       <footer>
@@ -852,15 +1399,26 @@
         9: "9 — old yang transforms to yin"
       };
 
+      const trigramInfo = [
+        { key: "chien", name: "Ch'ien", english: "Heaven", symbol: "☰" },
+        { key: "chen", name: "Chên", english: "Thunder", symbol: "☳" },
+        { key: "kan", name: "K'an", english: "Water", symbol: "☵" },
+        { key: "ken", name: "Kên", english: "Mountain", symbol: "☶" },
+        { key: "kun", name: "K'un", english: "Earth", symbol: "☷" },
+        { key: "sun", name: "Sun", english: "Wind", symbol: "☴" },
+        { key: "li", name: "Li", english: "Fire", symbol: "☲" },
+        { key: "tui", name: "Tui", english: "Lake", symbol: "☱" }
+      ];
+
       const trigramMap = {
-        "111": 0,
-        "100": 1,
-        "010": 2,
-        "001": 3,
-        "000": 4,
-        "101": 5,
-        "110": 6,
-        "011": 7
+        0b000: 4, // K'un (Earth)
+        0b001: 1, // Chên (Thunder)
+        0b010: 2, // K'an (Water)
+        0b011: 7, // Tui (Lake)
+        0b100: 3, // Kên (Mountain)
+        0b101: 5, // Sun (Wind)
+        0b110: 6, // Li (Fire)
+        0b111: 0 // Ch'ien (Heaven)
       };
 
       const hexagramChart = [
@@ -928,11 +1486,11 @@
           { number: 13, name: "T'ung Jên / Fellowship with Men" },
           { number: 55, name: "Fêng / Abundance" },
           { number: 63, name: "Chi Chi / After Completion" },
+          { number: 22, name: "Pi / Grace" },
           { number: 36, name: "Ming I / Darkening of the Light" },
           { number: 37, name: "Chia Jên / The Family" },
           { number: 30, name: "Li / The Clinging" },
-          { number: 49, name: "Ko / Revolution" },
-          { number: 22, name: "Pi / Grace" }
+          { number: 49, name: "Ko / Revolution" }
         ],
         [
           { number: 10, name: "Lü / Treading" },
@@ -1154,11 +1712,57 @@
       const progressBar = document.getElementById("progressBar");
       const progressTrack = document.querySelector(".progress-track");
       const lineTimeline = document.getElementById("lineTimeline");
+      const shareButton = document.getElementById("shareReading");
+      const shareFeedback = document.getElementById("shareFeedback");
+      const beginCastingButton = document.getElementById("beginCasting");
+      const lastReadingButton = document.getElementById("lastReadingButton");
+      const heroGlass = document.getElementById("heroGlass");
+      const lastReadingPreview = document.getElementById("lastReadingPreview");
+
+      const STORAGE_KEY = "truesight-oracle-last-reading";
 
       const lineOrder = Array.from({ length: totalLines }, (_, index) => index + 1);
       let lineCardElements = [];
       let lineStepButtons = [];
       let currentLineIndex = 0;
+      let currentReading = null;
+
+      const textEncoder = new TextEncoder();
+      const textDecoder = new TextDecoder();
+
+      function encodeReadingPayload(reading) {
+        const json = JSON.stringify(reading);
+        const bytes = textEncoder.encode(json);
+        let binary = "";
+        bytes.forEach((byte) => {
+          binary += String.fromCharCode(byte);
+        });
+        return btoa(binary);
+      }
+
+      function decodeReadingPayload(payload) {
+        const binary = atob(payload);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i += 1) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        const json = textDecoder.decode(bytes);
+        return JSON.parse(json);
+      }
+
+      function createShareUrl(reading) {
+        try {
+          const encoded = encodeReadingPayload(reading);
+          const url = new URL(window.location.href);
+          url.search = "";
+          url.hash = "";
+          url.searchParams.set("reading", encoded);
+          return url.toString();
+        } catch (error) {
+          console.warn("Unable to encode reading for share link:", error);
+          return reading.url || window.location.href.split("#")[0];
+        }
+      }
 
       function createLineCard({ lineNumber, tooltip }) {
         const card = document.createElement("div");
@@ -1196,9 +1800,17 @@
         const controls = document.createElement("div");
         controls.className = "controls";
 
-        const selectWrapper = document.createElement("label");
-        selectWrapper.textContent = "Heads:";
+        const selectGroup = document.createElement("div");
+        selectGroup.className = "select-group";
+
+        const selectLabel = document.createElement("label");
+        selectLabel.className = "select-label";
+        selectLabel.setAttribute("for", `heads-${lineNumber}`);
+        selectLabel.textContent = "Heads (auto-applies):";
+
         const select = document.createElement("select");
+        select.id = `heads-${lineNumber}`;
+        select.name = `heads-${lineNumber}`;
         select.dataset.role = "heads";
         select.dataset.lineNumber = lineNumber;
         headsOptions.forEach((opt) => {
@@ -1207,15 +1819,22 @@
           option.textContent = opt.label;
           select.append(option);
         });
-        selectWrapper.appendChild(select);
+        const autoHint = document.createElement("span");
+        autoHint.className = "auto-apply-hint";
+        autoHint.dataset.role = "auto-apply";
+        autoHint.textContent = "Saved automatically";
+        autoHint.hidden = true;
+        selectGroup.append(selectLabel, select, autoHint);
 
         const tossButton = document.createElement("button");
         tossButton.type = "button";
-        tossButton.textContent = "Toss Coins";
+        tossButton.className = "toss-button";
+        tossButton.dataset.role = "toss-button";
+        tossButton.textContent = "Toss for Me";
         tossButton.addEventListener("click", () => {
           const heads = simulateToss();
           select.value = heads.toString();
-          updateLineResult(card, heads);
+          updateLineResult(card, heads, { userSelected: false });
         });
 
         select.addEventListener("change", (event) => {
@@ -1225,10 +1844,10 @@
             handleLineClear(index);
             return;
           }
-          updateLineResult(card, Number(value));
+          updateLineResult(card, Number(value), { userSelected: true });
         });
 
-        controls.append(selectWrapper, tossButton);
+        controls.append(selectGroup, tossButton);
         card.append(header, preview, controls);
         return card;
       }
@@ -1256,13 +1875,23 @@
         card.removeAttribute("data-changing");
         card.dataset.completed = "false";
 
+        const autoHint = card.querySelector("[data-role='auto-apply']");
+        if (autoHint) {
+          autoHint.hidden = true;
+        }
+        const tossButton = card.querySelector("button[data-role='toss-button']");
+        if (tossButton) {
+          tossButton.classList.remove("optional-action");
+          tossButton.textContent = "Toss for Me";
+        }
+
         if (resetStep) {
           const index = Number(card.dataset.index || 0);
           updateStepSummary(index, null);
         }
       }
 
-      function updateLineResult(card, heads) {
+      function updateLineResult(card, heads, { userSelected = false } = {}) {
         const tails = 3 - heads;
         const sum = heads * 3 + tails * 2;
         const type = sum % 2 === 1 ? "solid" : "broken";
@@ -1289,6 +1918,16 @@
             tails,
             changing
           });
+        }
+
+        const autoHint = card.querySelector("[data-role='auto-apply']");
+        if (autoHint) {
+          autoHint.hidden = !userSelected;
+        }
+        const tossButton = card.querySelector("button[data-role='toss-button']");
+        if (tossButton) {
+          tossButton.classList.toggle("optional-action", userSelected);
+          tossButton.textContent = userSelected ? "Toss Again (optional)" : "Toss for Me";
         }
 
         card.classList.add("completed");
@@ -1361,6 +2000,10 @@
         lineStepButtons.forEach((btn, btnIndex) => {
           btn.classList.toggle("active-step", btnIndex === index);
         });
+
+        if (step?.scrollIntoView) {
+          step.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+        }
 
         const activeCard = lineCardElements[index];
         if (activeCard) {
@@ -1498,36 +2141,25 @@
         return data;
       }
 
-      function binaryFromLines(lines, start, end) {
-        let binary = "";
-        for (let i = start; i < end; i += 1) {
-          binary += lines[i].isSolid ? "1" : "0";
+      function getTrigramIndex(lines, startIndex, useNext = false) {
+        let value = 0;
+        for (let offset = 0; offset < 3; offset += 1) {
+          const line = lines[startIndex + offset];
+          const isYang = useNext ? line.nextIsSolid : line.isSolid;
+          if (isYang) {
+            value |= 1 << offset;
+          }
         }
-        return binary;
-      }
-
-      function binaryFromNextLines(lines, start, end) {
-        let binary = "";
-        for (let i = start; i < end; i += 1) {
-          binary += lines[i].nextIsSolid ? "1" : "0";
+        const index = trigramMap[value];
+        if (index === undefined) {
+          throw new Error("Invalid trigram combination encountered.");
         }
-        return binary;
+        return index;
       }
 
       function getHexagram(lines, useNext = false) {
-        const lowerBinary = useNext
-          ? binaryFromNextLines(lines, 0, 3)
-          : binaryFromLines(lines, 0, 3);
-        const upperBinary = useNext
-          ? binaryFromNextLines(lines, 3, 6)
-          : binaryFromLines(lines, 3, 6);
-
-        const lowerIndex = trigramMap[lowerBinary];
-        const upperIndex = trigramMap[upperBinary];
-
-        if (lowerIndex === undefined || upperIndex === undefined) {
-          throw new Error("Invalid trigram combination encountered.");
-        }
+        const lowerIndex = getTrigramIndex(lines, 0, useNext);
+        const upperIndex = getTrigramIndex(lines, 3, useNext);
 
         const baseInfo = hexagramChart[lowerIndex][upperIndex];
         const detail = hexagramDetails[baseInfo.number] || {
@@ -1587,24 +2219,32 @@
         lineSummarySection.appendChild(wrapper);
       }
 
-      function renderHexagramCard({ label, hexagram }) {
+      function renderHexagramCard({ label, hexagram, lineData = [], isRelating = false }) {
         const card = document.createElement("article");
         card.className = "hexagram-card";
+        card.dataset.hexagramNumber = String(hexagram.number);
 
         const title = document.createElement("h2");
         title.textContent = label;
 
         const diagram = document.createElement("div");
         diagram.className = "hexagram-diagram";
+        const changingLineNumbers = new Set(
+          (lineData || []).filter((line) => line.isChanging).map((line) => line.lineNumber)
+        );
+
         for (let i = hexagram.lines.length - 1; i >= 0; i -= 1) {
           const line = hexagram.lines[i];
           const lineDiv = document.createElement("div");
-          lineDiv.className = `hexagram-line ${line.isSolid ? "solid" : "broken"}`;
-          if (line.isChanging) {
+          const isSolid = line.isSolid;
+          lineDiv.className = `hexagram-line ${isSolid ? "solid" : "broken"}`;
+          const lineNumber = i + 1;
+          const isChangingLine = line.isChanging || (isRelating && changingLineNumbers.has(lineNumber));
+          if (isChangingLine) {
             lineDiv.classList.add("changing");
           }
           const ariaParts = [line.isSolid ? "Yang line" : "Yin line"];
-          if (line.isChanging) {
+          if (isChangingLine) {
             ariaParts.push("changing");
           }
           lineDiv.setAttribute("aria-label", ariaParts.join(" · "));
@@ -1622,7 +2262,369 @@
         info.append(heading, judgment, image);
 
         card.append(title, diagram, info);
+
+        const fullText = (window.hexagramTexts && window.hexagramTexts[hexagram.number]) || null;
+        const introText = fullText && typeof fullText.intro === "string" ? fullText.intro.trim() : "";
+        const judgmentText =
+          fullText && typeof fullText.judgment === "string" && fullText.judgment.trim().length > 0
+            ? fullText.judgment.trim()
+            : hexagram.judgment;
+        const imageText =
+          fullText && typeof fullText.image === "string" && fullText.image.trim().length > 0
+            ? fullText.image.trim()
+            : hexagram.image;
+        const lineTexts =
+          (fullText && Array.isArray(fullText.lines) ? fullText.lines.filter((line) => line && line.trim().length > 0) : []) ||
+          [];
+        const hasFullContent = Boolean(introText || judgmentText || imageText || lineTexts.length > 0);
+
+        if (hasFullContent) {
+          const fulltextDetails = document.createElement("details");
+          fulltextDetails.className = "hexagram-fulltext";
+          const summary = document.createElement("summary");
+          summary.textContent = "Read the full text";
+          summary.setAttribute("aria-label", "Read the full text");
+          fulltextDetails.appendChild(summary);
+
+          const body = document.createElement("div");
+          body.className = "fulltext-body";
+
+          if (introText) {
+            const introSection = document.createElement("div");
+            introSection.className = "fulltext-section";
+            introSection.innerHTML = `<strong>Intro:</strong><div>${introText}</div>`;
+            body.appendChild(introSection);
+          }
+
+          if (judgmentText) {
+            const judgmentSection = document.createElement("div");
+            judgmentSection.className = "fulltext-section";
+            judgmentSection.innerHTML = `<strong>Judgment:</strong><div>${judgmentText}</div>`;
+            body.appendChild(judgmentSection);
+          }
+
+          if (imageText) {
+            const imageSection = document.createElement("div");
+            imageSection.className = "fulltext-section";
+            imageSection.innerHTML = `<strong>Image:</strong><div>${imageText}</div>`;
+            body.appendChild(imageSection);
+          }
+
+          if (lineTexts.length > 0) {
+            const linesSection = document.createElement("div");
+            linesSection.className = "fulltext-section";
+            const list = document.createElement("ol");
+            list.className = "line-text-list";
+            lineTexts.forEach((lineText, index) => {
+              const li = document.createElement("li");
+              li.className = "line-text-entry";
+              const lineNumber = index + 1;
+              if (changingLineNumbers.has(lineNumber)) {
+                li.classList.add("line-change");
+              }
+              li.textContent = lineText;
+              list.appendChild(li);
+            });
+            linesSection.innerHTML = "<strong>Lines:</strong>";
+            linesSection.appendChild(list);
+            body.appendChild(linesSection);
+          }
+
+          fulltextDetails.appendChild(body);
+          card.appendChild(fulltextDetails);
+        }
+
         return card;
+      }
+
+      function renderHexagramReference() {
+        const table = document.getElementById("hexagramReferenceTable");
+        if (!table) return;
+
+        table.innerHTML = "";
+
+        const thead = document.createElement("thead");
+        const headerRow = document.createElement("tr");
+        const cornerCell = document.createElement("th");
+        cornerCell.className = "reference-corner";
+        cornerCell.scope = "col";
+        cornerCell.textContent = "Lower ↓ / Upper →";
+        headerRow.appendChild(cornerCell);
+
+        trigramInfo.forEach((trigram) => {
+          const th = document.createElement("th");
+          th.scope = "col";
+          th.innerHTML = `
+            <div class="reference-heading">
+              <span class="trigram-symbol" aria-hidden="true">${trigram.symbol}</span>
+              <span>
+                ${trigram.name}
+                <small>${trigram.english}</small>
+              </span>
+            </div>
+          `;
+          th.setAttribute("aria-label", `${trigram.name}, ${trigram.english}, upper trigram`);
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+
+        const tbody = document.createElement("tbody");
+        hexagramChart.forEach((row, lowerIndex) => {
+          const tr = document.createElement("tr");
+          const trigram = trigramInfo[lowerIndex];
+          const rowHeader = document.createElement("th");
+          rowHeader.scope = "row";
+          rowHeader.innerHTML = `
+            <div class="reference-heading">
+              <span class="trigram-symbol" aria-hidden="true">${trigram.symbol}</span>
+              <span>
+                ${trigram.name}
+                <small>${trigram.english}</small>
+              </span>
+            </div>
+          `;
+          rowHeader.setAttribute("aria-label", `${trigram.name}, ${trigram.english}, lower trigram`);
+          tr.appendChild(rowHeader);
+
+          row.forEach((hex, upperIndex) => {
+            const cell = document.createElement("td");
+            const [classicalName, modernName] = hex.name.split("/").map((part) => part.trim());
+            cell.innerHTML = `
+              <div class="reference-cell">
+                <strong>${hex.number}</strong>
+                <span>${modernName || classicalName}</span>
+              </div>
+            `;
+            cell.setAttribute(
+              "aria-label",
+              `Hexagram ${hex.number}, ${hex.name}, lower ${trigramInfo[lowerIndex].english}, upper ${trigramInfo[upperIndex].english}`
+            );
+            tr.appendChild(cell);
+          });
+          tbody.appendChild(tr);
+        });
+
+        table.append(thead, tbody);
+      }
+
+      function formatHexagramTitle(hexagram) {
+        if (!hexagram) return "";
+        const [classicalName, modernName] = hexagram.name.split("/").map((part) => part.trim());
+        return `${hexagram.number} – ${modernName || classicalName}`;
+      }
+
+      function buildReadingPayload({ lines, primaryHexagram, relatedHexagram }) {
+        return {
+          timestamp: new Date().toISOString(),
+          lines,
+          primaryHexagram,
+          relatedHexagram,
+          hasChanges: Boolean(relatedHexagram),
+          url: window.location.href.split("#")[0]
+        };
+      }
+
+      function presentReading(reading, { scrollIntoView = true } = {}) {
+        if (!reading) return;
+
+        renderLineSummary(reading.lines);
+          hexagramDisplay.innerHTML = "";
+          hexagramDisplay.appendChild(
+          renderHexagramCard({
+            label: "Primary Hexagram",
+            hexagram: reading.primaryHexagram,
+            lineData: reading.lines,
+            isRelating: false
+          })
+        );
+
+        if (reading.relatedHexagram) {
+            hexagramDisplay.appendChild(
+            renderHexagramCard({
+              label: "Relating Hexagram",
+              hexagram: reading.relatedHexagram,
+              lineData: reading.lines,
+              isRelating: true
+            })
+            );
+            secondaryNote.hidden = true;
+            secondaryNote.textContent = "";
+          } else {
+            secondaryNote.hidden = false;
+            secondaryNote.textContent = "Static hexagram—no relating changes.";
+          }
+
+          resultsSection.classList.add("active");
+        if (shareButton) {
+          shareButton.disabled = false;
+        }
+        if (shareFeedback) {
+          shareFeedback.hidden = true;
+          shareFeedback.textContent = "";
+        }
+        currentReading = reading;
+
+        if (scrollIntoView) {
+          resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
+      function formatRelativeTime(isoString) {
+        if (!isoString) return "";
+        const then = new Date(isoString);
+        if (Number.isNaN(then.getTime())) return "";
+
+        const now = new Date();
+        const diffMs = now - then;
+        const diffMinutes = Math.round(diffMs / 60000);
+
+        if (diffMinutes < 1) return "Just now";
+        if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes === 1 ? "" : "s"} ago`;
+
+        const diffHours = Math.round(diffMinutes / 60);
+        if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+
+        return then.toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit"
+        });
+      }
+
+      function updateLastReadingUI(reading) {
+        if (!heroGlass || !lastReadingPreview) return;
+
+        if (!reading) {
+          lastReadingPreview.innerHTML =
+            "<p>Each reading auto-saves so you can revisit it later today.</p>";
+          if (lastReadingButton) {
+            lastReadingButton.hidden = true;
+          }
+          heroGlass.classList.remove("has-reading");
+          return;
+        }
+
+        const primaryTitle = formatHexagramTitle(reading.primaryHexagram);
+        const relatingTitle = reading.relatedHexagram
+          ? formatHexagramTitle(reading.relatedHexagram)
+          : null;
+        const timeLabel = formatRelativeTime(reading.timestamp);
+
+        lastReadingPreview.innerHTML = `
+          <p class="hero-glass-primary">
+            <strong>${primaryTitle}</strong>
+            ${
+              relatingTitle
+                ? `<span class="hero-glass-arrow" aria-hidden="true">→</span><span>${relatingTitle}</span>`
+                : `<span class="hero-glass-static">Static hexagram</span>`
+            }
+          </p>
+          <p class="hero-glass-meta">${timeLabel || "Saved for today"}</p>
+        `;
+
+        if (lastReadingButton) {
+          lastReadingButton.hidden = false;
+        }
+        heroGlass.classList.add("has-reading");
+      }
+
+      function saveReading(reading) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(reading));
+          updateLastReadingUI(reading);
+        } catch (error) {
+          console.warn("Unable to save reading:", error);
+        }
+      }
+
+      function loadStoredReading() {
+        try {
+          const stored = localStorage.getItem(STORAGE_KEY);
+          if (!stored) return null;
+          return JSON.parse(stored);
+        } catch (error) {
+          console.warn("Unable to load stored reading:", error);
+          return null;
+        }
+      }
+
+      function parseReadingFromUrl() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const encoded = params.get("reading");
+          if (!encoded) return null;
+          const reading = decodeReadingPayload(encoded);
+          return reading;
+        } catch (error) {
+          console.warn("Unable to parse shared reading:", error);
+          return null;
+        }
+      }
+
+      function buildShareData(reading) {
+        if (!reading) return null;
+        const primaryTitle = formatHexagramTitle(reading.primaryHexagram);
+        const relatedTitle = reading.relatedHexagram
+          ? formatHexagramTitle(reading.relatedHexagram)
+          : null;
+        const url = createShareUrl(reading);
+
+        const bodyLines = [
+          relatedTitle
+            ? `I just cast ${primaryTitle}, changing to ${relatedTitle}.`
+            : `I just cast ${primaryTitle}—a static hexagram.`,
+          "Read yours with the TrueSight I Ching Oracle:"
+        ];
+
+        return {
+          title: primaryTitle,
+          text: `${bodyLines.join(" ")} ${url}`,
+          url,
+          clipboardText: `${bodyLines.join("\n")}\n${url}`
+        };
+      }
+
+      async function shareCurrentReading() {
+        const reading = currentReading || loadStoredReading();
+        if (!reading || !shareFeedback) return;
+
+        const shareData = buildShareData(reading);
+        if (!shareData) return;
+
+        shareFeedback.hidden = true;
+        shareFeedback.textContent = "";
+
+        if (navigator.share) {
+          try {
+            await navigator.share({
+              title: shareData.title,
+              text: shareData.text,
+              url: shareData.url
+            });
+            shareFeedback.textContent = "Shared successfully.";
+            shareFeedback.hidden = false;
+            return;
+          } catch (error) {
+            if (error && error.name === "AbortError") {
+              return;
+            }
+            console.warn("Web Share failed, falling back to clipboard:", error);
+          }
+        }
+
+        try {
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(shareData.clipboardText);
+            shareFeedback.textContent = "Link copied—ready to share.";
+          } else {
+            shareFeedback.textContent = `Share this link: ${shareData.url}`;
+          }
+        } catch (error) {
+          shareFeedback.textContent = `Share this link: ${shareData.url}`;
+        }
+
+        shareFeedback.hidden = false;
       }
 
       function handleCalculate() {
@@ -1636,25 +2638,9 @@
             relatedHexagram = getHexagram(lines, true);
           }
 
-          renderLineSummary(lines);
-          hexagramDisplay.innerHTML = "";
-          hexagramDisplay.appendChild(
-            renderHexagramCard({ label: "Primary Hexagram", hexagram: primaryHexagram })
-          );
-
-          if (hasChanges && relatedHexagram) {
-            hexagramDisplay.appendChild(
-              renderHexagramCard({ label: "Relating Hexagram", hexagram: relatedHexagram })
-            );
-            secondaryNote.hidden = true;
-            secondaryNote.textContent = "";
-          } else {
-            secondaryNote.hidden = false;
-            secondaryNote.textContent = "Static hexagram—no relating changes.";
-          }
-
-          resultsSection.classList.add("active");
-          resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          const reading = buildReadingPayload({ lines, primaryHexagram, relatedHexagram });
+          presentReading(reading);
+          saveReading(reading);
         } catch (error) {
           alert(error.message);
         }
@@ -1666,7 +2652,39 @@
         lineSummarySection.innerHTML = "";
         secondaryNote.hidden = true;
         secondaryNote.textContent = "";
+        if (shareButton) {
+          shareButton.disabled = true;
+        }
+        if (shareFeedback) {
+          shareFeedback.hidden = true;
+          shareFeedback.textContent = "";
+        }
+        currentReading = null;
         buildLineCards();
+      }
+
+      if (shareButton) {
+        shareButton.addEventListener("click", () => {
+          shareCurrentReading();
+        });
+      }
+
+      if (beginCastingButton) {
+        beginCastingButton.addEventListener("click", () => {
+          const castingShell = document.querySelector(".casting-shell");
+          if (castingShell) {
+            castingShell.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          activateLineByIndex(0);
+        });
+      }
+
+      if (lastReadingButton) {
+        lastReadingButton.addEventListener("click", () => {
+          const reading = loadStoredReading();
+          if (!reading) return;
+          presentReading(reading);
+        });
       }
 
       calculateButton.addEventListener("click", handleCalculate);
@@ -1681,14 +2699,31 @@
             if (select) {
               select.value = heads.toString();
             }
-            updateLineResult(card, heads);
+            updateLineResult(card, heads, { userSelected: false });
           });
           handleCalculate();
         });
       }
       resetButton.addEventListener("click", handleReset);
 
+      renderHexagramReference();
       buildLineCards();
+
+      const storedReading = loadStoredReading();
+      const sharedReading = parseReadingFromUrl();
+
+      if (sharedReading) {
+        presentReading(sharedReading, { scrollIntoView: false });
+        saveReading(sharedReading);
+        try {
+          const cleanUrl = `${window.location.origin}${window.location.pathname}${window.location.hash || ""}`;
+          window.history.replaceState({}, document.title, cleanUrl);
+        } catch (error) {
+          console.warn("Unable to clean shared URL:", error);
+        }
+      } else {
+        updateLastReadingUI(storedReading);
+      }
     </script>
   </body>
 </html>

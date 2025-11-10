@@ -1,0 +1,910 @@
+
+/*
+ * Wilhelm/Baynes corpus for all 64 hexagrams.
+ * Auto-generated from data/hexagram_texts.json — do not edit manually.
+ */
+(function attachCorpus() {
+  if (typeof window === "undefined") return;
+  window.hexagramTexts =
+  {
+    "1": {
+      "name": "Ch'ien / The Creative",
+      "intro": "above CH'IEN THE CREATIVE, HEAVEN below CH'IEN THE CREATIVE, HEAVEN\n\nThe first hexagram is made up of six unbroken lines. These unbroken lines stand for the primal power, which is light-giving, active, strong, and of the spirit. The hexagram is consistently strong in character, and since it is without weakness, its essence is power or energy. Its image is heaven. Its energy is represented as unrestricted by any fixed conditions in space and is therefore conceived of as motion. Time is regarded as the basis of this motion. Thus the hexagram includes also the power of time and the power of persisting in time, that is, duration. The power represented by the hexagram is to be interpreted in a dual sense in terms of its action on the universe and of its action on the world of men. In relation to the universe, the hexagram expresses the strong, creative action of the Deity. In relation to the human world, it denotes the creative action of the holy man or sage, of the ruler or leader of men, who through his power awakens and develops their higher nature.",
+      "judgment": "THE CREATIVE works sublime success, Furthering through perseverance.",
+      "image": "The movement of heaven is full of power. Thus the superior man makes himself strong and untiring.",
+      "lines": [
+        "Nine at the beginning means: Hidden dragon. Do not act.",
+        "Nine in the second place means: Dragon appearing in the field. It furthers one to see the great man.",
+        "Nine in the third place means: All day long the superior man is creatively active. At nightfall his mind is still beset with cares. Danger. No blame.",
+        "Nine in the fourth place means: Wavering flight over the depths. No blame.",
+        "Nine in the fifth place means: Flying dragon in the heavens. It furthers one to see the great man.",
+        "Nine at the top means: Arrogant dragon will have cause to repent.",
+        "When a man seeks to climb so high that he loses touch with the rest of mankind, he becomes isolated, and this necessarily leads to failure. This line warns against titanic aspirations that exceed one's power. A precipitous fall would follow. When all the lines are nines, it means: There appears a flight of dragons without heads. Good fortune.",
+        "When all the lines are nines, it means that the whole hexagram is in motion and changes into the hexagram K'un, THE RECEPTIVE, whose character is devotion. The strength of the Creative and the mildness of the Receptive unite. Strength is indicated by the flight of dragons, mildness by the fact that their heads are hidden. This means that mildness in action joined to strength of decision brings good fortune. index"
+      ]
+    },
+    "2": {
+      "name": "K'un / The Receptive",
+      "intro": "above K'UN THE RECEPTIVE, EARTH below K'UN THE RECEPTIVE, EARTH\n\nThis hexagram is made up of broken lines only. The broken lines represents the dark, yielding, receptive primal power of yin. The attribute of the hexagram is devotion; its image is the earth. It is the perfect complement of THE CREATIVE--the complement, not the opposite, for the Receptive does not combat the Creative but completes it . It represents nature in contrast to spirit, earth in contrast to heaven, space as against time, the female-maternal as against the male-paternal. However, as applied to human affairs, the principle of this complementary relationship is found not only in the relation between man and woman, but also in that between prince and minister and between father and son. Indeed, even in the individual this duality appears in the coexistence of the spiritual world and the world of the senses. But strictly speaking there is no real dualism here, because there is a clearly defined hierarchic relationship between the two principles. In itself of course the Receptive is just as important as the Creative, but the attribute of devotion defines the place occupied by this primal power in relation to the Creative. For the Receptive must be activated and led by the Creative; then it is productive of good. Only when it abandons this position and tries to stand as an equal side by side with the Creative, does it become evil. The result then is opposition to and struggle against the Creative, which is productive of evil to both.",
+      "judgment": "THE RECEPTIVE brings about sublime success, Furthering through the perseverance of a mare. If the superior man undertakes something and tries to lead, He goes astray; But if he follows, he finds guidance. It is favorable to find friends in the west and south, To forego friends in the east and north. Quiet perseverance brings good fortune.",
+      "image": "The earth's condition is receptive devotion. Thus the superior man who has breadth of character Carries the outer world.",
+      "lines": [
+        "Six at the beginning means: When there is hoarfrost underfoot, Solid ice is not far off.",
+        "Six in the second place means: Straight, square, great. Without purpose, Yet nothing remains unfurthered.",
+        "Six in the third place means: Hidden lines. One is able to remain persevering. If by chance you are in the service of a king, Seek not works, but bring to completion.",
+        "Six in the fourth place means: A tied-up sack. No blame, no praise.",
+        "Six in the fifth place means: A yellow lower garment brings supreme good fortune.",
+        "Six at the top means: Dragons fight in the meadow. Their blood is black and yellow.",
+        "When all the lines are sixes, it means: Lasting perseverance furthers."
+      ]
+    },
+    "3": {
+      "name": "Chun / Difficulty at the Beginning",
+      "intro": "above K'AN THE ABYSMAL, WATER below CHêN THE AROUSING, THUNDER\n\nThe name of the hexagram, Chun, really connotes a blade of grass pushing against an obstacle as it sprouts out of the earth--hence the meaning, \"difficulty at the beginning.\" The hexagram indicates the way in which heaven and earth bring forth individual beings. It is their first meeting, which is beset with difficulties. The lower trigram Chên is the Arousing; its motion is upward and its image is thunder. The upper trigram K'an stands for the Abysmal, the dangerous. Its motion is downward and its image is rain. The situation points to teeming, chaotic profusion; thunder and rain fill the air. But the chaos clears up. While the Abysmal sinks, the upward movement eventually passes beyond the danger. A thunderstorm brings release from tension, and all things breathe freely again.",
+      "judgment": "DIFFICULTY AT THE BEGINNING works supreme success, Furthering through perseverance. Nothing should be undertaken. It furthers one to appoint helpers.",
+      "image": "Clouds and thunder:",
+      "lines": [
+        "Nine at the beginning means: Hesitation and hindrance. It furthers one to remain persevering. It furthers one to appoint helpers.",
+        "Six in the second place means: Difficulties pile up. Horse and wagon part. He is not a robber; He wants to woo when the time comes. The maiden is chaste, She does not pledge herself. Ten years--then she pledges herself.",
+        "Six in the third place means: Whoever hunts deer without the forester Only loses his way in the forest. The superior man understands the signs of the time And prefers to desist. To go on brings humiliation.",
+        "Six in the fourth place means: Horse and wagon part. Strive for union. To go brings good fortune. Everything acts to further.",
+        "We are in a situation in which it is our duty to act, but we lack sufficient power. However, an opportunity to make connections offers itself. It must be seized. Neither false pride nor false reserve should deter us. Bringing oneself to take the first step, even when it involves a certain degree of self-abnegation, is a sign of inner clarity. To accept help in a difficult situation is not a disgrace. If the right helper is found, all goes well. Nine in the fifth place means: Difficulties in blessing. A little perseverance brings good fortune. Great perseverance brings misfortune.",
+        "Six at the top means: Horse and wagon part. Bloody tears flow."
+      ]
+    },
+    "4": {
+      "name": "M&ecirc;ng / Youthful Folly",
+      "intro": "above KêN KEEPING STILL, MOUNTAIN below K'AN THE ABYSMAL, WATER\n\nIn this hexagram we are reminded of youth and folly in two different ways. The image of the upper trigram, Kên, is the mountain, that of the lower, K'an, is water; the spring rising at the foot of the mountain is the image of inexperienced youth. Keeping still is the attribute of the upper trigram; that of the lower is the abyss, danger. Stopping in perplexity on the brink of a dangerous abyss is a symbol of the folly of youth. However, the two trigrams also show the way of overcoming the follies of youth. Water is something that of necessity flows on. When the spring gushes forth, it does not know at first where it will go. But its steady flow fills up the deep place blocking its progress, and success is attained.",
+      "judgment": "YOUTHFUL FOLLY has success. It is not I who seek the young fool; The young fool seeks me. At the first oracle I inform him. If he asks two or three times, it is importunity. If he importunes, I give him no information. Perseverance furthers.",
+      "image": "A spring wells up at the foot of the mountain: The image of YOUTH.",
+      "lines": [
+        "Six at the beginning means: To make a fool develop It furthers one to apply discipline. The fetters should be removed. To go on in this way bring humiliation.",
+        "Nine in the second place means: To bear with fools in kindliness brings good fortune. To know how to take women Brings good fortune. The son is capable of taking charge of the household.",
+        "Six in the third place means: Take not a maiden who. When she sees a man of bronze, Loses possession of herself. Nothing furthers.",
+        "Six in the fourth place means: Entangled folly bring humiliation.",
+        "For youthful folly it is the most hopeless thing to entangle itself in empty imaginings. The more obstinately it clings to such unreal fantasies, the more certainly will humiliation overtake it. Often the teacher, when confronted with such entangled folly, has no other course but to leave the fool to himself for a time, not sparing him the humiliation that results. This is frequently the only means of rescue. Six in the fifth place means: Childlike folly brings good fortune.",
+        "Nine at the top means: In punishing folly It does not further one To commit transgressions. The only thing that furthers Is to prevent transgressions."
+      ]
+    },
+    "5": {
+      "name": "Hs&uuml; / Waiting (Nourishment)",
+      "intro": "above K'AN THE ABYSMAL, WATER below CH'IEN THE CREATIVE, HEAVEN\n\nAll beings have need of nourishment from above. But the gift of food comes in its own time, and for this one must wait. This hexagram shows the clouds in the heavens, giving rain to refresh all that grows and to provide mankind with food and drink. The rain will come in its own time. We cannot make it come; we have to wait for it. The idea of waiting is further suggested by the attributes of the two trigrams--strength within, danger in from. Strength in the face of danger does not plunge ahead but bides its time, whereas weakness in the face of danger grows agitated and has not the patience to wait.",
+      "judgment": "WAITING. If you are sincere, You have light and success. Perseverance brings good fortune. It furthers one to cross the great water.",
+      "image": "Clouds rise up to heaven: The image of WAITING. Thus the superior man eats and drinks, Is joyous and of good cheer.",
+      "lines": [
+        "Nine at the beginning means: Waiting in the meadow. IT furthers one to abide in what endures. No blame.",
+        "Nine in the second place means: Waiting on the sand. There is some gossip. The end brings good fortune.",
+        "Nine in the third place means: Waiting in the mud Brings about the arrival of the enemy.",
+        "Six in the fourth place means: Waiting in blood. Get out of the pit.",
+        "The situation is extremely dangerous. IT is of utmost gravity now--a matter of life and death. Bloodshed seems imminent. There is no going forward or backward; we are cut off as if in a pit. Now we must simply stand fast and let fate take its course. This composure, which keeps us from aggravating the trouble by anything we might do, is the only way of getting out of the dangerous pit. Nine in the fifth place means: Waiting at meat and drink. Perseverance brings good fortune.",
+        "Six at the top means: One falls into the pit. Three uninvited guests arrive. Honor them, and in the end there will be good fortune."
+      ]
+    },
+    "6": {
+      "name": "Sung / Conflict",
+      "intro": "above CH'IEN THE CREATIVE, HEAVEN below K'AN THE ABYSMAL, WATER\n\nThe upper trigram, whose image is heaven, has an upward movement; the lower trigram, water, in accordance with its nature tends downward. Thus the two halves move away from each other, giving rise to the idea of conflict. The attribute of the Creative is strength, that of the Abysmal is danger, guile. Where cunning has force before it, there is conflict. A third indication of conflict, in terms of character, is presented by the combination of deep cunning within and fixed determination outwardly. A person of this character will certainly be quarrelsome.",
+      "judgment": "CONFLICT. You are sincere And are being obstructed. A cautious halt halfway brings good fortune. Going through to the end brings misfortune. It furthers one to see the great man. It does not further one to cross the great water.",
+      "image": "Heaven and water go their opposite ways: The image of CONFLICT. Thus in all his transactions the superior man Carefully considers the beginning.",
+      "lines": [
+        "Six at the beginning means: If one does not perpetuate the affair, There is a little gossip. In the end, good fortune comes.",
+        "Nine in the second place means: One cannot engage in conflict; One returns home, gives way. The people of his town, Three hundred households, Remain free of guilt.",
+        "Six in the third place means: To nourish oneself on ancient virtue induces perseverance. Danger. In the end, good fortune comes. If by chance you are in the service of a king, Seek not works.",
+        "Nine in the fourth place means: One cannot engage in conflict. One turns back and submits to fate, Changes one's attitude, And finds peace in perseverance. Good fortune.",
+        "This refers to a person whose inner attitude at first lacks peace. He does not feel content with his situation and would like to improve it through conflict. In contrast tot the situation of the nine in the second place, he is dealing with a weaker opponent and might therefore succeed. But he cannot carry on the fight, because, since right is not on his side, he cannot justify the conflict to his conscience. Therefore he turns back and accepts his fate. He changes his mind and finds lasting peace in being at one with eternal law. This brings good fortune. Nine in the fifth place means: To contend before him Brings supreme good fortune.",
+        "Nine at the top means: Even if by chance a leather belt is bestowed on one,' By the end of a morning It will have been snatched away three times."
+      ]
+    },
+    "7": {
+      "name": "Shih / The Army",
+      "intro": "above K'UN THE RECEPTIVE, EARTH below K'AN THE ABYSMAL, WATER\n\nThis hexagram is made up of the trigrams K'an, water, and K'un, earth, and thus it symbolizes the ground water stored up in the earth. In the same way military strength is stored up in the mass of the people--invisible in times of peace but always ready for use as a source of power. The attributes of the two trig rams are danger inside and obedience must prevail outside. Of the individual lines, the one that controls the hexagram is the strong nine in the second place, to which the other lines, all yielding, are subordinate. This line indicates a commander, because it stands in the middle of one of the two trigrams. But since it is in the lower rather than the upper trigram, it represents not the ruler but the efficient general, who maintains obedience in the army by his authority.",
+      "judgment": "THE ARMY. The army needs perseverance And a strong man. Good fortune without blame.",
+      "image": "In the middle of the earth is water: The image of THE ARMY.",
+      "lines": [
+        "Six at the beginning means: An army must set forth in proper order. If the order is not good, misfortune threatens.",
+        "Nine in the second place means: In the midst of the army. Good fortune. No blame. The king bestows a triple decoration.",
+        "Six in the third place means: Perchance the army carries corpses in the wagon. Misfortune.",
+        "Six in the fourth place means: The army retreats. No blame.",
+        "In the face of a superior enemy, with whom it would be hopeless to engage in battle, an orderly retreat is the only correct procedure, because it will save the army from defeat and disintegration. It is by no means a sign of courage or strength to insist upon engaging in a hopeless struggle regardless of circumstances. Six in the fifth place means: There is game in the field. It furthers one to catch it. Without blame. Let the eldest lead the army. The younger transports corpses; Then perseverance brings misfortune.",
+        "Six at the top means: The great prince issues commands, Founds states, vests families with fiefs. Inferior people should not be employed."
+      ]
+    },
+    "8": {
+      "name": "Pi / Holding Together [union]",
+      "intro": "above K'AN THE ABYSMAL, WATER below K'UN THE RECEPTIVE, EARTH\n\nThe waters on the surface of the earth flow together wherever they can, as for example in the ocean, where all the rivers come together. Symbolically this connotes holding together and the laws that regulate it. The same idea is suggested by the fact that all the lines of the hexagram except the fifth, the place of the ruler, are yielding. The yielding lines hold together because they are influenced by a man of strong will in the leading position, a man who is their center of union. Moreover, this strong and guiding personality in turn holds together with the others, finding in them the complement of his own nature.",
+      "judgment": "HOLDING TOGETHER brings good fortune. Inquire of the oracle once again Whether you possess sublimity, constancy, and perseverance; Then there is no blame.",
+      "image": "On the earth is water: The image of HOLDING TOGETHER.",
+      "lines": [
+        "Six at the beginning means: Hold to him in truth and loyalty; This is without blame. Truth, like a full earthen bowl\" Thus in the end Good fortune comes from without.",
+        "Six in the second place means: Hold to him inwardly. Perseverance brings good fortune.",
+        "Six in the third place means: You hold together with the wrong people.",
+        "Six in the fourth place means: Hold to him outwardly also. Perseverance brings good fortune.",
+        "Here the relations with a man who is the center of union are well established. Then we may, and indeed we should, show our attachment openly. But we must remain constant and not allow ourselves to be led astray. Nine in the fifth place means: Manifestation of holding together. In the hunt the king uses beaters on three sides only And forgoes game that runs off in front. The citizens need no warning. Good fortune.",
+        "Six at the top means: He finds no head for holding together. Misfortune."
+      ]
+    },
+    "9": {
+      "name": "Hsiao Ch'u / The Taming Power of the Small",
+      "intro": "above SUN THE GENTLE, WIND below CH'IEN THE CREATIVE, HEAVEN\n\nThis hexagram means the force of the small--the power of the shadowy--that restrains, tames, impedes. A weak line in the fourth place, that of the minister, holds the five strong lines in check. In the Image it is the wind blowing across the sky. The wind restrains the clouds, the rising breath of the Creative, and makes them grow dense, but as yet is not strong enough to turn them to rain. The hexagram presents a configuration of circumstances in which a strong element is temporarily held in leash by a weak element. It is only through gentleness that this can have a successful outcome.",
+      "judgment": "THE TAMING POWER OF THE SMALL Has success. Dense clouds, no rain from our western region.",
+      "image": "The wind drives across heaven: The image of THE TAMING POWER OF THE SMALL.Thus the superior man Refines the outward aspect of his nature.",
+      "lines": [
+        "Nine at the beginning means: Return to the way. How could there be blame in this? Good fortune.",
+        "Nine in the second place means: He allows himself to be drawn into returning. Good fortune.",
+        "Nine in the third place means: The spokes burst out of the wagon wheels. Man and wife roll their eyes.",
+        "Six in the fourth place means: If you are sincere, blood vanishes and fear gives way. No blame.",
+        "Nine in the fifth place means: If you are sincere and loyally attached, You are rich in your neighbor.",
+        "Nine at the top means: The rain comes, there is rest. This is due to the lasting effect of character. Perseverance brings the woman into danger. The moon is nearly full. If the superior man persists, Misfortune comes."
+      ]
+    },
+    "10": {
+      "name": "L&uuml; / Treading [conduct]",
+      "intro": "above CH'IEN THE CREATIVE, HEAVEN below TUI THE JOYOUS, LAKE\n\nThe name of the hexagram means on the one hand the right way of conducting oneself. Heaven, the father, is above, and the lake, the youngest daughter, is below. This shows the difference between high and low, upon which composure correct social conduct, depends. On the other hand the word for the name of the hexagram, TREADING, means literally treading upon something. The small and cheerful [Tui] treads upon the large and strong [Ch'ien]. The direction of movement of the two primary trigrams is upward. The fact that the strong treads on the weak is not mentioned in the Book of Changes, because it is taken for granted. For the weak to take a stand against the strong is not dangerous here, because it happened in good humor [Tui] and without presumption, so that the strong man is not irritated but takes it all in good part.",
+      "judgment": "TREADING. Treading upon the tail of the tiger. It does not bite the man. Success.",
+      "image": "Heaven above, the lake below: The image of TREADING.",
+      "lines": [
+        "Nine at the beginning means: Simple conduct. Progress without blame.",
+        "Nine in the second place means: Treading a smooth, level course. The perseverance of a dark man Brings good fortune.",
+        "Six in the third place means: A one-eyed man is able to see, A lame man is able to tread. He treads on the tail of the tiger.",
+        "Nine in the fourth place means: He treads on the tail of the tiger. Caution and circumspection Lead ultimately to good fortune.",
+        "This text refers to a dangerous enterprise. The inner power to carry it through is there, but this inner power is combined with hesitating caution in one's external attitude. This line contrasts with the preceding line, which is weak within but outwardly presses forward. Here one is sure of ultimate success, which consists in achieving one's purpose, that is, in overcoming danger by going forward. Nine in the fifth place means: Resolute conduct. Perseverance with awareness of danger.",
+        "Nine at the top means: Look to your conduct and weigh the favorable signs. When everything is fulfilled, supreme good fortune comes."
+      ]
+    },
+    "11": {
+      "name": "T'ai / Peace",
+      "intro": "above K'UN THE RECEPTIVE, EARTH below CH'IEN THE CREATIVE, HEAVEN\n\nThe Receptive, which moves downward, stands above; the Creative, which moves upward, is below. Hence their influences meet and are in harmony, so that all living things bloom and prosper. This hexagram belongs to the first month (February-March), at which time the forces of nature prepare the new spring.",
+      "judgment": "PEACE. The small departs, The great approaches. Good fortune. Success.",
+      "image": "Heaven and earth unite: the image of PEACE. Thus the ruler Divides and completes the course of heaven and earth, And so aids the people.",
+      "lines": [
+        "Nine at the beginning means: When ribbon grass is pulled up, the sod comes with it. Each according to his kind. Undertakings bring good fortune.",
+        "In times of prosperity every able man called to fill an office draws like minded people along with him, just as in pulling up ribbon grass one always pulls up a bunch of it, because the stalks are connected by their roots. In such times, when it is possible to extend influence widely, the mind of an able man is set upon going out into life and accomplishing something. Nine in the second place means: Bearing with the uncultured in gentleness, Fording the river with resolution, Not neglecting what is distant, Not regarding one's companions:",
+        "Nine in the third place means: No plain not followed by a slope. No going not followed by a return. He who remains persevering in danger Is without blame. Do not complain about this truth; Enjoy the good fortune you still possess.",
+        "Six in the fourth place means: He flutters down, not boasting of his wealth, Together with his neighbor, Guileless and sincere.",
+        "In times of mutual confidence, people of high rank come in close contact with the lowly quite simply and without boasting of their wealth. This is not due to the force of circumstances but corresponds with their inmost sentiment. The approach is made quite spontaneously, because it is based on inner conviction. Six in the fifth place means: The sovereign I Gives his daughter in marriage. And supreme good fortune.",
+        "Six at the top means: The wall falls back into the moat. Use no army now. Make your commands known within your own town. Perseverance brings humiliation."
+      ]
+    },
+    "12": {
+      "name": "P'i / Standstill [Stagnation]",
+      "intro": "above CH'IEN THE CREATIVE, HEAVEN below K'UN THE RECEPTIVE, EARTH\n\nThis hexagram is the opposite of the preceding one. Heaven is above, drawing farther and farther away, while the earth below sinks farther into the depths. The creative powers are not in relation. It is a time of standstill and decline. This hexagram is linked with the seventh month (August-September), when the year has passed its zenith and autumnal decay is setting in.",
+      "judgment": "STANDSTILL. Evil people do not further The perseverance of the superior man. The great departs; the small approaches.",
+      "image": "Heaven and earth do not unite: The image of STANDSTILL. Thus the superior man falls back upon his inner worth In order to escape the difficulties. He does not permit himself to be honored with revenue.",
+      "lines": [
+        "Six at the beginning means: When ribbon grass is pulled up, the sod comes with it. Each according to his kind. Perseverance brings good fortune and success.",
+        "Six in the second place means: They bear and endure; This means good fortune for inferior people. The standstill serves to help the great man to attain success.",
+        "Six in the third place means: They bear shame.",
+        "Nine in the fourth place means: He who acts at the command of the highest Remains without blame. Those of like mind partake of the blessing.",
+        "The time of standstill is nearing the point of change into its opposite. Whoever wishes to restore order must feel himself called to the task and have the necessary authority. A man who sets himself up a capable of creating order according to his own judgment could make mistakes and end in failure. But the man who is truly called to the task is favored by the conditions of the time, and all those of like mind will share in his blessing. Nine in the fifth place means: Standstill is giving way. Good fortune for the great man. \"What if it should fail, what if it should fail?\" In this way he ties it to a cluster of mulberry shoots.",
+        "Nine at the top means: The standstill comes to an end. First standstill, then good fortune."
+      ]
+    },
+    "13": {
+      "name": "T'ung J&ecirc;n / Fellowship with Men",
+      "intro": "above CH'IEN THE CREATIVE, HEAVEN below LI THE CLINGING, FLAME\n\nThe image of the upper trigram Ch'ien is heaven, and that of the lower, Li, is flame. It is the nature of fire to flame up to the heaven. This gives the idea of fellowship. IT is the second line that, by virtue of its central character, unites the five strong lines around it. This hexagram forms a complement to Shih, THE ARMY\n\n7 . In the latter, danger is within and obedience without--the character of a warlike army, which, in order to hold together, needs one strong man among the many who are weak. Here, clarity is within and strength without--the character of a peaceful union of men, which, in order to hold together, needs one yielding nature among many firm persons.",
+      "judgment": "FELLOWSHIP WITH MEN in the open.",
+      "image": "7 . In the latter, danger is within and obedience without--the character of a warlike army, which, in order to hold together, needs one strong man among the many who are weak. Here, clarity is within and strength without--the character of a peaceful union of men, which, in order to hold together, needs one yielding nature among many firm persons.",
+      "lines": [
+        "Nine at the beginning means: Fellowship with men at the gate. No blame.",
+        "The beginning of union among people should take place before the door. All are equally close to one another. No divergent aims have yet arisen, and one makes not mistakes. The basic principles of any kind of union must be equally accessible to all concerned. Secret agreements bring misfortune. Six in the second place means: Fellowship with men in the clan. Humiliation.",
+        "Nine in the third place means: He hides weapons in the thicket; He climbs the high hill in front of it. For three years he does not rise up.",
+        "Nine in the fourth place means: He climbs up on his wall; he cannot attack. Good fortune.",
+        "Nine in the fifth place means: Men bound in fellowship first weep and lament, But afterward they laugh. After great struggles they succeed in meeting.",
+        "Nine at the top means: Fellowship with men in the meadow. No remorse."
+      ]
+    },
+    "14": {
+      "name": "Ta Yu / Possession in Great Measure",
+      "intro": "above LI THE CLINGING, FLAME below CH'IEN THE CREATIVE, HEAVEN\n\nThe fire in heaven above shines far, and all things stand out in the light and become manifest. The weak fifth line occupies the place of honor and all the strong lines are in accord with it.All things come to the man who is modest and kind in a high position.",
+      "judgment": "POSSESSION IN GREAT MEASURE.",
+      "image": "Fire in heaven above:",
+      "lines": [
+        "Nine at the beginning means: No relationship with what is harmful; There is no blame in this. If one remains conscious of difficulty, One remains without blame.",
+        "Nine in the second place means: A big wagon for loading. One may undertake something. No blame.",
+        "Nine in the third place means: A prince offers it to the Son of Heaven. A petty man cannot do this.",
+        "Nine in the fourth place means: He makes a difference Between himself and his neighbor. No blame.",
+        "Six in the fifth place means: He whose truth is accessible, yet dignified, Has good fortune.",
+        "Nine at the top means: He is blessed by heaven. Good fortune. Nothing that does not further.",
+        "In the fullness of possession and at the height of power, one remains modest and gives honor to the sage who stands outside the affairs of the world. By this means one puts oneself under the beneficent influence descending form heaven, and all goes well. Confucius says of this line: To bless means to help. Heaven helps the man who is devoted; men help the man who is true. He who walks in truth and is devoted in his thinking, and furthermore reveres the worthy, is blessed by heaven. He has good fortune, and there is nothing that would not further."
+      ]
+    },
+    "15": {
+      "name": "Ch'ien / Modesty",
+      "intro": "above K'UN THE RECEPTIVE, EARTH below KEN KEEPING STILL, MOUNTAIN\n\nThis hexagram is made up of the trigrams Kên, Keeping Still, mountain, and K'un. The mountain is the youngest son of the Creative, the representative of heaven and earth. It dispenses the blessings of heaven, the clouds and rain that gather round its summit, and thereafter shines forth radiant with heavenly light. This shows what modesty is and how it functions in great and strong men. K'un, the earth, stands above. Lowliness is a quality of the earth: this is the very reason why it appears in this hexagram as exalted, by being placed above the mountain. This shows how modesty functions in lowly, simple people: they are lifted up by it.",
+      "judgment": "MODESTY creates success.",
+      "image": "Within the earth, a mountain:",
+      "lines": [
+        "Six at the beginning means: A superior man modest about his modesty May cross the great water. Good fortune.",
+        "Six in the second place means: Modesty that comes to expression. Perseverance brings good fortune.",
+        "Nine in the third place means: A superior man of modesty and merit Carries things to conclusion. Good fortune.",
+        "Six in the fourth place means: Nothing that would not further modesty In movement.",
+        "Six in the fifth place means: No boasting of wealth before one's neighbor. It is favorable to attack with force. Nothing that would not further.",
+        "Six at the top means: Modesty that comes to expression. It is favorable to set armies marching To chastise one's own city and one's country."
+      ]
+    },
+    "16": {
+      "name": "Y&uuml; / Enthusiasm",
+      "intro": "above CHêN THE AROUSING, THUNDER below K'UN THE RECEPTIVE, EARTH\n\nThe strong line in the fourth place, that of the leading official, meets with response and obedience from all the other lines, which are all weak. The attribute of the upper trigram, Chên, is movement; the attributes of K'un, the lower, are obedience and devotion. This begins a movement that meets with devotion and therefore inspires enthusiasm, carrying all with it. Of great importance, furthermore, is the law of movement along the line of least resistance, which in this hexagram is enunciated as the law for natural events and for human life.",
+      "judgment": "ENTHUSIASM. It furthers one to install helpers And to set armies marching.",
+      "image": "Thunder comes resounding out of the earth: The image of ENTHUSIASM. Thus the ancient kings made music In order to honor merit, And offered it with splendor To the Supreme Deity, Inviting their ancestors to be present.",
+      "lines": [
+        "Six at the beginning means: Enthusiasm that expresses itself Brings misfortune.",
+        "Six in the second place means: Firm as a rock. Not a whole day. Perseverance brings good fortune.",
+        "Six in the third place means: Enthusiasm that looks upward creates remorse. Hesitation brings remorse.",
+        "Nine in the fourth place means: The source of enthusiasm. He achieves great things. Doubt not. You gather friends around you As a hair clasp gathers the hair.",
+        "Six in the fifth place means: Persistently ill, and still does not die.",
+        "Six at the top means: Deluded enthusiasm. But if after completion one changes, There is no blame. It is a bad thing for a man to let himself be deluded by enthusiasm. But if this delusion has run its course, and he is still capable of changing, then he is freed of error. A sober awakening from false enthusiasm is quite possible and very favorable."
+      ]
+    },
+    "17": {
+      "name": "Sui / Following",
+      "intro": "above TUI THE JOYOUS, LAKE below CHêN THE AROUSING, THUNDER\n\nThe trigram Tui, the Joyous, whose attribute is gladness, is above; Chên, the Arousing, which has the attribute of movement, is below. Joy in movement induces following. The Joyous is the youngest daughter, while the Arousing is the eldest son. An older man defers to a young girl and shows her consideration. By this he moves her to follow him.",
+      "judgment": "FOLLOWING has supreme success. Perseverance furthers. No blame.",
+      "image": "Thunder in the middle of the lake: The image of FOLLOWING. Thus the superior man at nightfall Goes indoors for rest and recuperation.",
+      "lines": [
+        "Nine at the beginning means: The standard is changing. Perseverance brings good fortune. To go out of the door in company Produces deeds.",
+        "Six in the second place means: If one clings to the little boy, One loses the strong man.",
+        "Six in the third place means: If one clings to the strong man, One loses the little boy.",
+        "Nine in the fourth place means: Following creates success. Perseverance brings misfortune. To go one's way with sincerity brings clarity. How could there be blame in this?",
+        "Nine in the fifth place means: Sincere in the good. Good fortune.",
+        "Six at the top means: He meets with firm allegiance And is still further bound. The king introduces him To the Western Mountain."
+      ]
+    },
+    "18": {
+      "name": "Ku / Work on what has been spoiled [ Decay ]",
+      "intro": "above Kên KEEPING STILL, MOUNTAIN below Sun THE GENTLE, WIND\n\nThe Chinese character ku represents a bowl in whose contents worms are breeding. This means decay. IT is come about because the gentle indifference in the lower trigram has come together with the rigid inertia of the upper, and the result is stagnation. Since this implies guilt, the conditions embody a demand for removal of the cause. Hence the meaning of the hexagram is not simply \"what has been spoiled\" but \"work on what has been spoiled\".",
+      "judgment": "WORK ON WHAT HAS BEEN SPOILED Has supreme success. It furthers one to cross the great water. Before the starting point, three days. After the starting point, three days.",
+      "image": "The wind blows low on the mountain: The image of DECAY. Thus the superior man stirs up the people And strengthens their spirit.",
+      "lines": [
+        "Six in the beginning means: Setting right what has been spoiled by the father. If there is a son, No blame rests upon the departed father. Danger. In the end good fortune.",
+        "Nine in the second place means: Setting right what has been spoiled by the mother. One must not be too persevering.",
+        "Nine in the third place means: Setting right what has been spoiled by the father. There will be a little remorse. No great blame.",
+        "Six in the fourth place means: Tolerating what has been spoiled by the father. In continuing one sees humiliation.",
+        "Six in the fifth place means: Setting right what has been spoiled by the father. One meets with praise.",
+        "Nine at the top means: He does not serve kings and princes, Sets himself higher goals."
+      ]
+    },
+    "19": {
+      "name": "Lin / Approach",
+      "intro": "above K'UN THE RECEPTIVE, EARTH below TUI THE JOYOUS, LAKE\n\nThe Chinese word lin has a range of meanings that is not exhausted by any single word of another language. The ancient explanations in the Book of Changes give as its first meaning, \"becoming great.\" What becomes great are the two strong lines growing into the hexagram from below; the light-giving power expands with them. The meaning is then further extended to include the concept of approach, especially the approach of what is lower. Finally the meaning includes the attitude of condescension of a man in high position toward the people, and in general the setting to work on affairs. This hexagram is linked with the twelfth month (January-February), when after the winter solstice, the light power begins to ascend again.",
+      "judgment": "APPROACH has supreme success. Perseverance furthers. When the eighth month comes,",
+      "image": "The earth above the lake: The image of APPROACH. Thus the superior man is inexhaustible In his will to teach, And without limits In his tolerance and protection of the people.",
+      "lines": [
+        "Nine at the beginning means: Joint approach. Perseverance brings good fortune.",
+        "The good begins to prevail and to find response in influential circles. This in turn is an incentive to men of ability. IT is well to join this upward trend, but we must not let ourselves be carried away by the current of the time; we must adhere perseveringly to what is right. This bring good fortune. Nine in the second place means: Joint approach. Good fortune. Everything furthers.",
+        "Six in the third place means: Comfortable approach. Nothing that would further. If one is induced to grieve over it, One becomes free of blame.",
+        "Six in the fourth place means: Complete approach. No blame.",
+        "Six in the fifth place means: Wise approach. This is right for a great prince. Good fortune.",
+        "Six at the top means: Great hearted approach. Good-hearted approach. Good fortune. No blame."
+      ]
+    },
+    "20": {
+      "name": "Kuan / Contemplation (View)",
+      "intro": "above SUN THE GENTLE, WIND below K'UN THE RECEPTIVE, EARTH\n\nA slight variation of tonal stress gives the Chinese name for this hexagram a double meaning. It means both contemplating and being seen, in the sense of being an example. These ideas are suggested by the fact that the hexagram can be understood as picturing a type of tower characteristic of ancient China.\n\nA tower of this kind commanded a wide view of the country; at the same time, when situated on a mountain, it became a landmark that could be seen for miles around. Thus the hexagram shows a ruler who contemplates the law of heaven above him and the ways of the people below, and who, by means of good government, sets a lofty example to the masses. This hexagram is linked with the eight month (September-October). The light-giving power retreats and the dark power is again on the increase. However, this aspect is not material in the interpretation of the hexagram as a whole.",
+      "judgment": "CONTEMPLATION. The ablution has been made, But not yet the offering. Full of trust they look up to him.",
+      "image": "The wind blows over the earth: The image of CONTEMPLATION. Thus the kings of old visited the regions of the world, Contemplated the people, And gave them instruction.",
+      "lines": [
+        "Six at the beginning means: Boy like contemplation. For an inferior man, no blame. For a superior man, humiliation.",
+        "Six in the second place means: Contemplation through the crack of the door. Furthering for the perseverance of a woman.",
+        "Six in the third place means: Contemplation of my life Decides the choice Between advance and retreat.",
+        "Six in the fourth place means: Contemplation of the light of the kingdom. It furthers one to exert influence as the guest of a king.",
+        "This describes a man who understands the secrets by which a kingdom can be made to flourish. Such a man must be given an authoritative position, in which he can exert influence. He should be, so to speak, a guest-that is, he should be honored and act independently, and should not be used as a tool. Nine at the top means: Contemplation of his life. The superior man is without blame."
+      ]
+    },
+    "21": {
+      "name": "Shih Ho / Biting Through",
+      "intro": "above LI THE CLINGING, FIRE below CHêN THE AROUSING, THUNDER\n\nThis hexagram represents an open mouth (cf. hexagram\n\n27 with an obstruction (in the fourth place) between the teeth. As a result the lips cannot meet. To bring them together one must bite energetically through the obstacle. Since the hexagram is made up of the trigrams for thunder and for lightning, it indicates how obstacles are forcibly removed in nature. Energetic biting through overcomes the obstacle that prevents joining of the lips; the storm with its thunder and lightning overcomes the disturbing tension in nature. Recourse to law and penalties overcomes the disturbances of harmonious social life caused by criminals and slanderers. The theme of this hexagram is a criminal lawsuit, in contradistinction to that of Sung, CONFLICT\n\n6 , which refers to civil suits.",
+      "judgment": "BITING THROUGH has success. It is favorable to let justice be administered.",
+      "image": "Thunder and lighting: The image of BITING THROUGH. Thus the kings of former times made firm the laws Through clearly defined penalties.",
+      "lines": [
+        "Nine at the beginning means: His feet are fastened in the stocks, So that his toes disappear. No blame.",
+        "Six in the second place means: Bites through tender meat, So that his nose disappears. No blame.",
+        "Six in the third place means: Bites on old dried meat And strikes on something poisonous. Slight humiliation. No blame.",
+        "Nine in the fourth place means: Bites on dried gristly meat. Receives metal arrows. It furthers one to be mindful of difficulties And to be persevering. Good fortune.",
+        "There are great obstacles to be overcome, powerful opponents are to be punished. Though this is arduous, the effort succeeds. But it is necessary to be hard as metal and straight as an arrow to surmount the difficulties. If one knows these difficulties and remains persevering, he attains good fortune. The difficult task is achieved in the end. Six in the fifth place means: Bites on dried lean meat. Receives yellow gold. Perseveringly aware of danger.",
+        "Nine at the top means: His neck is fastened in the wooden cangue, So that his ears disappear. Misfortune."
+      ]
+    },
+    "22": {
+      "name": "Pi / Grace",
+      "intro": "above KêN KEEPING STILL, MOUNTAIN below LI THE CLINGING, FIRE\n\nThis hexagram shows a fire that breaks out of the secret depths of the earth and, blazing up, illuminates and beautifies the mountain, the heavenly heights. Grace-beauty of form-is necessary in any union if it is to be well ordered and pleasing rather than disordered and chaotic.",
+      "judgment": "GRACE has success. In small matters It is favorable to undertake something.",
+      "image": "Fire at the foot of the mountain:",
+      "lines": [
+        "Nine at the beginning means: He lends grace to his toes, leaves the carriage, and walks.",
+        "A beginner in subordinate place must take upon himself the labor of advancing. There might be an opportunity of surreptitiously easing the way-symbolized by the carriage-but a self-contained man scorns help gained in a dubious fashion. He thinks it more graceful to go on foot than to drive in a carriage under false pretenses. Six in the second place means: Lends grace to the beard on his chin.",
+        "Nine in the third place means: Graceful and moist. Constant perseverance brings good fortune.",
+        "Six in the fourth place means: Grace or simplicity? A white horse comes as if on wings. He is not a robber, He will woo at the right time.",
+        "Six in the fifth place means: Grace in the hills and gardens. The roll of silk is meager and small. Humiliation, but in the end good fortune.",
+        "A man withdraws from contact with people of the lowlands, who seek nothing but magnificence and luxury, in to the solitude of the heights. There he finds an individual to look up to, whom he would like to have as a friend. But the gifts he has to offer are poor and few, so that he feels ashamed. However, it is not the material gifts that count, but sincerity of feeling, and so all goes well in the end. Nine at the top means: Simple grace. No blame."
+      ]
+    },
+    "23": {
+      "name": "Po / Splitting Apart",
+      "intro": "above KêN KEEPING STILL, MOUNTAIN below LI THE CLINGING, FIRE\n\nThe dark lines are about to mount upward and overthrow the last firm, light line by exerting a disintegrating influence on it. The inferior, dark forces overcome what is superior and strong, not by direct means, but by undermining it gradually and imperceptibly, so that it finally collapses. The lines of the hexagram present the image of a house, the top line being the roof, and because the roof is being shattered the house collapses. The hexagram belongs to the ninth month (October-November). The yin power pushes up ever more powerfully and is about to supplant the yang power altogether.",
+      "judgment": "SPLITTING APART. IT does not further one To go anywhere.",
+      "image": "The mountain rests on the earth: The image of SPLITTING APART. Thus those above can ensure their position Only by giving generously to those below.",
+      "lines": [
+        "Six at the beginning means: The leg of the bed is split. Those who persevere are destroyed. Misfortune.",
+        "Six in the second place means: The bed is split at the edge. Those who persevere are destroyed. Misfortune.",
+        "Six in the third place means: He splits with them. No blame.",
+        "Six in the fourth place means: The bed is split up to the skin. Misfortune.",
+        "Six in the fifth place means: A shoal of fishes. Favor comes through the court ladies. Everything acts to further.",
+        "Here, in immediate proximity to the strong, light-giving principle at the top, the nature of the dark force undergoes a change. It no longer opposes the strong principle by means of intrigues but submits to its guidance. Indeed, as the head of the other weak lines, it leads all of these to the strong line, just as a princess leads her maids-in-waiting like a shoal of fishes to her husband and thus gains his favor. Inasmuch as the lower element thus voluntarily places itself under the higher, it attains happiness and the higher also receives its due. Therefore all goes well. Nine at the top means: There is a large fruit still uneaten. The superior man receives a carriage. The house of the inferior man is split apart."
+      ]
+    },
+    "24": {
+      "name": "Fu / Return (The Turning Point)",
+      "intro": "above K'UN THE RECEPTIVE, EARTH below CHêN THE AROUSING, THUNDER\n\nThe idea of a turning point arises from the fact that after the dark lines have pushed all of the light lines upward and out of the hexagram, another light line enters the hexagram from below. The time of darkness is past. The winter solstice brings the victory of light. This hexagram is linked with the eleventh month, the month of the solstice (December-January).",
+      "judgment": "RETURN. Success. Going out and coming in without error. Friends come without blame. To and fro goes the way. On the seventh day comes return. It furthers one to have somewhere to go.",
+      "image": "Thunder within the earth: The image of THE TURNING POINT. Thus the kings of antiquity closed the passes At the time of solstice. Merchants and strangers did not go about, And the ruler Did not travel through the provinces.",
+      "lines": [
+        "Nine at the beginning means: Return from a short distance. No need for remorse. Great good fortune.",
+        "Six in the second place means: Quiet return. Good fortune.",
+        "Six in the third place means: Repeated return. Danger. No blame.",
+        "Six in the fourth place means: Walking in the midst of others, One returns alone.",
+        "Six in the fifth place means: Noblehearted return. No remorse.",
+        "Six at the top means: Missing the return. Misfortune. Misfortune from within and without. If armies are set marching in this way, One will in the end suffer a great defeat, Disastrous for the ruler of the country. For ten years It will not be possible to attack again."
+      ]
+    },
+    "25": {
+      "name": "Wu Wang / Innocence (The Unexpected)",
+      "intro": "above CH'IEN THE CREATIVE, HEAVEN below CHêN THE AROUSING, THUNDER\n\nCh'ien, heaven is above; Chên, movement, is below. The lower trigram Chên is under the influence of the strong line it has received form above, from heaven. When, in accord with this, movement follows the law of heaven, man is innocent and without guile. His mind is natural and true, unshadowed by reflection or ulterior designs. For wherever conscious purpose is to be seen, there the truth and innocence of nature have been lost. Nature that is not directed by the spirit is not true but degenerate nature. Starting out with the idea of the natural, the train of thought in part goes somewhat further and thus the hexagram includes also the idea of the fundamental or unexpected.",
+      "judgment": "INNOCENCE. Supreme success. Perseverance furthers. If someone is not as he should be, He has misfortune, And it does not further him To undertake anything.",
+      "image": "Under heaven thunder rolls: All things attain the natural state of innocence.",
+      "lines": [
+        "Nine at the beginning means: Innocent behavior brings good fortune.",
+        "Six in the second place means: If one does not count on the harvest while plowing,",
+        "Six in the third place means: Undeserved misfortune.",
+        "Nine in the fourth place means: He who can be persevering Remains without blame.",
+        "We cannot lose what really belongs to us, even if we throw it away. Therefore we need have no anxiety. All that need concern us is that we should remain true to our own natures and not listen to others. Nine in the fifth place means: Use no medicine in an illness Incurred through no fault of your own. It will pass of itself.",
+        "Nine at the top means: Innocent action brings misfortune."
+      ]
+    },
+    "26": {
+      "name": "Ta Ch'u / The Taming Power of the Great",
+      "intro": "above KêN KEEPING STILL, MOUNTAIN below CH'IEN THE CREATIVE, HEAVEN\n\nThe Creative is tamed by Kên, Keeping Still. This produces great power, a situation in contrast to that of the ninth hexagram, Hsiao Ch'u, THE TAMING POWER OF THE SMALL, in which the Creative is tamed by the Gentle alone. There one weak line must tame five strong lines, but here four strong lines are restrained by two weak lines; in addition to a minister, there is a prince, and the restraining power therefore is afar stronger. The hexagram has a threefold meaning, expressing different aspects of the concept \"Holding firm.\" Heaven within the mountain gives the idea of holding firm in the sense of holding together; the trigram Kên which holds the trigram ch'ien still, gives the idea of holding firm in the sense of holding back; the third idea is that of holding firm in the sense of caring for and nourishing. This last is suggested by the fact that a strong line at the top, which is the ruler of the hexagram, is honored and tended as a sage. The third of these meanings also attaches specifically to this strong line at the top, which represents the sage.",
+      "judgment": "THE TAMING POWER OF THE GREAT. Perseverance furthers.",
+      "image": "Heaven within the mountain:",
+      "lines": [
+        "Nine at the beginning means: Danger is at hand. It furthers one to desist.",
+        "Nine in the second place means: The axletrees are taken from the wagon.",
+        "Six in the fourth place means: The headboard of a young bull. Great good fortune.",
+        "This line and the one following it are the two that tame the forward-pushing lower lines. Before a bull's horns grow out, a headboard is fastened to its forehead, so that later when the horns appear they cannot do harm. A good way to restrain wild force is to forestall it. By so doing one achieves an easy and great success. Six in the fifth place means: The tusk of a gelded boar. Good fortune.",
+        "Here the restraining of the impetuous forward drive is achieved in an indirect way. A boar's tusk is in itself dangerous, but if the boar's nature is altered, the tusk is no longer a menace. Thus also where men are concerned, wild force should not be combated directly; instead, its roots should be eradicated. Nine at the top means: One attains the way of heaven."
+      ]
+    },
+    "27": {
+      "name": "I / Corners of the Mouth (Providing Nourishment)",
+      "intro": "above KêN KEEPING STILL, MOUNTAIN below CHêN THE AROUSING, THUNDER\n\nThis hexagram is a picture of an open mouth; above and below are firm lines of the lips, and between them the opening. Starting with the mouth, through which we take food for nourishment, the thought leads to nourishment itself. Nourishment of oneself, specifically of the body, is represented in the three lower lines, while the three upper lines represent nourishment and care of others, in a higher, spiritual sense.",
+      "judgment": "THE CORNERS OF THE MOUTH. Perseverance brings good fortune. Pay heed to the providing of nourishment And to what a man seeks",
+      "image": "At the foot of the mountain, thunder:",
+      "lines": [
+        "Nine at the beginning means: You let your magic tortoise go, And look at me with the corners of your mouth drooping. Misfortune.",
+        "Six in the second place means: Turning to the summit for nourishment, Deviating from the path",
+        "Six in the third place means: Turning away from nourishment. Perseverance brings misfortune. Do not act thus for ten years.",
+        "Six in the fourth place means: Turning to the summit For provision of nourishment Brings good fortune.",
+        "In contrast to the six in the second place, which refers to a man bent exclusively on his own advantage, this line refers to one occupying a high position and striving to let his light sine forth. To do this he needs helpers, because he cannot attain his lofty aim alone. With the greed of a hungry tiger he is on the lookout for the right people. Since he is not working for himself but for the good of all, there is no wrong in such zeal. Six in the fifth place means: Turning away from the path.",
+        "A man may be conscious of a deficiency in himself. He should be undertaking the nourishment of the people, but he has not the strength to do it. Thus he must turn from his accustomed path and beg counsel and help from a man who is spiritually his superior but undistinguished outwardly. If he maintains this attitude of mind perseveringly, success and good fortune are his. But he must remain aware of his dependence. He must not put his own person forward nor attempt great labors, such as crossing the great water. Nine at the top means: The source of nourishment. Awareness of danger brings good fortune. It furthers one to cross the great water."
+      ]
+    },
+    "28": {
+      "name": "Ta Kuo / Preponderance of the Great",
+      "intro": "above TUI THE JOYOUS, LAKE below SUN THE GENTLE, WIND, WOOD\n\nThis hexagram consists of four strong lines inside and two weak lines outside. When the strong are outside and the weak inside, all is well and there is nothing out of balance, nothing extraordinary in the situation. Here, however, the opposite is the case. The hexagram represents a beam that is thick and heavy in the middle but too weak at the ends. This is a condition that cannot last; it must be changed, must pass, or misfortune will result.",
+      "judgment": "PREPONDERANCE OF THE GREAT.",
+      "image": "The lake rises above the trees:",
+      "lines": [
+        "Six at the beginning means: To spread white rushes underneath.",
+        "When a man wishes to undertake an enterprise in extraordinary times, he must be extraordinarily cautious, just as when setting a heavy thing down on the floor, one takes care to put rushes under it, so that nothing will break. This caution, though it may seem exaggerated, is not a mistake. Exceptional enterprises cannot succeed unless utmost caution is observed in their beginnings and in the laying of their foundations. Nine in the second place means: A dry poplar sprouts at the root. An older man takes a young wife. Everything furthers.",
+        "Nine in the third place means: The ridgepole sags to the breaking point. Misfortune.",
+        "This indicates a type of man who in times of preponderance of the great insists on pushing ahead. He accepts no advice from others, and therefore they in turn are not willing to lend him support. Because of this the burden grows, until the structure of things bends or breaks. Plunging willfully ahead in times of danger only hastens the catastrophe. Nine in the fourth place means: The ridgepole is braced. Good fortune. If there are ulterior motives, it is humiliating.",
+        "Nine in the fifth place means: A withered poplar puts forth flowers. An older woman takes a husband.",
+        "Six at the top means: One must go through the water. It goes over one's head. Misfortune. No blame."
+      ]
+    },
+    "29": {
+      "name": "K'an / The Abysmal (Water)",
+      "intro": "above K'AN THE ABYSMAL, WATER below K'AN THE ABYSMAL, WATER\n\nThis hexagram consists of a doubling of the trigram K'an. It is one of the eight hexagrams in which doubling occurs. The trigram K'an means a plunging in. A yang line has plunged in between two yin lines and is closed in by them like water in a ravine. The trigram K'an is also the middle son. The Receptive has obtained the middle line of the Creative, and thus K'an develops. As an image it represents water, the water that comes from above and is in motion on earth in streams and rivers, giving rise to all life on earth. In man's world K'an represents the heart, the soul locked up within the body, the principle of light inclosed in the dark--that is, reason. The name of the hexagram, because the trigram is doubled, has the additional meaning, \"repetition of danger.\" Thus the hexagram is intended to designate an objective situation to which one must become accustomed, not a subjective attitude. For danger due to a subjective attitude means either foolhardiness or guile. Hence too a ravine is used to symbolize danger; it is a situation in which a man is in the same pass as the water in a ravine, and, like the water, he can escape if he behaves correctly.",
+      "judgment": "The Abysmal repeated. If you are sincere, you have success in your heart, And whatever you do succeeds.",
+      "image": "Water flows on uninterruptedly and reaches its foal:",
+      "lines": [
+        "Six at the beginning means: Repetition of the Abysmal. In the abyss one falls into a pit. Misfortune.",
+        "By growing used to what is dangerous, a man can easily allow it to become part of him. He is familiar with it and grows used to evil. With this he has lost the right way, and misfortune is the natural result. Nine in the second place means: The abyss is dangerous. One should strive to attain small things only.",
+        "Six in the third place means: Forward and backward, abyss on abyss. In danger like this, pause at first and wait, Otherwise you will fall into a pit in the abyss. Do not act this way.",
+        "Six in the fourth place means: A jug of wine, a bowl of rice with it; Earthen vessels",
+        "In times of danger ceremonious forms are dropped. What matters most is sincerity. Although as a rule it is customary for an official to present certain introductory gifts and recommendations before he is appointed, here everything is simplified to the utmost. The gifts are insignificant, there is no one to sponsor him, he introduces himself; yet all this need not be humiliating if only there is the honest intention of mutual help in danger. Still another idea is suggested. The window is the place through which light enters the room. If in difficult times we want to enlighten someone, we must begin with that which is in itself lucid and proceed quite simply from that point on. Nine in the fifth place means: The abyss is not filled to overflowing, It is filled only to the rim.",
+        "Six at the top means: Bound with cords and ropes,"
+      ]
+    },
+    "30": {
+      "name": "Li / The Clinging, Fire",
+      "intro": "above LI THE CLINGING, FIRE below LI THE CLINGING, FIRE\n\nThis hexagram is another double sign. The trigram Li means \"to cling to something,\" and also \"brightness.\" A dark line clings to two light lines, one above and one below--the image of an empty space between two strong lines, whereby the two strong lines are made bright. The trigram represents the middle daughter. The Creative has incorporated the central line of the Receptive, and thus Li develops. As an image, it is fire. Fire has no definite form but clings to the burning object and thus is bright. As water pours down from heaven, so fire flames up from the earth. While K'an means the soul shut within the body, Li stands for nature in its radiance.",
+      "judgment": "THE CLINGING. Perseverance furthers. It brings success. Care of the cow brings good fortune.",
+      "image": "That which is bright rises twice:",
+      "lines": [
+        "Nine at the beginning means: The footprints run crisscross. If one is seriously intent, no blame.",
+        "It is early morning and work begins. The mind has been closed to the outside world in sleep; now its connections with the world begin again. The traces of one's impressions run crisscross. Activity and haste prevail. It is important then to preserve inner composure and not to allow oneself to be swept along by the bustle of life. If one is serious and composed, he can acquire the clarity of mind needed for coming to terms with the innumerable impressions that pour in. It is precisely at the beginning that serious concentration is important, because the beginning holds the seed of all that is to follow. Six in the second place means: Yellow light. Supreme good fortune.",
+        "Nine in the third place means: In the light of the setting sun, Men either beat the pot and sing Or loudly bewail the approach of old age. Misfortune.",
+        "Nine in the fourth place means: Its coming is sudden; It flames up, dies down, is thrown away.",
+        "Clarity of mind has the same relation to life that fire has to wood. Fire clings to wood, but also consumes it. Clarity of mind is rooted in life but can also consume it. Everything depends upon how the clarity functions. Here the image used is that of a meteor or a straw fire. A man who is excitable and restless may rise quickly to prominence but produces no lasting effects. Thus matters end badly when a man spends himself too rapidly and consumes himself like a meteor. Six in the fifth place means: Tears in floods, sighing and lamenting. Good fortune.",
+        "Nine at the top means: The king used him to march forth and chastise."
+      ]
+    },
+    "31": {
+      "name": "Hsien / Influence (Wooing)",
+      "intro": "above TUI THE JOYOUS, LAKE below KêN KEEPING STILL, MOUNTAIN\n\nThe name of the hexagram means \"universal,\" \"general,\" and in a figurative sense \"to influence,\" \"to stimulate.\" The upper trigram is Tui, the Joyous; the lower is Kên, Keeping still. By its persistent, quiet influence, the lower, rigid trigram stimulates the upper, weak trigram, which responds to this stimulation cheerfully and joyously. Kên, the lower trigram, is the youngest son; the upper, Tui, is the youngest daughter. Thus the universal mutual attraction between the sexes is represented. In courtship, the masculine principle must seize the initiative and place itself below the feminine principle. Just as the first part of book 1 begins with the hexagrams of heaven and earth, the foundations of all that exists, the second part begins with the hexagrams of courtship and marriage, the foundations of all social relationships.",
+      "judgment": "Influence. Success. Perseverance furthers.",
+      "image": "A lake on the mountain:",
+      "lines": [
+        "Six at the beginning means: The influence shows itself in the big toe.",
+        "Six in the second place means: The influence shows itself in the calves of the legs. Misfortune.",
+        "Nine in the third place means: The influence shows itself in the thighs. Holds to that which follows it.",
+        "Every mood of the heart influences us to movement. What the heart desires, the thighs run after without a moment's hesitation; they hold to the heart, which they follow. In the life of man, however, acting on the spur of every caprice is wrong and if continued leads to humiliation. Three considerations suggest themselves here. First, a man should not run precipitately after all the persons whom he would like to influence, but must be able to hold back under certain circumstances. As little should he yield immediately to every whim of those in whose service he stands. Finally, where the moods of his own heart are concerned, he should never ignore the possibility of inhibition, for this is the basis of human freedom. Nine in the fourth place means: Perseverance brings good fortune. Remorse disappears. If a man is agitated in mind, And his thoughts go hither and thither, Only those friends On whom he fixes his conscious thoughts Will follow.",
+        "Here the place of the heart is reached. The impulse that springs from this source is the most important of all. It is of particular concern that this influence be constant and good; then, in spite of the danger arising from the great susceptibility of the human heart, there will be no cause for remorse. When the quiet power of a man's own character is at work, the effects produced are right. All those who are receptive to the vibrations of such a spirit will then be influenced. Influence over others should not express itself as a conscious and willed effort to manipulate them. Through practicing such conscious incitement, one becomes wrought up and is exhausted by the eternal stress and strain. Moreover, the effects produced are then limited to those on whom one's thoughts are consciously fixed. Nine in the fifth place means: The influence shows itself in the back of the neck.",
+        "Six at the top means: The influence shows itself in the jaws, cheeks, and tongue."
+      ]
+    },
+    "32": {
+      "name": "H&ecirc;ng / Duration",
+      "intro": "above CHEN THE AROUSING, THUNDER below SUN THE GENTLE, WIND\n\nThe strong trigram Chên is above, the weak trigram Sun below. This hexagram is the inverse of the preceding one. In the latter we have influence, here we have union as an enduring condition. The two images are thunder and wind, which are likewise constantly paired phenomena. The lower trigram indicates gentleness within; the upper, movement without. In the sphere of social relationships, the hexagram represents the institution of marriage as the enduring union of the sexes. During courtship the young man subordinates himself to the girl, but in marriage, which is represented by the coming together of the eldest son and the eldest daughter, the husband is the directing and moving force outside, while the wife, inside, is gentle and submissive.",
+      "judgment": "DURATION. Success. No blame. Perseverance furthers. It furthers one to have somewhere to go.",
+      "image": "Thunder and wind: the image of DURATION.",
+      "lines": [
+        "Six at the beginning means: Seeking duration too hastily brings misfortune persistently.",
+        "Whatever endures can be created only gradually by long-continued work and careful reflection. In the same sense Lao-tse says: \"If we wish to compress something, we must first let it fully expand.\" He who demands too much at once is acting precipitately, and because he attempts too much, he ends by succeeding in nothing. Nine in the second place means: Remorse disappears. The situation is abnormal. A man's force of character is greater than the available material power. Thus he might be afraid of allowing himself to attempt something beyond his strength. However, since it is the time of DURATION, it is possible for him to control his inner strength and so to avoid excess. Cause for remorse then disappears.",
+        "Nine in the third place means: He who does not give duration to his character Meets with disgrace. Persistent humiliation.",
+        "Nine in the fourth place means: No game in the field.",
+        "Six in the fifth place means: Giving duration to one's character through perseverance.",
+        "Six at the top means: Restlessness as an enduring condition brings misfortune."
+      ]
+    },
+    "33": {
+      "name": "TUN / Retreat",
+      "intro": "above CH'IEN THE CREATIVE, HEAVEN below KêN KEEPING STILL, MOUNTAIN\n\nThe power of the dark is ascending. The light retreats to security, so that the dark cannot encroach upon it. This retreat is a matter not of man's will but of natural law. Therefore in this case withdrawal is proper; it is the correct way to behave in order not to exhaust one's forces. In the calendar this hexagram is linked with the sixth month (July-August), in which the forces of winter are already showing their influence.",
+      "judgment": "RETREAT. Success. In what is small, perseverance furthers.",
+      "image": "Mountain under heaven: the image of RETREAT.",
+      "lines": [
+        "Six at the beginning means: At the tail in retreat. This is dangerous. One must not wish to undertake anything.",
+        "Six in the second place means: he holds him fast with yellow oxhide.",
+        "Nine in the third place means: A halted retreat Is nerve-wracking and dangerous.",
+        "Nine in the fourth place means: Voluntary retreat brings good fortune to the superior man And downfall to the inferior man.",
+        "In retreating the superior man is intent on taking his departure willingly and in all friendliness. He easily adjusts his mind to retreat, because in retreating he does not have to do violence to his convictions. The only one who suffers is the inferior man from whom he retreats, who will degenerate when deprived of the guidance of the superior man. Nine in the fifth place means: Friendly retreat. Perseverance brings good fortune.",
+        "Nine at the top means: Cheerful retreat. Everything serves to further."
+      ]
+    },
+    "34": {
+      "name": "Ta Chuang / The Power of the Great",
+      "intro": "above CHêN THE AROUSING, THUNDER\n\nabove CH'IEN THE CREATIVE, HEAVEN\n\nThe great lines, that is, the light, strong lines, are powerful. Four light lines have entered the hexagram from below and are about to ascend higher. The upper trigram is Chên, the Arousing; the lower is ch'ien, the Creative. Ch'ien is strong, Chên produces movement. The union of movement and strength gives the meaning of THE POWER OF THE GREAT. The hexagram is linked with the second month (March-April).",
+      "judgment": "THE POWER OF THE GREAT. Perseverance furthers.",
+      "image": "Thunder in heaven above:",
+      "lines": [
+        "Nine at the beginning means: Power in the toes. Continuing brings misfortune.",
+        "Nine in the second place means: Perseverance brings good fortune.",
+        "Nine in the third place means: The inferior man works through power.",
+        "Making a boast of power leads to entanglements, just as a goat entangles its horns when it butts against a hedge. Whereas an inferior man revels in power when he comes into possession of it, the superior man never makes this mistake. He is conscious at all times of the danger of pushing ahead regardless of circumstances, and therefore renounces in good time the empty display of force. Nine in the fourth place means: Perseverance brings good fortune. Remorse disappears.",
+        "Six in the fifth place means: Loses the goat with ease.",
+        "Six at the top means: A goat butts against a hedge. It cannot go backward, it cannot go forward."
+      ]
+    },
+    "35": {
+      "name": "Chin / Progress",
+      "intro": "above LI THE CLINGING, FIRE below K'UN THE RECEPTIVE, EARTH\n\nThe hexagram represents the sun rising over the earth. It is therefore the symbol of rapid, easy progress, which at the same time means ever widening expansion and clarity.",
+      "judgment": "PROGRESS. The powerful prince Is honored with horses in large numbers. In a single day he is granted audience three times.",
+      "image": "The sun rises over the earth:",
+      "lines": [
+        "Six at the beginning means: Progressing, but turned back. Perseverance brings good fortune. If one meets with no confidence, one should remain calm.",
+        "Six in the second place means: Progressing, but in sorrow. Perseverance brings good fortune.",
+        "Six in the third place means: All are in accord. Remorse disappears.",
+        "Nine in the fourth place means: Progress like a hamster. Perseverance brings danger.",
+        "In times of progress it is easy for strong men in the wrong places to amass great possessions. But such conduct shuns the light. And since times of progress are inevitably brought to the light, perseverance in such action always leads to danger. Six in the fifth place means: Remorse disappears.",
+        "Nine at the top means: Making progress with the horns is permissible Only for the purpose of punishing one's own city."
+      ]
+    },
+    "36": {
+      "name": "Ming I / Darkening of the light",
+      "intro": "above K'UN THE RECEPTIVE, EARTH below LI THE CLINGING, FIRE\n\nHere the sun has sunk under the earth and is therefore darkened. The name of the hexagram means literally \"wounding of the bright\"; hence the individual lines contain frequent references to wounding. The situation is the exact opposite of that in the foregoing hexagram. In the latter a wise man at the head of affairs has able helpers, and in company with them makes progress; here a man of dark nature is in a position of authority and brings harm to the wise and able man.",
+      "judgment": "DARKENING OF THE LIGHT. In adversity It furthers one to be persevering.",
+      "image": "The light has sunk into the earth:",
+      "lines": [
+        "Nine at the beginning means: Darkening of the light during flight. He lowers his wings.",
+        "With grandiose resolve a man endeavors to soar above all obstacles, but thus encounters a hostile fate. He retreats and evades the issue. The time is difficult. Without rest, he must hurry along, with no permanent abiding place. If he does not want to make compromises within himself, but insists on remaining true to his principles, he suffers deprivation. Never the less he has a fixed goal to strive for even though the people with whom he lives do not understand him and speak ill of him. Six in the second place means: Darkening of the light injures him in the left thigh. He gives aid with the strength of a horse. Good fortune.",
+        "Nine in the third place means: Darkening of the light during the hunt in the south.",
+        "Six in the fourth place means: He penetrates the left side of the belly. One gets at the very heart of the darkening of the light.",
+        "We find ourselves close to the commander of darkness and so discover his mot secret thoughts. In this way we realize that there is no longer any hope of improvement, and thus we are enabled to leave the scene of disaster before the storm breaks. Six in the fifth place means: Darkening of the light as with Prince Chi. Perseverance furthers.",
+        "Six at the top means: Not light but darkness. First he climbed up to heaven,"
+      ]
+    },
+    "37": {
+      "name": "Chia J&ecirc;n / The Family [The Clan]",
+      "intro": "above SUN THE GENTLE, WIND below LI THE CLINGING, FIRE\n\nThe hexagram represents the laws obtaining within the family. The strong line at the top represents the father, the lowest the son. The strong line in the fifth place represents the husband, the yielding second line the wife. On the other hand, the two strong lines in the fifth and the third place represent two brothers, and the two weak lines correlated with them in the fourth and the second place stand for their respective wives. Thus all the connections and relationships within the family find their appropriate expression. Each individual line has the character according with its place. The fact that a strong line occupies the sixth place-where a weak line might be expected-indicates very clearly the strong leadership that must come from the head of the family. The line is to be considered here not in its quality as the sixth but in its quality as the top line. THE FAMILY shows the laws operative within the household that, transferred to outside life, keep the state and the world in order. The influence that goes out from within the family is represented by the symbol of the wind created by fire.",
+      "judgment": "THE FAMILY. The perseverance of the woman furthers.",
+      "image": "Wind comes forth from fire:",
+      "lines": [
+        "Nine at the beginning means: Firm seclusion within the family. Remorse disappears.",
+        "The family must form a well-defined unit within which each member knows his place. From the beginning each child must be accustomed to firmly established rules of order, before ever its will is directed to other things. If we begin too late to enforce order, when the will of the child has already been overindulged, the whims and passions, grown stronger with the years, offer resistance and give cause for remorse. If we insist on order from the outset, occasions for remorse may arise-in general social life these are unavoidable-but the remorse always disappears again, and everything rights itself. For there is nothing easily avoided and more difficult to carry through than \"breaking a child's will.\" Six in the second place means: She should not follow her whims.",
+        "Nine in the third place means: When tempers flare up in the family,",
+        "Six in the fourth place means: She is the treasure of the house. Great good fortune.",
+        "It is upon the woman of the house that the well-being of the family depends. Well-being prevails when expenditures and income are soundly balanced. This leads to great good fortune. In the sphere of public life, this line refers to the faithful steward whose measures further the general welfare. Nine in the fifth place means: As a king he approaches his family. Fear not. Good fortune.",
+        "Nine at the top means: His work commands respect.' In the end good fortune comes."
+      ]
+    },
+    "38": {
+      "name": "K'uei / Opposition",
+      "intro": "above LI THE CLINGING, FLAME below TUI THE JOYOUS, LAKE\n\nThis hexagram is composed of the trigram Li above, i.e., flame, which burns upward, and Tui below, i.e., the lake, which seeps downward. These two movements are indirect contrast. Furthermore, LI is the second daughter and Tui the youngest daughter, and although they live in the same house they belong to different men; hence their wills are not the same but are divergently directed.",
+      "judgment": "OPPOSITION. In small matters, good fortune.",
+      "image": "Above, fire; below. The lake.",
+      "lines": [
+        "Nine at the beginning means: Remorse disappears. If you lose your horse, do not run after it; It will come back of its own accord. When you see evil people, Guard yourself against mistakes.",
+        "Even in times when oppositions prevail, mistakes can be avoided, so that remorse disappears. When opposition begins to manifest itself, a man must not try to bring about unity by force, for by so doing he would only achieve the contrary, just as a horse goes farther and farther away if one runs after it. It it is one's won horse, one can safely let it go; it will come back of its own accord. So too when someone who belongs with us is momentarily estranged because of a misunderstanding, he will return of his own accord if we leave matters to him. One the other hand, it is well to be cautious when evil men who do not belong with us force themselves upon us, again as the result of a misunderstanding. Here the important thing is to avoid mistakes. We must not try to shake off these evil men by force; this would give rise to real hostility. We must simply endure them. They will eventually withdraw of their own accord. Nine in the second place means: One meets his lord in a narrow street.",
+        "Six in the third place means: One sees the wagon dragged back,",
+        "Nine in the fourth place means: Isolated through opposition, One meets a like-minded man With whom one can associate in good faith. Despite the danger, no blame.",
+        "If a man finds himself in a company of people from whom he is separated by an inner opposition, he becomes isolated. But if in such a situation a man meets someone who fundamentally by the very law of his being, is kin to him, and whom he can trust completely, he overcomes all the dangers of isolation. His will achieves its aim, and he becomes free of faults. Six in the fifth place means: Remorse disappears.",
+        "Nine at the top means: Isolated through opposition, One sees one's companion as a pig covered with dirt, As a wagon full of devils. First one draws a bow against him,"
+      ]
+    },
+    "39": {
+      "name": "Chien / Obstruction",
+      "intro": "above K'AN THE ABYSMAL, WATER below KêN KEEPING STILL, MOUNTAIN\n\nThe hexagram pictures a dangerous abyss lying before us and a steep, inaccessible mountain rising behind us. We are surrounded by obstacles; at the same time, since the mountain has the attribute of keeping still, there is implicit a hint as to how we can extricate ourselves. The hexagram represents obstructions that appear in the course of time but that can and should be overcome. Therefore all the instruction given is directed to overcoming them.",
+      "judgment": "OBSTRUCTION. The southwest furthers.",
+      "image": "Water on the mountain:",
+      "lines": [
+        "Six at the beginning means: Going leads to obstructions, Coming meets with praise.",
+        "Six in the second place means: The King's servant is beset by obstruction upon obstruction, But it is not his own fault.",
+        "Nine in the third place means: Going leads to obstructions; Hence he comes back.",
+        "Six in the fourth place means: Going leads to obstructions, Coming leads to union.",
+        "This too describes a situation that cannot be managed single-handed. In such a case the direct way is not the shortest. If a person were to forge ahead on his own strength and without the necessary preparations, he would not find the support he needs and would realize too late that he has been mistaken in his calculations, inasmuch as the conditions on which he hoped he could rely would prove to be inadequate. In this case it is better, therefore, to hold back for the time being and to gather together trustworthy companions who can be counted upon for help in overcoming the obstructions. Nine in the fifth place means: In the midst of the greatest obstructions, Friends come.",
+        "Six at the top means: Going leads to obstructions, Coming leads to great good fortune. It furthers one to see the great man."
+      ]
+    },
+    "40": {
+      "name": "Hsieh / Deliverance",
+      "intro": "above CHêN THE AROUSING, THUNDER below K'AN THE ABYSMAL, WATER\n\nHere the movement goes out of the sphere of danger. The obstacle has been removed, the difficulties are being resolved. Deliverance is not yet achieved; it is just in its beginning, and the hexagram represents its various stages.",
+      "judgment": "DELIVERANCE. The southwest furthers. If there is no longer anything where one has to go, Return brings good fortune. If there is still something where one has to go, Hastening brings good fortune.",
+      "image": "Thunder and rain set in:",
+      "lines": [
+        "Six at the beginning means: Without blame.",
+        "In keeping with the situation, few words are needed. The hindrance is past, deliverance has come. One recuperates in peace and keeps still. This is the right thing to do in times when difficulties have been overcome. Nine in the second place means: One kills three foxes in the field And receives a yellow arrow. Perseverance brings good fortune.",
+        "Six in the third place means: If a man carries a burden on his back And nonetheless rides in a carriage, He thereby encourages robbers to draw near. Perseverance leads to humiliation.",
+        "Nine in the fourth place means: Deliver yourself from your great toe.",
+        "In times of standstill it will happen that inferior people attach themselves to a superior man, and through force of daily habit they may grow very close to him and become indispensable, just as the big toe is indispensable to the foot because it makes walking easier. But when the time of deliverance draws near, with its call to deeds, a man must free himself from such chance acquaintances with whim he has no inner connection. For otherwise the friends who share his views, on whom he could really rely and together with whom he could accomplish something, mistrust him and stay away. Six in the fifth place means: If only the superior man can deliver himself, It brings good fortune.",
+        "Six at the top means: The prince shoots at a hawk on a high wall. He kills it. Everything serves to further.",
+        "The hawk on a high wall is the symbol of a powerful inferior in a high position who is hindering the deliverance. He withstands the force of inner influences, because he is hardened in his wickedness. He must be forcibly removed, and this requires appropriate means. Confucius says about this line: The hawk is the object of the hunt; bow and arrow are the tools and means. The marksman is man (who must make proper use of the means to his end). The superior man contains the means in his own person. He bides his time and then acts. Why then should not everything go well? He acts and is free. Therefore all he has to do is to go forth, and he takes his quarry. This is how a man fares who acts after he has made ready the means."
+      ]
+    },
+    "41": {
+      "name": "Sun / Decrease",
+      "intro": "above KêN KEEPING STILL, MOUNTAIN below TUI THE JOYOUS, LAKE\n\nThis hexagram represents a decrease of the lower trigram in favor of the upper, because the third line, originally strong, has moved up to the top, and the top line, originally weak, has replaced it. What is below is decreased to the benefit of what is above. This is out-and-out decrease. If the foundations of a building are decreased in strength and the upper walls are strengthened, the whole structure loves its stability. Likewise, a decrease in the prosperity of the people in favor of the government is out-and-out decrease. And the entire theme of the hexagram is directed to showing how this shift of wealth can take place without causing the sources of wealth can take place without causing the sources of wealth in the nation and its lower classes to fail.",
+      "judgment": "DECREASE combined with sincerity Brings about supreme good fortune Without blame. One may be persevering in this. It furthers one to undertake something. How is this to be carried out? One may use two small bowls for the sacrifice.",
+      "image": "At the foot of the mountain, the lake:",
+      "lines": [
+        "Nine at the beginning means: Going quickly when one's tasks are finished Is without blame. But one must reflect on how much one may decrease others.",
+        "Nine in the second place means: Perseverance furthers.",
+        "Six in the third place means: When three people journey together,",
+        "Six in the fourth place means: If a man deceases his faults, It makes the other hasten to come and rejoice.",
+        "A man's faults often prevent even well-disposed people from coming closer to him. His faults are sometimes reinforced by the environment in which he lives. But if in humility he can bring himself to the point of giving them up, he frees his well-disposed friends from an inner pressure and causes them to approach the more quickly, and there is mutual joy. Six in the fifth place means: Someone does indeed increase him.",
+        "Nine at the top means: If one is increased without depriving other,"
+      ]
+    },
+    "42": {
+      "name": "I / Increase",
+      "intro": "above SUN THE GENTLE, WIND below CHêN THE AROUSING, THUNDER\n\nThe idea of increase is expressed in the fact that the strong lowest line of the upper trigram has sunk down and taken its place under the lower trigram. This conception also expresses the fundamental idea on which the Book of Changes is based. To rule truly is to serve. A sacrifice of the higher element that produces an increase of the lower is called an out-and-out increase: it indicates the spirit that alone has power to help the world.",
+      "judgment": "INCREASE. It furthers one",
+      "image": "Wind and thunder: the image of INCREASE.",
+      "lines": [
+        "Nine at the beginning means: It furthers one to accomplish great deeds.",
+        "If great help comes to a man from on high, this increased strength must be used to achieve something great for which he might otherwise never have found energy, or readiness to take responsibility. Great good fortune is produced by selflessness, and in bringing about great good fortune, he remains free of reproach. Six in the second place means: Someone does indeed increase him;",
+        "Six in the third place means: One is enriched through unfortunate events.",
+        "Six in the fourth place means: If you walk in the middle And report the prince, He will follow. It furthers one to be used In the removal of the capital.",
+        "It is important that there should be men who mediate between leaders and followers. These should be disinterested people, especially in times of increase, since the benefit is to spread from the leader to the people. Nothing of this benefit should be held back in a selfish way; it should really reach those for whom it is intended. This sort of intermediary, who also exercises a good influence on the leader, is especially important in times when it is a matter of great undertakings, decisive for the future and requiring the inner assent of all concerned. Nine in the fifth place means: If in truth you have a kind heart, ask not.",
+        "Nine at the top means: He brings increase to no one. Indeed, someone even strikes him. He does not keep his heart constantly steady. Misfortune."
+      ]
+    },
+    "43": {
+      "name": "Kuai / Break-through (Resoluteness)",
+      "intro": "above TUI THE JOYOUS, LAKE below CH'IEN THE CREATIVE, HEAVEN\n\nThis hexagram signifies on the one hand a break-through after a long accumulation of tension, as a swollen river breaks through its dikes, or in the manner of a cloudburst. On the other hand, applied to human conditions, it refers to the time when inferior people gradually begin to disappear. Their influence is on the wane; as a result of resolute action, a change in conditions occurs, a break-through. The hexagram is linked with the third month [April-May].",
+      "judgment": "BREAK-THROUGH. One must resolutely make the matter known At the court of the king. It must be announced truthfully. Danger. It is necessary to notify one's own city. It does not further to resort to arms. It furthers one to undertake something.",
+      "image": "The lake has risen up to heaven:",
+      "lines": [
+        "Nine at the beginning means: Mighty in the forward-striding toes. When one goes and is not equal to the task, One makes a mistake.",
+        "Nine in the second place means: A cry of alarm. Arms at evening and at night. Fear nothing.",
+        "Nine in the third place means: To be powerful in the cheekbones Brings misfortune.",
+        "Nine in the fourth place means: There is no skin on his thighs, And walking comes hard. If a man were to let himself be led like a sheep, Remorse would disappear. But if these words are heard",
+        "Here a man is suffering from inner restlessness and cannot abide in his place. He would like to push forward under any circumstances, but encounters insuperable obstacles. Thus his situation entails an inner conflict. This is due to the obstinacy with which he seeks to enforce his will. If he would desist from this obstinacy, everything would go well. But this advice, like so much other good counsel, will be ignored. For obstinacy makes a man unable to hear, for all that he has ears. Nine in the fifth place means: In dealing with weeds, Firm resolution is necessary. Walking in the middle Remains free of blame.",
+        "Six at the top means: No cry. In the end misfortune comes."
+      ]
+    },
+    "44": {
+      "name": "Kou / Coming to Meet",
+      "intro": "above CH'IEN THE CREATIVE, HEAVEN below SUN THE GENTLE, WIND\n\nThis hexagram indicates a situation in which the principle of darkness, after having been eliminated, furtively and unexpectedly obtrudes again from within and below. Of its own accord the female principle comes to meet the male. It is an unfavorable and dangerous situation, and we must understand and promptly prevent the possible consequences. The hexagram is linked with the fifth month [June-July], because at the summer solstice the principle of darkness gradually becomes ascendant again.",
+      "judgment": "COMING TO MEET. The maiden is powerful. One should not marry such a maiden.",
+      "image": "Under heaven, wind:",
+      "lines": [
+        "Six at the beginning means: It must be checked with a brake of bronze. Perseverance brings good fortune. If one lets it take its course, one experiences misfortune. Even a lean pig has it in him to rage around.",
+        "If an inferior element has wormed its way in, it must be energetically checked at once. By consistently checking it, bad effects can be avoided. If it is allowed to take its course, misfortune is bound to result; the insignificance of that which creeps in should not be a temptation to underrate it. A pig that is still young and lean cannot rage around much, but after it has eaten its fill and become strong, its true nature comes out if it has not previously been curbed. Nine in the second place means: There is a fish in the tank. No blame. Does not further guests.",
+        "Nine in the third place means: There is no skin on his thighs, And walking comes hard. If one is mindful of the danger, No great mistake is made.",
+        "Nine in the fourth place means: No fish in the tank.",
+        "Insignificant people must be tolerated in order to keep them well disposed. Then we can make use of them if we should need them. If we become alienated from them and do not meet them halfway, they turn their backs on us and are not at our disposal when we need them. But this is our own fault. Nine in the fifth place means: A melon covered with willow leaves. Hidden lines.",
+        "Nine at the top means: He comes to meet with his horns. Humiliation. No blame."
+      ]
+    },
+    "45": {
+      "name": "Ts'ui / Gathering Together [Massing]",
+      "intro": "above TUI THE JOYOUS, LAKE below K'UN THE RECEPTIVE, EARTH\n\nThis hexagram is related in form and meaning to Pi, HOLDING TOGETHER\n\n8 . In the latter, water is over the earth; here a lake is over the earth. But since the lake is a place where water collects, the idea of gathering together is even more strongly expressed here than in the other hexagram. The same idea also arises from the fact that in the present case it is two strong lines (the fourth and the fifth) that bring about the gather together, whereas in the former case one strong line (the fifth) stands in the midst of weak lines.",
+      "judgment": "GATHERING TOGETHER. Success.",
+      "image": "Over the earth, the lake:",
+      "lines": [
+        "Six at the beginning means: If you are sincere, but not to the end,",
+        "Six in the second place means: Letting oneself be drawn Brings good fortune and remains blameless. If one is sincere, It furthers one to bring even a small offering.",
+        "Six in the third place means: Gathering together amid sighs.",
+        "Often a man feels an urge to unite with others, but the individuals around him have already formed themselves into a group, so that he remains isolated. The whole situation proves untenable. Then he ought to choose the way of progress, resolutely allying himself with a man who stands nearer to the center of the group, and can help him to gain admission to the closed circle. This is not a mistake, even though at first his position as an outsider is somewhat humiliating. Nine in the fourth place means: Great good fortune. No blame.",
+        "This describes a man who gathers people around him in the name of his ruler. Since he is not striving for any special advantages for himself but is working unselfishly to bring about general unity, his work is crowned with success, and everything becomes as it should be. Nine in the fifth place means: If in gathering together one has position,",
+        "Six at the top means: Lamenting and sighing, floods of tears."
+      ]
+    },
+    "46": {
+      "name": "Sh&ecirc;ng / Pushing Upward",
+      "intro": "above K'UN THE RECEPTIVE, EARTH below SUN THE GENTLE, WIND, WOOD\n\nThe lower trigram, Sun, represents wood, and the upper, K'un, means the earth. Linked with this is the idea that wood in the earth grows upward. In contrast to the meaning of Chin, PROGRESS\n\n35 , this pushing upward is associated with effort, just as a plant needs energy for pushing upward through the earth. That is why this hexagram, although it is connected with success, is associated with effort of the will. In PROGRESS the emphasis is on expansion; PUSHING UPWARD indicates rather a vertical ascent-direct rise from obscurity and lowliness to power and influence.",
+      "judgment": "PUSHING UPWARD has supreme success. One must see the great man. Fear not. Departure toward the south Brings good fortune.",
+      "image": "Within the earth, wood grows:",
+      "lines": [
+        "Six at the beginning means: Pushing upward that meets with confidence Brings great good fortune.",
+        "Nine in the second place means: If one is sincere, It furthers one to bring even a small offering.",
+        "Nine in the third place means: One pushes upward into an empty city.",
+        "Six in the fourth place means: The king offers him Mount Ch'i. Good fortune. No blame.",
+        "Mount Ch'i is in the western China, the homeland of King Wên, whose son, the Duke of Chou, added the words to the individual lines. The pronouncement takes us back to a time when the Chou dynasty was coming into power. At that time King Wên introduced his illustrious helpers to the god of his native mountain, and they received their places in the halls of the ancestors by the side of the ruler. This indicates a stage in which pushing upward attains its goal. One acquires fame in the sight of gods and men, is received into the circle of those who foster the spiritual life of the nation, and thereby attains a significance that endures beyond time. Six in the fifth place means: Perseverance brings good fortune. One pushes upward by steps.",
+        "Six at the top means: Pushing upward in darkness. It furthers one"
+      ]
+    },
+    "47": {
+      "name": "K'un / Oppression (Exhaustion)",
+      "intro": "above TUI THE JOYOUS, LAKE below K'AN THE ABYSMAL, WATER\n\nThe lake is above, water below; the lake is empty, dried up. Exhaustion is expressed in yet another way: at the top, a dark line is holding down two light line; below, a light line is hemmed in between two dark ones. The upper trigram belongs to the principle of darkness, the lower to the principle of light. Thus everywhere superior men are oppressed and held in restraint by inferior men.",
+      "judgment": "OPPRESSION. Success. Perseverance.",
+      "image": "There is not water in the lake:",
+      "lines": [
+        "Six at the beginning means: One sits oppressed under a bare tree And strays into a gloomy valley. For three years one sees nothing.",
+        "When adversity befalls a man, it is important above all things for him to be strong and to overcome the trouble inwardly. If he is weak, the trouble overwhelms him. Instead of proceeding on his way, he remains sitting under a bare tree and falls ever more deeply into gloom and melancholy. This makes the situation only more and more hopeless. Such an attitude comes from an inner delusion that he must by all means overcome. Nine in the second place means: One is oppressed while at meat and drink.",
+        "Six in the third place means: A man permits himself to be oppressed by stone, And leans on thorns and thistles. He enters the house and does not see his wife. Misfortune.",
+        "Nine in the fourth place means: He comes very quietly, oppressed in a golden carriage. Humiliation, but the end is reached.",
+        "A well-to-do man sees the need of the lower classes and would like very much to be of help. But instead of proceeding with speed and energy where their is need, he begins in a hesitant and measured way. Then he encounters obstructions. Powerful and wealthy acquaintances draw him into their circle; he has to do as they do and cannot withdraw from them. Hence he finds himself in great embarrassment. But the trouble is transitory. The original strength of his nature offsets the mistake he has made, and the goal is reached. Nine in the fifth place means: His nose and feet are cut off. Oppression at the hands of the man with the purple knee bands. Joy comes softly. It furthers one to make offerings and libations.",
+        "Six at the top means: He is oppressed by creeping vines. He moves uncertainly and says, \"Movement brings remorse.\" If one feels remorse over this and makes a start, Good fortune comes."
+      ]
+    },
+    "48": {
+      "name": "Ching / The Well",
+      "intro": "above K'AN THE ABYSMAL, WATER below SUN THE GENTLE, WIND, WOOD\n\nWood is below, water above. The wood goes down into the earth to bring up water. The image derives from the pole-and-bucket well of ancient China. The wood represents not the buckets, which in ancient times were made of clay, but rather the wooden poles by which the water is hauled up from the well. The image also refers to the world of plants, which lift water out of the earth by means of their fibers. The well from which water is drawn conveys the further idea of an inexhaustible dispensing of nourishment.",
+      "judgment": "THE WELL. The town may be changed, But the well cannot be changed. It neither decreases nor increases.",
+      "image": "Water over wood: the image of THE WELL.",
+      "lines": [
+        "Six at the beginning means: One does not drink the mud of the well.",
+        "Nine in the second place means: At the well hole one shoots fishes.",
+        "Nine in the third place means: The well is cleaned, but no one drinks from it.",
+        "Six in the fourth place means: The well is being lined. No blame.",
+        "True, if a well is being lined with sone, it cannot be used while the work is going on. But the work is not in vain; the result is that the water stays clear. In life also there are times when a man must put himself in order. During such a time he can do nothing for others, but his work is nonetheless valuable, because by enhancing his powers and abilities through inner development, he can accomplish all the more later on. Nine in the fifth place means: In the well there is a clear, cold spring From which one can drink.",
+        "Six at the top means: One draws from the well Without hindrance. It is dependable."
+      ]
+    },
+    "49": {
+      "name": "Ko / Revolution (Molting)",
+      "intro": "above TUI THE JOYOUS, LAKE below LI THE CLINGING, FIRE\n\nThe Chinese character for this hexagram means in its original sense an animal's pelt, which is changed in the course of the year by molting. From this word is carried over to apply to the \"moltings\" in political life, the great revolutions connected with changes of governments. The two trigrams making up the hexagram are the same two that appear in K'uei, OPPOSITION\n\n38 , that is, the two younger daughters, Li and Tui. But while there the elder of the two daughters is above, and what results is essentially only an opposition of tendencies, here the younger daughter is above. The influences are in actual conflict, and the forces combat each other like fire and water (lake), each trying to destroy the other. Hence the idea of revolution.",
+      "judgment": "REVOLUTION. On your own day You are believed.",
+      "image": "Fire in the lake: the image of REVOLUTION.",
+      "lines": [
+        "Nine at the beginning means: Wrapped in the hide of a yellow cow.",
+        "Six in the second place means: When one's own day comes, one may create revolution.",
+        "Nine in the third place means: Starting brings misfortune. Perseverance brings danger. When talk of revolution has gone the rounds three times, One may commit himself, And men will believe him.",
+        "Nine in the fourth place means: Remorse disappears. Men believe him. Changing the form of government brings good fortune.",
+        "Radical changes require adequate authority. A man must have inner strength as well as influential position. What he does must correspond with a higher truth and must not spring from arbitrary or petty motives; then it brings great good fortune. If a revolution is not founded on such inner truth, the results are bad, and it has no success. For in the end men will support only those undertakings which they feel instinctively to be just. Nine in the fifth place means: The great man changes like a tiger. Even before he questions the oracle He is believed.",
+        "Six at the top means: The superior man changes like a panther."
+      ]
+    },
+    "50": {
+      "name": "Ting / The Caldron",
+      "intro": "above LI THE CLINGING, FIRE below SUN THE GENTLE, WIND, WOOD\n\nThe six lines construct the image of Ting, THE CALDRON; at the bottom are the legs, over them the belly, then come the ears (handles), and at the top the carrying rings. At the same time, the image suggests the idea of nourishment. The ting, cast of bronze, was the vessel that held the cooked viands in the temple of the ancestors and at banquets. The heads of the family served the food from the ting into the bowls of the guests. THE WELL\n\n48 likewise has the secondary meaning of giving nourishment, but rather more in relation to the people. The ting, as a utensil pertaining to a refined civilization, suggests the fostering and nourishing of able men, which redounded to the benefit of the state. This hexagram and THE WELL are the only two in the Book of Changes that represent concrete, men-made objects. Yet here too the thought has its abstract connotation. Sun, below, is wood and wind; Li, above, is flame. Thus together they stand for the flame kindled by wood and wind, which likewise suggests the idea of preparing food.",
+      "judgment": "THE CALDRON. Supreme good fortune.",
+      "image": "Fire over wood:",
+      "lines": [
+        "Six at the beginning means: A ting with legs upturned. Furthers removal of stagnating stuff. One takes a concubine for the sake of her son.",
+        "Nine in the second place means: There is food in the ting. My comrades are envious, But they cannot harm me. Good fortune.",
+        "Nine in the third place means: The handle of the ting is altered. One is impeded in his way of life.",
+        "Nine in the fourth place means: The legs of the ting are broken.",
+        "A man has a difficult and responsible task to which he is not adequate. Moreover, he does not devote himself to it with all his strength but goes about with inferior people; therefore the execution of the work fails. In this way he also incurs personal opprobrium. Confucius says about this line: \"Weak character coupled with honored place, meager knowledge with large plans, limited powers with heavy responsibility, will seldom escape disaster.\" Six in the fifth place means: The ting has yellow handles, golden carrying rings. Perseverance furthers.",
+        "Here we have, in a ruling position, a man who is approachable and modest in nature. As a result of this attitude he succeeds in finding strong and able helpers who complement and aid him in his work. Having achieved this attitude, which requires constant self-abnegation, it is important for him to hold to it and not to let himself be led astray. Nine at the top means: The ting has rings of jade. Great good fortune."
+      ]
+    },
+    "51": {
+      "name": "Ch&ecirc;n / The Arousing (Shock, Thunder)",
+      "intro": "above CHêN THE AROUSING, THUNDER below CHêN THE AROUSING, THUNDER\n\nThe hexagram Chên represents the eldest son, who seizes rule with energy and power. A yang line develops below two yin lines and presses upward forcibly. This movement is so violent that it arouses terror. It is symbolized by thunder, which bursts forth from the earth and by its shock causes fear and trembling.",
+      "judgment": "SHOCK brings success.",
+      "image": "Thunder repeated: the image of SHOCK.",
+      "lines": [
+        "Nine at the beginning means: Shock comes-oh, oh!",
+        "Six in the second place means: Shock comes bringing danger. A hundred thousand times You lose your treasures And must climb the nine hills. Do not go in pursuit of them. After seven days you will get them back again.",
+        "Six in the third place means: Shock comes and makes one distraught. If shock spurs to action One remains free of misfortune.",
+        "Nine in the fourth place means: Shock is mired.",
+        "Six in the fifth place means: Shock goes hither and thither. Danger. However, nothing at all is lost. Yet there are things to be done.",
+        "Six at the top means: Shock brings ruin and terrified gazing around. Going ahead brings misfortune. If it has not yet touched one's own body But has reached one's neighbor first,"
+      ]
+    },
+    "52": {
+      "name": "K&ecirc;n / Keeping Still, Mountain",
+      "intro": "above KêN KEEPING STILL, MOUNTAIN below KêN KEEPING STILL, MOUNTAIN\n\nThe image of this hexagram is the mountain, the youngest son of heaven and earth. The male principle is at the top because it strives upward by nature; the female principle is below, since the direction of its movement has come to its normal end. In its application to man, the hexagram turns upon the problem of achieving a quiet heart. It is very difficult to bring quiet to the heart. While Buddhism strives for rest through an ebbing away of all movement in nirvana, the Book of Changes holds that rest is merely a state of polarity that always posits movement as its complement. Possibly the words of the text embody directions for the practice of yoga.",
+      "judgment": "KEEPING STILL. Keeping his back still",
+      "image": "THE JUDGMENT",
+      "lines": [
+        "Six at the beginning means: Keeping his toes still.",
+        "Six in e second place means: Keeping his calves still. He cannot rescue him whom he follows. His heart is not glad.",
+        "Nine in the third place means: Keeping his hips still. Making his sacrum stiff. Dangerous. The heart suffocates.",
+        "Six in the fourth place means: Keeping his trunk still.",
+        "Six in the fifth place means: Keeping his jaws still.",
+        "A man in a dangerous situation, especially when he is not adequate to it, is inclined to be very free with talk and presumptuous jokes. But injudicious speech easily leads to situations that subsequently give much cause for regret. However, if a man is reserved in speech, his words take ever more definite form, and every occasion for regret vanishes. Nine at the top means: Noblehearted keeping still. Good fortune."
+      ]
+    },
+    "53": {
+      "name": "Chien / Development (Gradual Progress)",
+      "intro": "above SUN THE GENTLE, WIND, WOOD below KêN KEEPING STILL, MOUNTAIN\n\nThis hexagram is made up of Sun (wood, penetration) above, i.e., without, and Kên (mountain, stillness) below, i.e., within. A tree on a mountain develops slowly according to the law of its being and consequently stands firmly rooted. This gives the idea of a development that proceeds gradually, step by step. The attributes of the trigrams also point to this: within is tranquillity, which guards against precipitate actions, and without is penetration, which makes development and progress possible.",
+      "judgment": "DEVELOPMENT. The maiden Is given in marriage. Good fortune. Perseverance furthers.",
+      "image": "On the mountain, a tree:",
+      "lines": [
+        "Six at the beginning means: The wild goose gradually draws near the shore.",
+        "All the individual lines in this hexagram symbolize the gradual flight of the wild goose. The wild goose is the symbol of conjugal fidelity, because it is believed that this bird never takes another mate after the death of the first. The initial line suggests the first resting place in the flight of water birds from the water to the heights. The shore is reached. The situation is that of a lonely young man who is just starting out to make his way in life. Since no one comes to help him, his first steps are slow and hesitant, and he is surrounded by danger. Naturally he is subjected to much criticism. But these very difficulties keep him from being too hasty, and his progress is successful. Six in the second place means: The wild goose gradually draws near the cliff. Eating and drinking in peace and concord. Good fortune.",
+        "Nine in the third place means: The wild goose gradually draws near the plateau.",
+        "Six in the fourth place means: The wild goose goes gradually draws near the tree. Perhaps it will find a flat branch. No blame.",
+        "A tree is not a suitable place for a wild goose. But if it is clever, it will find a flat branch on which it can get a footing. A man's life too, in the course of its development, often brings him into inappropriate situations, in which he finds it difficult to hold his own without danger. Then it is important to be sensible and yielding. This enables him to discover a safe place in which life can go on, although he may be surrounded by danger. Nine in the fifth place means: The wild goose gradually draws near the summit. For three years the woman has no child. In the end nothing can hinder her. Good fortune.",
+        "Nine at the top means: The wild goose gradually draws near the clouds heights. Its feathers can be used for the sacred dance. Good fortune."
+      ]
+    },
+    "54": {
+      "name": "Kuei Mei / The Marrying Maiden",
+      "intro": "above CHêN THE AROUSING, THUNDER below TUI THE JOYOUS, LAKE\n\nAbove we have Chên, the eldest son, and below, Tui, the youngest daughter. The man leads and the girl follows him in gladness. The picture is that of the entrance of the girl into her husband's house. In all, there are four hexagrams depicting the relationship between husband and wife. Hsien, INFLUENCE,\n\n31 , describes the attraction that a young couple have for each other; Hêng, DURATION\n\n32 , portrays the permanent relationships of marriage; Chien, DEVELOPMENT\n\n53 , reflects the protracted, ceremonious procedures attending THE MARRYING MAIDEN, shows a young girl under the guidance of an older man who marries her.",
+      "judgment": "THE MARRYING MAIDEN. Undertakings bring misfortune.",
+      "image": "Thunder over the lake:",
+      "lines": [
+        "Nine at the beginning means: The marrying maiden as a concubine. A lame man who is able to tread. Undertakings bring good fortune.",
+        "Nine in the second place means: A one-eyed man who is able to see.",
+        "Six in the third place means: The marrying maiden as a slave.",
+        "Nine in the fourth place means: The marrying maiden draws out the allotted time. A late marriage comes in due course.",
+        "Six in the fifth place means: The sovereign I gave his daughter in marriage.",
+        "Six at the top means: The woman holds the basket, but there are no fruits in it."
+      ]
+    },
+    "55": {
+      "name": "F&ecirc;ng / Abundance [Fullness]",
+      "intro": "above CHêN THE AROUSING, THUNDER below LI THE CLINGING, FIRE\n\nChên is movement; Li is flame, whose attribute is clarity. Clarity within, movement without-this produces greatness and abundance. The hexagram pictures a period of advanced civilization. However, the fact that development has reached a peak suggests that this extraordinary condition of abundance cannot be maintained permanently.",
+      "judgment": "ABUNDANCE has success.",
+      "image": "Both thunder and lightning come:",
+      "lines": [
+        "Nine at the beginning means: When a man meets his destined ruler,",
+        "Six in the second place means: The curtain is of such fullness",
+        "Nine in the third place means: The underbrush is of such abundance",
+        "Nine in the fourth place means: The curtain is of such fullness",
+        "Here the darkness is already decreasing, therefore interrelated elements come together. Here too the complement must be found-the necessary wisdom to complement joy of action. Then everything will go well. The complementary factor postulated here is the reverse of the one in the first line. In the latter, wisdom is to be complemented by energy, while here energy is complemented by wisdom. Six in the fifth place means: Lines are coming, Blessing and fame draw near. Good fortune.",
+        "Six at the top means: His house is in a state of abundance. He screens off his family. He peers through the gate And no longer perceives anyone. For three years he sees nothing. Misfortune."
+      ]
+    },
+    "56": {
+      "name": "L&uuml; / The Wanderer",
+      "intro": "above LI THE CLINGING, FIRE below KêN KEEPING STILL, MOUNTAIN\n\nthe mountain, Kên, stands still; above it fire, Li, flames up and does not tarry. Therefore the two trigrams do not stay together. Strange lands and separation are the wanderer's lot. When a man is a wanderer and stranger, he should not be gruff nor overbearing. He has no large circle of acquaintances, therefore he should not give himself airs. He must be cautious and reserved; in this way he protects himself from evil. If he is obliging toward others, he wins success. A wanderer has no fixed abode; his home is the road. Therefore he must take care to remain upright and steadfast, so that he sojourns only in the proper places, associating only with good people. Then he has good fortune and can go his way unmolested.",
+      "judgment": "THE WANDERER. Success through smallness. Perseverance brings good fortune to the wanderer.",
+      "image": "Fire on the mountain:",
+      "lines": [
+        "Six at the beginning means: If the wanderer busies himself with trivial things, He draws down misfortune upon himself.",
+        "Six in the second place means: The wanderer comes to an inn. He has his property with him. He wins the steadfastness of a young servant.",
+        "Nine in the third place means: The wanderer's inn burns down. He loses the steadfastness of his young servant. Danger.",
+        "Nine in the fourth place means: The wanderer rests in a shelter. He obtains his property and an ax. My heart is not glad.",
+        "This describes a wanderer who knows how to limit his desires outwardly, though he is inwardly strong and aspiring. Therefore he finds at least a place of shelter in which he can stay. He also succeeds in acquiring property, but even with this he is not secure. He must be always on guard, ready to defend himself with arms. Hence he is not at ease. He is persistently conscious of being a stranger in a strange land. Six in the fifth place means: He shoots a pheasant. It drops with the first arrow. In the end this brings both praise and office.",
+        "Nine at the top means: The bird's nest burns up."
+      ]
+    },
+    "57": {
+      "name": "Sun / The Gentle (The Penetrating, Wind)",
+      "intro": "above SUN THE GENTLE, WIND, WOOD below SUN THE GENTLE, WIND, WOOD\n\nSun is one of the eight doubled trigrams. It is the eldest daughter and symbolizes wind or wood; it has for its attribute gentleness, which nonetheless penetrates like the wind or like growing wood with its roots. The dark principle, in itself rigid and immovable, is dissolved by the penetrating light principle, to which it subordinates itself in gentleness. In nature, it is the wind that disperses the gathered clouds, leaving the sky clear and serene. In human life it is penetrating clarity of judgment that thwarts all dark hidden motives. In the life of the community it is the powerful influence of a great personality that uncovers and breaks up those intrigues which shun the light of day.",
+      "judgment": "THE GENTLE. Success through what is small. It furthers one to have somewhere to go. It furthers one to see the great man.",
+      "image": "Winds following one upon the other:",
+      "lines": [
+        "Six at the beginning means: In advancing and in retreating,",
+        "Nine in the second place means: Penetration under the bed. Priests and magicians are used in great number. Good fortune. No blame.",
+        "Nine in the third place means: Repeated penetration. Humiliation.",
+        "Six in the fourth place means: Remorse vanishes. During the hunt",
+        "When a responsible position and accumulated experience lead one to combine innate modesty with energetic action, great success is assured. The three kinds of animals referred to served for offerings to the gods, for feasting guests, and for everyday consumption. When the catch answered all three purposes, the hunt was considered especially successful. Nine in the fifth place means: Perseverance brings good fortune. Remorse vanishes.",
+        "Nine at the top means: Penetration under the bed. He loses his property and his ax. Perseverance brings misfortune."
+      ]
+    },
+    "58": {
+      "name": "Tui / The Joyous, Lake",
+      "intro": "above TUI THE JOYOUS, LAKE below TUI THE JOYOUS, LAKE\n\nThis hexagram, like sun, is one of the eight formed by doubling of a trigram. The trigram Tui denotes the youngest daughter; it is symbolized by the smiling lake, and its attribute is joyousness. Contrary to appearances, it is not the yielding quality of the top line that accounts for joy here. The attribute of the yielding or dark principle is not joy but melancholy. However, joy is indicated by the fact that there are two strong lines within, expressing themselves through the medium of gentleness. True joy, therefore, rests on firmness and strength within, manifesting itself outwardly as yielding and gentle.",
+      "judgment": "THE JOYOUS. Success. Perseverance is favorable.",
+      "image": "Lakes resting one on the other:",
+      "lines": [
+        "Nine at the beginning means: Contented joyousness. Good fortune.",
+        "A quiet, wordless, self-contained joy, desiring nothing from without and resting content with everything, remains free of all egotistic likes and dislikes. In this freedom lies good fortune, because it harbors the quiet security of a heart fortified within itself. Nine in the second place means: Sincere joyousness. Good fortune. Remorse disappears.",
+        "Six in the third place means: Coming joyousness. Misfortune.",
+        "Nine in the fourth place means: Joyousness that is weighed is not at peace. After ridding himself of mistakes a man has joy.",
+        "Often a man finds himself weighing the choice between various kinds of pleasures, and so long as he has not decided which kind he will choose, the higher or the lower, he has no inner peace. Only when he clearly recognizes that passion brings suffering, can he make up his mind to turn away from the lower pleasures and to strive for the higher. Once this decision is sealed, he finds true joy and peace, and inner conflict is overcome. Nine in the fifth place means: Sincerity toward disintegrating influences is dangerous.",
+        "Six at the top means: Seductive joyousness."
+      ]
+    },
+    "59": {
+      "name": "Huan / Dispersion [Dissolution]",
+      "intro": "above SUN THE GENTLE, WIND below K'AN THE ABYSMAL, WATER\n\nWind blowing over water disperses it, dissolving it into foam and mist. This suggests that when a man's vital energy is dammed up within him (indicated as a danger by the attribute of the lower trigram), gentleness serves to break up and dissolve the blockage.",
+      "judgment": "DISPERSION. Success.",
+      "image": "The wind drives over the water:",
+      "lines": [
+        "Six at the beginning means: He brings help with the strength of a horse. Good fortune.",
+        "Nine in the second place means: At the dissolution He hurries to that which supports him. Remorse disappears.",
+        "Six in the third place means: He dissolves his self. No remorse.",
+        "Six in the fourth place means: He dissolves his bond with his group.",
+        "When we are working at a task that affects the general welfare, we must leave all private friendships out of account. Only by rising above party interests can we achieve something decisive. He who has the courage thus to forego what is near wins what is afar. But in order to comprehend this standpoint, one must have a wide view of the interrelationships of life, such as only unusual men attain. Nine in the fifth place means: His loud cries are as dissolving as sweat. Dissolution! A king abides without blame.",
+        "Nine at the top means: He dissolves his blood. Departing, keeping at a distance, going out, Is without blame."
+      ]
+    },
+    "60": {
+      "name": "Chieh / Limitation",
+      "intro": "above K'AN THE ABYSMAL, WATER below TUI THE JOYOUS, LAKE\n\nA lake occupies a limited space. When more water comes into it, it overflows. Therefore limits must be set for the water. The image shows water below and water above, with the firmament between them as a limit. The Chinese word for limitation really denotes the joints that divide a bamboo stalk. In relation to ordinary life it means the thrift that sets fixed limits upon expenditures. In relation to the moral sphere it means the fixed limits that the superior man sets upon his actions-the limits of loyalty and disinterestedness.",
+      "judgment": "LIMITATION. Success. Galling limitation must not be persevered in.",
+      "image": "Water over lake: the image of LIMITATION.",
+      "lines": [
+        "Nine at the beginning means: Not going out of the door and the courtyard Is without blame.",
+        "Nine in the second place means: Not going out of the gate and the courtyard Brings misfortune.",
+        "Six in the third place means: He who knows limitation Will have cause to lament.",
+        "Six in the fourth place means: Contented limitation. Success.",
+        "Every limitation has its value, but a limitation that requires persistent effort entails a cost of too much energy. When, however, the limitation is a natural one (as for example, the limitation by which water flows only downhill), it necessarily leads to success, for then it means a saving of energy. The energy that otherwise would be consumed in a vain struggle with the object, is applied wholly to the benefit of the matter in hand, and success is assured. Nine in the fifth place means: Sweet limitation brings good fortune. Going brings esteem.",
+        "Six at the top means: Galling limitation. Perseverance brings misfortune. Remorse disappears."
+      ]
+    },
+    "61": {
+      "name": "Chung Fu / Inner Truth",
+      "intro": "above SUN THE GENTLE, WIND below TUI THE JOYOUS, LAKE\n\nThe wind blows over the lake and stirs the surface of the water. Thus visible effects of the invisible manifest themselves. The hexagram consists of firm lines above and below, while it is open in the center. This indicates a heart free of prejudices and therefore open to truth. On the other hand, each of the two trigrams has a firm line in the middle; this indicates the force of inner truth in the influences they present. The attributes of the two trigrams are: above, gentleness, forbearance toward inferiors; below, joyousness in obeying superiors. Such conditions create the basis of a mutual confidence that makes achievements possible. The character of fu (\"truth\") is actually the picture of a bird's foot over a fledgling. It suggests the idea of brooding. An egg is hollow. The light-giving power must work to quicken it from outside, but there must be a germ of life within, if life is to be awakened. Far-reaching speculations can be linked with these ideas.",
+      "judgment": "INNER TRUTH. Pigs and fishes. Good fortune. It furthers one to cross the great water. Perseverance furthers.",
+      "image": "Wind over lake: the image of INNER TRUTH.",
+      "lines": [
+        "Nine at the beginning means: Being prepared brings good fortune. If there are secret designs, it is disquieting.",
+        "Nine in the second place means: A crane calling in the shade. Its young answers it. I have a good goblet. I will share it with you.",
+        "Six in the third place means: He finds a comrade.",
+        "Six in the fourth place means: The moon nearly at the full.",
+        "To intensify the power of inner truth, a man must always turn to his superior, from whom he can receive enlightenment as the moon receives light form the sun. However, this requires a certain humility, like that of the moon when it is not yet quite full. At the moment when the moon becomes full and stands directly opposite the sun, it begins to wane. Just as on the one hand we must be humble and reverent when face to face with the source of enlightenment, so likewise must we on the other renounce factionalism among men. Only be pursuing one's course like a horse that goes straight ahead without looking sidewise at its mate, can one retain the inner freedom that helps one onward. Nine in the fifth place means: He possesses truth, which links together.",
+        "Nine at the top means: Cockcrow penetrating to heaven. Perseverance brings misfortune."
+      ]
+    },
+    "62": {
+      "name": "Hsiao Kuo / Preponderance of the Small",
+      "intro": "above CHêN THE AROUSING, THUNDER below KêN KEEPING STILL, MOUNTAIN\n\nWhile in the hexagram Ta Kuo, PREPONDERANCE OF THE GREAT\n\n28 , the strong lines preponderate and are within, inclosed between weak lines at the top and bottom, the present hexagram has weak lines preponderating, though here again they are on the outside, the strong lines being within. This indeed is the basis of the exceptional situation indicated by the hexagram. When strong lines are outside, we have the hexagram I, PROVIDING NOURISHMENT\n\n27 , or Chung Fu, INNER TRUTH,\n\n61 ; neither represents and exceptional state. When strong elements within preponderate, they necessarily enforce their will. This creates struggle and exceptional conditions in general. But in the present hexagram it is the weak element that perforce must mediate with the outside world. If a man occupies a position of authority for which he is by nature really inadequate, extraordinary prudence is necessary.",
+      "judgment": "PREPONDERANCE OF THE SMALL. Success. Perseverance furthers.",
+      "image": "Thunder on the mountain:",
+      "lines": [
+        "Six at the beginning means: The bird meets with misfortune through flying.",
+        "A bird ought to remain in the nest until it is fledged. If it tries to fly before this, it invites misfortune. Extraordinary measures should be resorted to only when all else fails. At first we ought to put up with traditional ways as long as possible; otherwise we exhaust ourselves and our energy and still achieve nothing. Six in the second place means: She passes by her ancestor And meets her ancestress. He does not reach his prince And meets the official.",
+        "Nine in the third place means: If one is not extremely careful,",
+        "Nine in the fourth place means: No blame. He meets him without passing by. Going brings danger. One must be on guard. Do not act. Be constantly persevering.",
+        "Hardness of character is tempered by yielding position so that no mistakes are made. The situation here calls for extreme caution; one must make no attempt of one's own initiative to reach the desired end. And if one were to go on, endeavoring one must be on guard and not act but continue inwardly to persevere. Six in the fifth place means: Dense clouds,",
+        "Six at the top means: He passes him by, not meeting him."
+      ]
+    },
+    "63": {
+      "name": "Chi Chi / After Completion",
+      "intro": "above K'AN THE ABYSMAL, WATER below LI THE CLINGING, FIRE\n\nThis hexagram is the evolution of T'ai PEACE\n\n11 . The transition from confusion to order is completed, and everything is in its proper place even in particulars. The strong lines are in the strong places, the weak lines in the weak places. This is a very favorable outlook, yet it gives reason for thought. For it is just when perfect equilibrium has been reached that any movement may cause order to revert to disorder. The one strong line that has moved to the top, thus effecting complete order in details, is followed by the other lines. Each moving according to its nature, and thus suddenly there arises again the hexagram P'i, STANDSTILL\n\n12 . Hence the present hexagram indicates the conditions of a time of climax, which necessitate the utmost caution.",
+      "judgment": "AFTER COMPLETION. Success in small matters. Perseverance furthers. At the beginning good fortune. At the end disorder.",
+      "image": "Water over fire: the image of the condition In AFTER COMPLETION.",
+      "lines": [
+        "Nine at the beginning means: He breaks his wheels. He gets his tail in the water.",
+        "In times following a great transition, everything is pressing forward, striving in the direction of development and progress. But this pressing forward at the beginning is not good; it overshoots the mark and leads with certainty to loss and collapse. Therefore a man of strong character does not allow himself to be infected by the general intoxication but checks his course in time. He may indeed not remain altogether untouched by the disastrous consequences of the general pressure, but he is hit only from behind like a fox that, having crossed the water, at the last minute gets its tail wet. He will not suffer any real harm, because his behavior has been correct. Six in the second place means: The woman loses the curtain of her carriage. Do not run after it; On the seventh day you will get it.",
+        "Nine in the third place means: The Illustrious Ancestor Disciplines the Devil's Country. After three years he conquers it. Inferior people must not be employed.",
+        "Six in the fourth place means: The finest clothes turn to rags. Be careful all day long.",
+        "Nine in the fifth place means: The neighbor in the east who slaughters an ox Does not attain as much real happiness As the neighbor in the west With his small offering.",
+        "Six at the top means: He gets his head in the water. Danger."
+      ]
+    },
+    "64": {
+      "name": "Wei Chi / Before Completion",
+      "intro": "above LI THE CLINGING, FLAME below K'AN THE ABYSMAL, WATER\n\nThis hexagram indicates a time when the transition from disorder to order is not yet completed. The change is indeed prepared for, since all the lines in the upper trigram are in relation to those in the lower. However, they are not yet in their places. While the preceding hexagram offers an analogy to autumn, which forms the transition from summer to winter, this hexagram presents a parallel to spring, which leads out of winter's stagnation into the fruitful time of summer. With this hopeful outlook the Book of Changes come to its close.",
+      "judgment": "BEFORE COMPLETION. Success. But if the little fox, after nearly completing the crossing, Gets his tail in the water,",
+      "image": "Fire over water:",
+      "lines": [
+        "Six at the beginning means: He gets his tail in the water. Humiliating.",
+        "Nine in the second place means: He brakes his wheels. Perseverance brings good fortune.",
+        "Six in the third place means: Before completion, attack brings misfortune. It furthers one to cross the great water.",
+        "Nine in the fourth place means: Perseverance brings good fortune. Remorse disappears.",
+        "Now it is the time of struggle. The transition must be completed. We must make ourselves strong in resolution; this brings good fortune. All misgivings that might arise in such grave times of struggle must be silenced. It is a question of a fierce battle to break and to discipline the Devil's Country, the forces of decadence. But the struggle also has its reward. Now is the time to lay the foundations of power and mastery for the future. Six in the fifth place means: Perseverance brings good fortune.",
+        "Nine at the top means: There is drinking of wine In genuine confidence. No blame. But if one wets his head, He loses it, in truth."
+      ]
+    }
+  }
+})();
