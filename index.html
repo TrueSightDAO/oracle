@@ -944,6 +944,11 @@
         color: var(--ink-soft);
       }
 
+      .dao-advisory-actions {
+        display: grid;
+        gap: 10px;
+      }
+
       .dao-advisory-cta {
         display: grid;
         gap: 8px;
@@ -1517,40 +1522,48 @@
           Advisory appears here after the reading is revealed.
         </p>
         <div class="dao-advisory-body" id="daoAdvisoryBody"></div>
-        <div class="dao-advisory-cta" id="daoAdvisoryCta" hidden>
-          <p>Act on this guidance while the signal is fresh.</p>
-          <a
-            href="https://truesight.me/report_contribution.html"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Start contributing</a
-          >
-        </div>
-        <div class="dao-advisory-links">
-          <a
-            href="https://raw.githubusercontent.com/TrueSightDAO/agentic_ai_context/main/ADVISORY_SNAPSHOT.md"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Latest ADVISORY_SNAPSHOT</a
-          >
-          <a
-            href="https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/index.json"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Advisory index.json</a
-          >
-          <a
-            href="https://github.com/TrueSightDAO/ecosystem_change_logs/tree/main/advisory/snapshots"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Advisory snapshots</a
-          >
-        </div>
-        <div class="dao-advisory-copy">
-          <div class="dao-advisory-copy-row">
-            <button type="button" id="copyAdvisoryContextButton">Copy context for other LLM oracles</button>
+        <div class="dao-advisory-actions" id="daoAdvisoryActions" hidden>
+          <div class="dao-advisory-cta" id="daoAdvisoryCta" hidden>
+            <p>Act on this guidance while the signal is fresh.</p>
+            <a
+              href="https://truesight.me/report_contribution.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Start contributing</a
+            >
           </div>
-          <p class="dao-advisory-copy-status" id="daoAdvisoryCopyStatus" hidden></p>
+          <div class="dao-advisory-links">
+            <a
+              href="https://raw.githubusercontent.com/TrueSightDAO/agentic_ai_context/main/ADVISORY_SNAPSHOT.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Latest ADVISORY_SNAPSHOT</a
+            >
+            <a
+              href="https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/index.json"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Advisory index.json</a
+            >
+            <a
+              href="https://github.com/TrueSightDAO/ecosystem_change_logs/tree/main/advisory/snapshots"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Advisory snapshots</a
+            >
+            <a
+              href="https://github.com/TrueSightDAO/tokenomics/blob/main/clasp_mirrors/1_jTHZZI033E0y2TQNZg98N_bW6lNP2I9sLA__nNQEWpRAw2Q6vsn9DsL/Code.js"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GAS backend logic (GitHub)</a
+            >
+          </div>
+          <div class="dao-advisory-copy">
+            <div class="dao-advisory-copy-row">
+              <button type="button" id="copyAdvisoryContextButton">Copy context for other LLM oracles</button>
+            </div>
+            <p class="dao-advisory-copy-status" id="daoAdvisoryCopyStatus" hidden></p>
+          </div>
         </div>
       </article>
 
@@ -1917,6 +1930,7 @@
       const daoAdvisoryPanel = document.getElementById("daoAdvisoryPanel");
       const daoAdvisoryStatus = document.getElementById("daoAdvisoryStatus");
       const daoAdvisoryBody = document.getElementById("daoAdvisoryBody");
+      const daoAdvisoryActions = document.getElementById("daoAdvisoryActions");
       const daoAdvisoryCta = document.getElementById("daoAdvisoryCta");
       const copyAdvisoryContextButton = document.getElementById("copyAdvisoryContextButton");
       const daoAdvisoryCopyStatus = document.getElementById("daoAdvisoryCopyStatus");
@@ -2862,6 +2876,12 @@
         }
       }
 
+      function setDaoAdvisoryActionsVisible(visible) {
+        if (daoAdvisoryActions) {
+          daoAdvisoryActions.hidden = !visible;
+        }
+      }
+
       function setDaoCopyStatus(message) {
         if (!daoAdvisoryCopyStatus) return;
         daoAdvisoryCopyStatus.textContent = message || "";
@@ -2887,6 +2907,52 @@
         if (!name) return "";
         const parts = name.split("/").map((part) => part.trim());
         return parts.length > 1 ? parts[1] : parts[0];
+      }
+
+      function buildParityContextTemplate(reading) {
+        const r = reading || currentReading || loadStoredReading();
+        const primary = r?.primaryHexagram || {};
+        const related = r?.relatedHexagram || null;
+        const lines = Array.isArray(r?.lines) ? r.lines : [];
+        const changing = lines
+          .filter((line) => line && line.isChanging)
+          .map((line) => line.lineNumber)
+          .join(", ");
+
+        const signature = linesToSignature(lines) || "unknown";
+        const primaryName = toHexagramShortName(primary.name || "");
+        const relatedName = related ? toHexagramShortName(related.name || "") : "none";
+        const primaryJudgment = getJudgmentText(primary) || "n/a";
+        const relatedJudgment = related ? getJudgmentText(related) || "n/a" : "n/a";
+        const timestamp = r?.timestamp || new Date().toISOString();
+
+        return [
+          "You are an advisor to TrueSight DAO. Integrate I Ching symbolism with concrete DAO operating context.",
+          "Output plain text only with these sections:",
+          "1) Reading synthesis (2-4 lines)",
+          "2) DAO priorities today (3 bullets)",
+          "3) Risks / watch-outs (3 bullets)",
+          "4) One decisive action in next 24h",
+          "Keep it practical, specific, and aligned with current advisory materials.",
+          "",
+          "I CHING DRAW",
+          `- Signature: ${signature}`,
+          `- Primary: #${primary.number || "?"} ${primaryName || "unknown"}`,
+          `- Primary judgment: ${primaryJudgment}`,
+          `- Related: ${
+            related ? `#${related.number || "?"} ${relatedName || "unknown"}` : "none"
+          }`,
+          `- Related judgment: ${relatedJudgment}`,
+          `- Changing lines: ${changing || "none"}`,
+          `- Timestamp UTC: ${timestamp}`,
+          "",
+          "Use these latest DAO advisory context URLs:",
+          ADVISORY_SNAPSHOT_URL,
+          ADVISORY_INDEX_URL,
+          "",
+          "Optional additional base context URL:",
+          "https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/BASE.md"
+        ].join("\n");
       }
 
       function buildAdvisoryQuery(reading) {
@@ -2929,6 +2995,7 @@
         daoAdvisoryPanel.hidden = false;
         setDaoAdvisoryStatus("Loading DAO advisory from Grok via GAS...");
         setDaoAdvisoryBody("");
+        setDaoAdvisoryActionsVisible(false);
         setDaoAdvisoryCtaVisible(false);
 
         try {
@@ -2951,6 +3018,7 @@
               ? `Generated by ${payload.model} at ${payload.generated_at_utc || "unknown time"}`
               : `Generated at ${payload.generated_at_utc || "unknown time"}`
           );
+          setDaoAdvisoryActionsVisible(true);
           setDaoAdvisoryCtaVisible(true);
           advisoryCacheSet(signature, payload);
         } catch (error) {
@@ -2959,6 +3027,7 @@
           setDaoAdvisoryBody(
             "The reading is complete, but the DAO advisory call failed. You can still open the advisory links above and retry by recasting."
           );
+          setDaoAdvisoryActionsVisible(false);
           setDaoAdvisoryCtaVisible(false);
         }
       }
@@ -3237,6 +3306,7 @@
         if (daoAdvisoryPanel) {
           daoAdvisoryPanel.hidden = true;
         }
+        setDaoAdvisoryActionsVisible(false);
         setDaoAdvisoryCtaVisible(false);
         setDaoAdvisoryStatus("Advisory appears here after the reading is revealed.");
         setDaoAdvisoryBody("");
@@ -3292,12 +3362,8 @@
 
       if (copyAdvisoryContextButton) {
         copyAdvisoryContextButton.addEventListener("click", () => {
-          const contextBlock = [
-            "Use these latest DAO advisory context URLs:",
-            ADVISORY_SNAPSHOT_URL,
-            ADVISORY_INDEX_URL
-          ].join("\n");
-          copyToClipboardOrPrompt(contextBlock, "advisory context");
+          const parityPrompt = buildParityContextTemplate(currentReading || loadStoredReading());
+          copyToClipboardOrPrompt(parityPrompt, "oracle parity prompt");
         });
       }
 
