@@ -847,6 +847,129 @@
         align-items: center;
       }
 
+      .dao-advisory-panel {
+        border: 1px solid rgba(36, 22, 11, 0.14);
+        border-radius: var(--radius-md);
+        background: var(--bg-strong);
+        padding: 18px 20px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .dao-advisory-panel h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: var(--accent-strong);
+      }
+
+      .dao-advisory-status {
+        margin: 0;
+        font-size: 0.86rem;
+        color: var(--ink-soft);
+      }
+
+      .dao-advisory-body {
+        color: var(--ink);
+        line-height: 1.62;
+      }
+
+      .dao-advisory-body h3,
+      .dao-advisory-body h4 {
+        margin: 10px 0 6px;
+        color: var(--accent-strong);
+      }
+
+      .dao-advisory-body p {
+        margin: 0 0 10px;
+      }
+
+      .dao-advisory-body ul {
+        margin: 0 0 12px;
+        padding-left: 20px;
+      }
+
+      .dao-advisory-body li {
+        margin: 4px 0;
+      }
+
+      .dao-advisory-body code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.86em;
+        background: rgba(36, 22, 11, 0.08);
+        border-radius: 6px;
+        padding: 1px 6px;
+      }
+
+      .dao-advisory-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .dao-advisory-links a {
+        font-size: 0.84rem;
+        color: var(--accent-strong);
+        text-decoration: none;
+        border: 1px solid rgba(185, 137, 76, 0.35);
+        border-radius: 999px;
+        padding: 6px 12px;
+        background: rgba(185, 137, 76, 0.08);
+      }
+
+      .dao-advisory-copy {
+        display: grid;
+        gap: 8px;
+      }
+
+      .dao-advisory-copy-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .dao-advisory-copy-row button {
+        padding: 7px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(185, 137, 76, 0.36);
+        background: rgba(185, 137, 76, 0.08);
+        color: var(--accent-strong);
+        font-size: 0.84rem;
+        font-weight: 600;
+      }
+
+      .dao-advisory-copy-status {
+        margin: 0;
+        font-size: 0.82rem;
+        color: var(--ink-soft);
+      }
+
+      .dao-advisory-cta {
+        display: grid;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .dao-advisory-cta p {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+      }
+
+      .dao-advisory-cta a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 11px 16px;
+        border-radius: 999px;
+        background: var(--accent-strong);
+        color: #fff;
+        font-weight: 600;
+        text-decoration: none;
+        width: fit-content;
+      }
+
       .share-button {
         background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
         color: white;
@@ -1388,6 +1511,49 @@
         </details>
       </section>
 
+      <article class="dao-advisory-panel" id="daoAdvisoryPanel" hidden>
+        <h2>DAO Advisory (Grok)</h2>
+        <p class="dao-advisory-status" id="daoAdvisoryStatus">
+          Advisory appears here after the reading is revealed.
+        </p>
+        <div class="dao-advisory-body" id="daoAdvisoryBody"></div>
+        <div class="dao-advisory-cta" id="daoAdvisoryCta" hidden>
+          <p>Act on this guidance while the signal is fresh.</p>
+          <a
+            href="https://truesight.me/report_contribution.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Start contributing</a
+          >
+        </div>
+        <div class="dao-advisory-links">
+          <a
+            href="https://raw.githubusercontent.com/TrueSightDAO/agentic_ai_context/main/ADVISORY_SNAPSHOT.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Latest ADVISORY_SNAPSHOT</a
+          >
+          <a
+            href="https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/index.json"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Advisory index.json</a
+          >
+          <a
+            href="https://github.com/TrueSightDAO/ecosystem_change_logs/tree/main/advisory/snapshots"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Advisory snapshots</a
+          >
+        </div>
+        <div class="dao-advisory-copy">
+          <div class="dao-advisory-copy-row">
+            <button type="button" id="copyAdvisoryContextButton">Copy context for other LLM oracles</button>
+          </div>
+          <p class="dao-advisory-copy-status" id="daoAdvisoryCopyStatus" hidden></p>
+        </div>
+      </article>
+
       <footer>
         <strong>Note:</strong> Lines highlighted in amber indicate changing energy—flip them to unveil the relating hexagram.
       </footer>
@@ -1748,8 +1914,21 @@
       const heroGlass = document.getElementById("heroGlass");
       const lastReadingPreview = document.getElementById("lastReadingPreview");
       const heroStatus = document.getElementById("heroStatus");
+      const daoAdvisoryPanel = document.getElementById("daoAdvisoryPanel");
+      const daoAdvisoryStatus = document.getElementById("daoAdvisoryStatus");
+      const daoAdvisoryBody = document.getElementById("daoAdvisoryBody");
+      const daoAdvisoryCta = document.getElementById("daoAdvisoryCta");
+      const copyAdvisoryContextButton = document.getElementById("copyAdvisoryContextButton");
+      const daoAdvisoryCopyStatus = document.getElementById("daoAdvisoryCopyStatus");
 
       const STORAGE_KEY = "truesight-oracle-last-reading";
+      const ADVISORY_CACHE_KEY = "truesight-oracle-dao-advisory-cache-v1";
+      const GAS_ORACLE_ADVISORY_URL =
+        "https://script.google.com/macros/s/AKfycbxhfxG4o-nQjgCcq3RT3A37__qXKJ1QX2HdLldNbtbyM2gWmGIKfDhROP2lBiDkRBSt1w/exec";
+      const ADVISORY_SNAPSHOT_URL =
+        "https://raw.githubusercontent.com/TrueSightDAO/agentic_ai_context/main/ADVISORY_SNAPSHOT.md";
+      const ADVISORY_INDEX_URL =
+        "https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/index.json";
 
       const lineOrder = Array.from({ length: totalLines }, (_, index) => index + 1);
       let lineCardElements = [];
@@ -2585,6 +2764,205 @@
         };
       }
 
+      function advisoryCacheGet() {
+        try {
+          const raw = localStorage.getItem(ADVISORY_CACHE_KEY);
+          return raw ? JSON.parse(raw) : {};
+        } catch (error) {
+          return {};
+        }
+      }
+
+      function advisoryCacheSet(signature, payload) {
+        if (!signature) return;
+        const cache = advisoryCacheGet();
+        cache[signature] = payload;
+        try {
+          localStorage.setItem(ADVISORY_CACHE_KEY, JSON.stringify(cache));
+        } catch (error) {
+          console.warn("Unable to persist advisory cache:", error);
+        }
+      }
+
+      function setDaoAdvisoryStatus(message) {
+        if (daoAdvisoryStatus) {
+          daoAdvisoryStatus.textContent = message || "";
+        }
+      }
+
+      function setDaoAdvisoryBody(message) {
+        if (daoAdvisoryBody) {
+          daoAdvisoryBody.innerHTML = renderAdvisoryMarkdown(message || "");
+        }
+      }
+
+      function escapeHtml(text) {
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function applyInlineMarkdown(text) {
+        let out = escapeHtml(text);
+        out = out.replace(/`([^`]+)`/g, "<code>$1</code>");
+        out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        out = out.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+        return out;
+      }
+
+      function renderAdvisoryMarkdown(markdown) {
+        const lines = String(markdown || "").split(/\r?\n/);
+        const chunks = [];
+        let inList = false;
+
+        const closeList = () => {
+          if (inList) {
+            chunks.push("</ul>");
+            inList = false;
+          }
+        };
+
+        for (const raw of lines) {
+          const line = raw.trim();
+          if (!line) {
+            closeList();
+            continue;
+          }
+          if (line.startsWith("### ")) {
+            closeList();
+            chunks.push(`<h4>${applyInlineMarkdown(line.slice(4))}</h4>`);
+            continue;
+          }
+          if (line.startsWith("## ")) {
+            closeList();
+            chunks.push(`<h3>${applyInlineMarkdown(line.slice(3))}</h3>`);
+            continue;
+          }
+          if (line.startsWith("- ") || line.startsWith("* ")) {
+            if (!inList) {
+              chunks.push("<ul>");
+              inList = true;
+            }
+            chunks.push(`<li>${applyInlineMarkdown(line.slice(2))}</li>`);
+            continue;
+          }
+          closeList();
+          chunks.push(`<p>${applyInlineMarkdown(line)}</p>`);
+        }
+        closeList();
+        return chunks.join("");
+      }
+
+      function setDaoAdvisoryCtaVisible(visible) {
+        if (daoAdvisoryCta) {
+          daoAdvisoryCta.hidden = !visible;
+        }
+      }
+
+      function setDaoCopyStatus(message) {
+        if (!daoAdvisoryCopyStatus) return;
+        daoAdvisoryCopyStatus.textContent = message || "";
+        daoAdvisoryCopyStatus.hidden = !message;
+      }
+
+      async function copyToClipboardOrPrompt(text, label) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            setDaoCopyStatus(`${label} copied.`);
+          } else {
+            window.prompt(`Copy this ${label} URL:`, text);
+            setDaoCopyStatus(`${label} shown for copy.`);
+          }
+        } catch (error) {
+          window.prompt(`Copy this ${label} URL:`, text);
+          setDaoCopyStatus(`${label} shown for copy.`);
+        }
+      }
+
+      function toHexagramShortName(name) {
+        if (!name) return "";
+        const parts = name.split("/").map((part) => part.trim());
+        return parts.length > 1 ? parts[1] : parts[0];
+      }
+
+      function buildAdvisoryQuery(reading) {
+        const primary = reading?.primaryHexagram;
+        const related = reading?.relatedHexagram;
+        const changing = (reading?.lines || [])
+          .filter((line) => line.isChanging)
+          .map((line) => line.lineNumber)
+          .join(",");
+        const signature = linesToSignature(reading?.lines || []);
+
+        const params = new URLSearchParams();
+        params.set("mode", "oracle_advice");
+        params.set("signature", signature);
+        params.set("primary_number", String(primary?.number || ""));
+        params.set("primary_name", toHexagramShortName(primary?.name || ""));
+        params.set("primary_judgment", getJudgmentText(primary));
+        if (related) {
+          params.set("related_number", String(related.number));
+          params.set("related_name", toHexagramShortName(related.name || ""));
+          params.set("related_judgment", getJudgmentText(related));
+        }
+        params.set("changing_lines", changing || "none");
+        params.set("timestamp_utc", reading?.timestamp || new Date().toISOString());
+        return params;
+      }
+
+      async function fetchDaoAdvisory(reading) {
+        if (!daoAdvisoryPanel) return;
+        const signature = linesToSignature(reading?.lines || []);
+        const cache = advisoryCacheGet();
+        if (signature && cache[signature]?.advice) {
+          daoAdvisoryPanel.hidden = false;
+          setDaoAdvisoryStatus("Loaded from local cache.");
+          setDaoAdvisoryBody(cache[signature].advice);
+          setDaoAdvisoryCtaVisible(true);
+          return;
+        }
+
+        daoAdvisoryPanel.hidden = false;
+        setDaoAdvisoryStatus("Loading DAO advisory from Grok via GAS...");
+        setDaoAdvisoryBody("");
+        setDaoAdvisoryCtaVisible(false);
+
+        try {
+          const params = buildAdvisoryQuery(reading);
+          const response = await fetch(`${GAS_ORACLE_ADVISORY_URL}?${params.toString()}`, {
+            method: "GET"
+          });
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+          }
+          const payload = await response.json();
+          if (!payload || payload.ok === false) {
+            throw new Error(payload?.error || "No advisory payload returned");
+          }
+
+          const advice = (payload.advice || "").trim();
+          setDaoAdvisoryBody(advice || "No advisory text returned.");
+          setDaoAdvisoryStatus(
+            payload.model
+              ? `Generated by ${payload.model} at ${payload.generated_at_utc || "unknown time"}`
+              : `Generated at ${payload.generated_at_utc || "unknown time"}`
+          );
+          setDaoAdvisoryCtaVisible(true);
+          advisoryCacheSet(signature, payload);
+        } catch (error) {
+          console.error("DAO advisory fetch failed:", error);
+          setDaoAdvisoryStatus("Unable to load advisory right now.");
+          setDaoAdvisoryBody(
+            "The reading is complete, but the DAO advisory call failed. You can still open the advisory links above and retry by recasting."
+          );
+          setDaoAdvisoryCtaVisible(false);
+        }
+      }
+
       function presentReading(reading, { scrollIntoView = true } = {}) {
         if (!reading) return;
 
@@ -2626,6 +3004,7 @@
           shareFeedback.textContent = "";
         }
         currentReading = reading;
+        fetchDaoAdvisory(reading);
 
         if (scrollIntoView) {
           resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -2855,6 +3234,12 @@
           shareFeedback.hidden = true;
           shareFeedback.textContent = "";
         }
+        if (daoAdvisoryPanel) {
+          daoAdvisoryPanel.hidden = true;
+        }
+        setDaoAdvisoryCtaVisible(false);
+        setDaoAdvisoryStatus("Advisory appears here after the reading is revealed.");
+        setDaoAdvisoryBody("");
         currentReading = null;
         buildLineCards();
       }
@@ -2904,6 +3289,17 @@
 
       renderHexagramReference();
       buildLineCards();
+
+      if (copyAdvisoryContextButton) {
+        copyAdvisoryContextButton.addEventListener("click", () => {
+          const contextBlock = [
+            "Use these latest DAO advisory context URLs:",
+            ADVISORY_SNAPSHOT_URL,
+            ADVISORY_INDEX_URL
+          ].join("\n");
+          copyToClipboardOrPrompt(contextBlock, "advisory context");
+        });
+      }
 
       const storedReading = loadStoredReading();
       const sharedReading = parseReadingFromUrl();
