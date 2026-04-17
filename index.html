@@ -949,6 +949,13 @@
         gap: 10px;
       }
 
+      .dao-advisory-panel[hidden],
+      .dao-advisory-actions[hidden],
+      .dao-advisory-cta[hidden],
+      .dao-advisory-copy-status[hidden] {
+        display: none !important;
+      }
+
       .dao-advisory-cta {
         display: grid;
         gap: 8px;
@@ -2982,12 +2989,17 @@
 
       async function fetchDaoAdvisory(reading) {
         if (!daoAdvisoryPanel) return;
+        // Always clear action controls first to avoid stale controls
+        // from a prior reading while new advisory is loading/resolving.
+        setDaoAdvisoryActionsVisible(false);
+        setDaoAdvisoryCtaVisible(false);
         const signature = linesToSignature(reading?.lines || []);
         const cache = advisoryCacheGet();
         if (signature && cache[signature]?.advice) {
           daoAdvisoryPanel.hidden = false;
           setDaoAdvisoryStatus("Loaded from local cache.");
           setDaoAdvisoryBody(cache[signature].advice);
+          setDaoAdvisoryActionsVisible(true);
           setDaoAdvisoryCtaVisible(true);
           return;
         }
@@ -2995,8 +3007,6 @@
         daoAdvisoryPanel.hidden = false;
         setDaoAdvisoryStatus("Loading DAO advisory from Grok via GAS...");
         setDaoAdvisoryBody("");
-        setDaoAdvisoryActionsVisible(false);
-        setDaoAdvisoryCtaVisible(false);
 
         try {
           const params = buildAdvisoryQuery(reading);
@@ -3359,6 +3369,17 @@
 
       renderHexagramReference();
       buildLineCards();
+
+      // Hard reset advisory visibility on initial load to avoid
+      // stale DOM state after browser cache/restore.
+      if (daoAdvisoryPanel) {
+        daoAdvisoryPanel.hidden = true;
+      }
+      setDaoAdvisoryActionsVisible(false);
+      setDaoAdvisoryCtaVisible(false);
+      setDaoAdvisoryStatus("Advisory appears here after the reading is revealed.");
+      setDaoAdvisoryBody("");
+      setDaoCopyStatus("");
 
       if (copyAdvisoryContextButton) {
         copyAdvisoryContextButton.addEventListener("click", () => {
