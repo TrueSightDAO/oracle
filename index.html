@@ -854,6 +854,11 @@
         padding: 18px 20px;
         display: grid;
         gap: 12px;
+        /* Without min-width: 0 a grid/flex child defaults to min-content,
+           letting long unbreakable strings (URLs, hashes) in the advisory
+           text push the panel wider than its container. */
+        min-width: 0;
+        max-width: 100%;
       }
 
       .dao-advisory-panel h2 {
@@ -871,6 +876,11 @@
       .dao-advisory-body {
         color: var(--ink);
         line-height: 1.62;
+        /* Force long URLs / inline code / unbreakable tokens from the LLM
+           output to wrap inside the panel instead of overflowing. */
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        min-width: 0;
       }
 
       .dao-advisory-body h3,
@@ -898,6 +908,9 @@
         background: rgba(36, 22, 11, 0.08);
         border-radius: 6px;
         padding: 1px 6px;
+        /* Inline code with long tokens should wrap, not overflow. */
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
 
       .dao-advisory-links {
