@@ -28,8 +28,15 @@ var RAW_URLS = {
   advisoryBase:
     'https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/BASE.md',
   reminders:
-    'https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/reminders/current.json'
+    'https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/reminders/current.json',
+  // GitHub Contents API listing for the raws dir (each iPhone POST from Edgar lands as one file).
+  // Oracle filters entries newer than reminders/current.json.generated_at to surface
+  // iPhone intents not yet normalized by a Mac full-sync.
+  remindersRawsDir:
+    'https://api.github.com/repos/TrueSightDAO/ecosystem_change_logs/contents/reminders_raws'
 };
+
+var PENDING_RAWS_MAX = 20;
 
 function doGet(e) {
   var params = (e && e.parameter) || {};
@@ -84,12 +91,14 @@ function handleOracleAdvice_(params) {
     var advisorySnapshot = fetchText_(RAW_URLS.advisorySnapshot);
     var advisoryBase = fetchText_(RAW_URLS.advisoryBase);
     var remindersJson = fetchRemindersJson_();
+    var pendingRaws = fetchPendingRemindersRaws_(remindersJson);
 
     var prompt = buildOraclePrompt_({
       draw: draw,
       advisorySnapshot: advisorySnapshot,
       advisoryBase: advisoryBase,
-      remindersJson: remindersJson
+      remindersJson: remindersJson,
+      pendingRaws: pendingRaws
     });
     var ai = callXai_(prompt);
 
@@ -144,6 +153,102 @@ function fetchRemindersJson_() {
   }
 }
 
+/**
+ * Return iPhone reminder intents that Edgar appended to reminders_raws/ AFTER the last
+ * Mac full-sync (watermark = remindersJson.generated_at). Everything older is already
+ * normalized into current.json by iCloud → Apple Reminders → `rem list`.
+ *
+ * Filename convention: reminders_raws/YYYYMMDDTHHMMSSZ.json (compact ISO basic format).
+ * current.json.generated_at is extended ISO ("2026-04-18T21:59:20Z"); strip dashes and
+ * colons for lexical comparison.
+ *
+ * On any failure (network, rate-limit, parse) return an empty array — the oracle should
+ * still render the rest of the context rather than hard-fail.
+ */
+function fetchPendingRemindersRaws_(remindersJson) {
+  try {
+    var watermark = remindersJsonWatermark_(remindersJson);
+    var res = UrlFetchApp.fetch(RAW_URLS.remindersRawsDir, {
+      method: 'get',
+      muteHttpExceptions: true,
+      headers: { 'Accept': 'application/vnd.github+json' },
+      followRedirects: true
+    });
+    if (res.getResponseCode() !== 200) return [];
+    var entries = JSON.parse(res.getContentText());
+    if (!Array.isArray(entries)) return [];
+
+    var pending = [];
+    for (var i = 0; i < entries.length; i++) {
+      var ent = entries[i] || {};
+      var name = String(ent.name || '');
+      if (!/^\d{8}T\d{6}Z\.json$/.test(name)) continue;
+      var stamp = name.slice(0, name.length - '.json'.length);
+      if (watermark && stamp <= watermark) continue;
+      pending.push({ stamp: stamp, downloadUrl: ent.download_url });
+    }
+
+    // Oldest first so the order reads like a short timeline.
+    pending.sort(function (a, b) { return a.stamp < b.stamp ? -1 : a.stamp > b.stamp ? 1 : 0; });
+
+    var out = [];
+    var cap = Math.min(pending.length, PENDING_RAWS_MAX);
+    for (var j = 0; j < cap; j++) {
+      var row = parsePendingRaw_(pending[j]);
+      if (row) out.push(row);
+    }
+    return out;
+  } catch (err) {
+    return [];
+  }
+}
+
+function remindersJsonWatermark_(remindersJson) {
+  var raw = (remindersJson && remindersJson.generated_at) || '';
+  // "2026-04-18T21:59:20Z" -> "20260418T215920Z"
+  return String(raw).replace(/[-:]/g, '');
+}
+
+function parsePendingRaw_(pending) {
+  try {
+    var res = UrlFetchApp.fetch(pending.downloadUrl, {
+      method: 'get',
+      muteHttpExceptions: true,
+      followRedirects: true
+    });
+    if (res.getResponseCode() !== 200) return null;
+    var wrap = JSON.parse(res.getContentText());
+    var body = wrap && wrap.raw_body ? wrap.raw_body : '';
+    var parsed = null;
+    try { parsed = JSON.parse(body); } catch (_) { parsed = null; }
+    var title =
+      (parsed && (parsed.update || parsed.title || parsed.text)) ||
+      (typeof body === 'string' ? body : '');
+    title = String(title || '').trim();
+    if (!title) return null;
+    return {
+      title: title,
+      received_at: wrap && wrap.received_at ? wrap.received_at : '',
+      raw_id: pending.stamp
+    };
+  } catch (err) {
+    return null;
+  }
+}
+
+function buildPendingRawsBlock_(pendingRaws) {
+  if (!pendingRaws || !pendingRaws.length) {
+    return '(no iPhone intents since last full sync)';
+  }
+  var lines = [];
+  for (var i = 0; i < pendingRaws.length; i++) {
+    var r = pendingRaws[i];
+    var when = r.received_at ? ' [received: ' + r.received_at + ']' : '';
+    lines.push('- ' + r.title + when);
+  }
+  return lines.join('\n');
+}
+
 function buildRemindersBlock_(remindersJson) {
   if (!remindersJson || !Array.isArray(remindersJson.reminders) || !remindersJson.reminders.length) {
     return '(no open reminders synced)';
@@ -190,6 +295,8 @@ function buildOraclePrompt_(ctx) {
   var baseTrimmed = trimForPrompt_(ctx.advisoryBase, 7000);
   var remindersBlock = buildRemindersBlock_(ctx.remindersJson);
   var remindersTrimmed = trimForPrompt_(remindersBlock, 4000);
+  var pendingBlock = buildPendingRawsBlock_(ctx.pendingRaws);
+  var pendingTrimmed = trimForPrompt_(pendingBlock, 2000);
 
   return (
     header + '\n\n' +
@@ -197,7 +304,9 @@ function buildOraclePrompt_(ctx) {
     'ADVISORY_SNAPSHOT_MD\n' + snapshotTrimmed + '\n\n' +
     'ADVISORY_BASE_MD\n' + baseTrimmed + '\n\n' +
     'OPEN_REMINDERS (operator\'s current open Apple Reminders — use to connect hexagram to real priorities)\n' +
-    remindersTrimmed
+    remindersTrimmed + '\n\n' +
+    'PENDING_IOS_INTENTS (iPhone reminders posted via Edgar after the last Mac sync — tentative intents, not yet in macOS Reminders; rapid consecutive entries with near-identical titles are likely edits of the same item)\n' +
+    pendingTrimmed
   );
 }
 
