@@ -14,8 +14,12 @@
  * for the reminders block which grounds Grok in the operator's real open intentions.
  *
  * Script Properties expected:
- *  - XAI_API_KEY            (required)
+ *  - ANTHROPIC_API_KEY      (required when ADVISOR_MODEL=anthropic; default)
+ *  - ANTHROPIC_MODEL        (optional, default: claude-sonnet-4-6)
+ *  - XAI_API_KEY            (required when ADVISOR_MODEL=xai, or as auto-fallback
+ *                            when Anthropic is unavailable)
  *  - XAI_MODEL              (optional, default: grok-3-mini)
+ *  - ADVISOR_MODEL          (optional, default: 'anthropic'; set to 'xai' to force Grok)
  *  - ORACLE_SHARED_SECRET   (optional — if set, query param `token` must match)
  *
  * Deploy: clasp push from iching_oracle/gas/, then deploy a new web app version in the editor.
@@ -93,14 +97,14 @@ function handleOracleAdvice_(params) {
     var remindersJson = fetchRemindersJson_();
     var pendingRaws = fetchPendingRemindersRaws_(remindersJson);
 
-    var prompt = buildOraclePrompt_({
+    var promptParts = buildOraclePromptParts_({
       draw: draw,
       advisorySnapshot: advisorySnapshot,
       advisoryBase: advisoryBase,
       remindersJson: remindersJson,
       pendingRaws: pendingRaws
     });
-    var ai = callXai_(prompt);
+    var ai = callAdvisor_(promptParts);
 
     return {
       ok: true,
@@ -269,17 +273,38 @@ function buildRemindersBlock_(remindersJson) {
   return lines.join('\n');
 }
 
-function buildOraclePrompt_(ctx) {
-  var draw = ctx.draw;
-  var header =
-    'You are an advisor to TrueSight DAO. Integrate I Ching symbolism with concrete DAO operating context.\n' +
-    'Output plain text only with these sections:\n' +
-    '1) Reading synthesis (2-4 lines)\n' +
-    '2) DAO priorities today (3 bullets)\n' +
-    '3) Risks / watch-outs (3 bullets)\n' +
-    '4) One decisive action in next 24h\n' +
-    'Keep it practical, specific, and aligned with current advisory materials and open reminders.';
+/**
+ * Prompt header — solo-operator-aware, founder-scale-action, north-star grounded.
+ * Tuned through a Claude advisory conversation where an earlier generic version
+ * produced DAO-scale platitudes ("run a reconciliation pass") instead of the
+ * concrete founder-scale action the operator needed ("write five personal notes
+ * to the five most recent QR buyers tomorrow morning"). Keep this text identical
+ * across API calls so Anthropic ephemeral prompt caching hits within the 5-min
+ * window.
+ */
+var ORACLE_PROMPT_HEADER =
+  'You are an advisor to TrueSight DAO. The operator you are advising is Gary, working solo or near-solo on execution. Any advice you give has to be carried out by one person with finite hours, not a team. Integrate I Ching symbolism with concrete DAO operating context.\n\n' +
+  'Treat the I Ching as a lens, not a justification. The hexagram should sharpen a reading you could defend without it. If you find yourself reverse-justifying priorities from the judgment text, stop, write the analysis straight, then check whether the hexagram actually fits.\n\n' +
+  'Scale advice to a solo operator. The DAO has many surfaces — tokenomics, inventory, stores, DApp, Beer Hall, signature onboarding, Hit List, Agroverse shop. Gary cannot work on all of them in a week. Good advice picks one or two, explicitly deprioritizes the rest for now, and favors actions that compound (writing to a customer, diagnosing one stuck store) over actions that spread attention (auditing everything, reconciling all surfaces). If an action requires coordination with other contributors, surface that coordination cost as part of the action.\n\n' +
+  'Every suggestion should trace back to the north star in the advisory snapshot (purpose: heal the world with love; mission: restore 10,000 hectares of Amazon rainforest). When a suggestion does not obviously serve the mission, say so.\n\n' +
+  'Output plain text only with these sections:\n' +
+  '1) Reading synthesis (2-4 lines) — what the hexagram illuminates about the current situation, not a generic gloss of the judgment.\n' +
+  '2) Context gaps worth naming (1-3 bullets) — what the snapshot cannot tell you that would change the advice. Propose the most likely read and note what would change if the alternative is true. Skip this section only if the snapshot is genuinely sufficient.\n' +
+  '3) Priorities this week for a solo operator (3 bullets max) — specific to what is actually shipping or stalled, with an explicit note on what Gary should NOT spend time on this week.\n' +
+  '4) Risks / watch-outs (3 bullets) — distinguish real signals from artifacts (seasonality, deliberate dormancy, expected off-cycles). If a metric looks alarming, check whether the business shape explains it before flagging. Flag risks Gary can actually act on, not ambient ones.\n' +
+  '5) One decisive action in next 24h — something Gary can do tomorrow morning in under two hours, solo, with a concrete first step (the exact sheet to open, the exact five rows to pull, the exact first email to write, the exact store to call). No "run a reconciliation pass" abstractions. If the right action is smaller than it sounds (write five notes, not fifty), say so and explain why smaller is better.\n\n' +
+  'Keep it practical, specific, and aligned with current advisory materials. If the honest answer is "the snapshot does not support a strong read, here is what I would need from Gary," say that instead of generating plausible-sounding strategy.';
 
+/**
+ * Split the prompt into three pieces for Anthropic prompt caching:
+ *   - header: the advisor instructions (cache block 1, stable across sessions).
+ *   - staticContext: ADVISORY_SNAPSHOT + BASE (cache block 2, stable within ~5min).
+ *   - dynamicContext: draw + reminders + pending raws (per-call, not cached).
+ *
+ * xAI path flattens all three into a single string for backward compatibility.
+ */
+function buildOraclePromptParts_(ctx) {
+  var draw = ctx.draw;
   var drawBlock =
     'I CHING DRAW\n' +
     '- Signature: ' + draw.signature + '\n' +
@@ -293,21 +318,29 @@ function buildOraclePrompt_(ctx) {
 
   var snapshotTrimmed = trimForPrompt_(ctx.advisorySnapshot, 14000);
   var baseTrimmed = trimForPrompt_(ctx.advisoryBase, 7000);
-  var remindersBlock = buildRemindersBlock_(ctx.remindersJson);
-  var remindersTrimmed = trimForPrompt_(remindersBlock, 4000);
-  var pendingBlock = buildPendingRawsBlock_(ctx.pendingRaws);
-  var pendingTrimmed = trimForPrompt_(pendingBlock, 2000);
+  var remindersTrimmed = trimForPrompt_(buildRemindersBlock_(ctx.remindersJson), 4000);
+  var pendingTrimmed = trimForPrompt_(buildPendingRawsBlock_(ctx.pendingRaws), 2000);
 
-  return (
-    header + '\n\n' +
-    drawBlock + '\n\n' +
+  var staticContext =
     'ADVISORY_SNAPSHOT_MD\n' + snapshotTrimmed + '\n\n' +
-    'ADVISORY_BASE_MD\n' + baseTrimmed + '\n\n' +
+    'ADVISORY_BASE_MD\n' + baseTrimmed;
+
+  var dynamicContext =
+    drawBlock + '\n\n' +
     'OPEN_REMINDERS (operator\'s current open Apple Reminders — use to connect hexagram to real priorities)\n' +
     remindersTrimmed + '\n\n' +
     'PENDING_IOS_INTENTS (iPhone reminders posted via Edgar after the last Mac sync — tentative intents, not yet in macOS Reminders; rapid consecutive entries with near-identical titles are likely edits of the same item)\n' +
-    pendingTrimmed
-  );
+    pendingTrimmed;
+
+  return {
+    header: ORACLE_PROMPT_HEADER,
+    staticContext: staticContext,
+    dynamicContext: dynamicContext
+  };
+}
+
+function flattenPromptParts_(parts) {
+  return parts.header + '\n\n' + parts.staticContext + '\n\n' + parts.dynamicContext;
 }
 
 function trimForPrompt_(text, maxLen) {
@@ -316,12 +349,94 @@ function trimForPrompt_(text, maxLen) {
   return t.slice(0, maxLen) + '\n...[truncated]';
 }
 
-function callXai_(prompt) {
+/**
+ * Route the advisor call based on ADVISOR_MODEL script property.
+ *   - 'anthropic' (default) uses Claude with prompt caching on header + static context.
+ *   - 'xai' falls back to Grok (useful if Anthropic rate-limits or the key is missing).
+ * On Anthropic failure (missing key, rate limit, 5xx) automatically falls back to xAI
+ * so the oracle always returns something rather than 500ing. The failure reason is
+ * logged and surfaced in the returned `model` string as e.g. "grok-3-mini (anthropic_fallback)".
+ */
+function callAdvisor_(promptParts) {
+  var props = PropertiesService.getScriptProperties();
+  var preferred = (props.getProperty('ADVISOR_MODEL') || 'anthropic').trim().toLowerCase();
+  if (preferred === 'xai' || preferred === 'grok') {
+    return callXai_(promptParts);
+  }
+  try {
+    return callAnthropic_(promptParts);
+  } catch (err) {
+    try {
+      Logger.log('Anthropic advisor call failed, falling back to xAI: ' + err);
+    } catch (_) { /* Logger may be unavailable in some contexts */ }
+    var fallback = callXai_(promptParts);
+    fallback.model = fallback.model + ' (anthropic_fallback)';
+    return fallback;
+  }
+}
+
+function callAnthropic_(promptParts) {
+  var props = PropertiesService.getScriptProperties();
+  var apiKey = (props.getProperty('ANTHROPIC_API_KEY') || '').trim();
+  if (!apiKey) throw new Error('Missing script property ANTHROPIC_API_KEY');
+  var model = (props.getProperty('ANTHROPIC_MODEL') || 'claude-sonnet-4-6').trim();
+
+  // System blocks with ephemeral cache_control on the stable pieces so repeat
+  // calls within ~5 minutes only pay ~10% input cost on the cached prefix.
+  // Anthropic minimum for caching is 1024 tokens on Sonnet; header + static
+  // easily clear that bar (>4000 tokens typical).
+  var payload = {
+    model: model,
+    max_tokens: 1500,
+    temperature: 0.35,
+    system: [
+      { type: 'text', text: promptParts.header, cache_control: { type: 'ephemeral' } },
+      { type: 'text', text: promptParts.staticContext, cache_control: { type: 'ephemeral' } }
+    ],
+    messages: [
+      { role: 'user', content: promptParts.dynamicContext }
+    ]
+  };
+
+  var res = UrlFetchApp.fetch('https://api.anthropic.com/v1/messages', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01'
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  var code = res.getResponseCode();
+  var body = res.getContentText() || '';
+  if (code < 200 || code >= 300) {
+    throw new Error('Anthropic call failed (' + code + '): ' + body.slice(0, 600));
+  }
+
+  var parsed = JSON.parse(body);
+  var out = '';
+  if (parsed && Array.isArray(parsed.content)) {
+    for (var i = 0; i < parsed.content.length; i++) {
+      var block = parsed.content[i];
+      if (block && block.type === 'text' && block.text) out += block.text;
+    }
+  }
+  out = out.trim();
+  if (!out) throw new Error('Anthropic response had no text blocks');
+  return { model: model, text: out };
+}
+
+function callXai_(promptParts) {
   var props = PropertiesService.getScriptProperties();
   var apiKey = (props.getProperty('XAI_API_KEY') || '').trim();
   if (!apiKey) throw new Error('Missing script property XAI_API_KEY');
   var model = (props.getProperty('XAI_MODEL') || 'grok-3-mini').trim();
 
+  // xAI/OpenAI-style chat completions don't support block-level caching,
+  // so flatten the three parts into a single user message.
+  var prompt = flattenPromptParts_(promptParts);
   var payload = {
     model: model,
     messages: [
