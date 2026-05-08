@@ -21,6 +21,7 @@
  *  - XAI_MODEL              (optional, default: grok-3-mini)
  *  - ADVISOR_MODEL          (optional, default: 'anthropic'; set to 'xai' to force Grok)
  *  - ORACLE_SHARED_SECRET   (optional — if set, query param `token` must match)
+ *  - ORACLE_LOGS_PAT         (required for draw logging — GitHub PAT with Contents:write on oracle_logs)
  *
  * Deploy: clasp push from iching_oracle/gas/, then deploy a new web app version in the editor.
  * Run runOneSetup() once from the editor after first deploy to grant UrlFetch + Properties perms.
@@ -105,6 +106,9 @@ function handleOracleAdvice_(params) {
       pendingRaws: pendingRaws
     });
     var ai = callAdvisor_(promptParts);
+
+    // Persist draw to oracle_logs for later triage by autopilot/opencode
+    writeToOracleLogs_(draw, ai);
 
     return {
       ok: true,
@@ -511,4 +515,64 @@ function jsonResponse_(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(
     ContentService.MimeType.JSON
   );
+}
+
+/**
+ * Persist the oracle draw to oracle_logs repo for later triage.
+ * Writes draws/YYYY-MM-DD.md via GitHub Contents API.
+ * Format is structured Markdown parseable by autopilot and opencode.
+ * Non-fatal: if PAT is missing or write fails, the draw still completes.
+ */
+function writeToOracleLogs_(draw, ai) {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var pat = (props.getProperty('ORACLE_LOGS_PAT') || '').trim();
+    if (!pat) {
+      Logger.log('[oracle_logs] ORACLE_LOGS_PAT not set — skipping draw persistence');
+      return;
+    }
+
+    var now = new Date();
+    var dateStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
+    var path = 'draws/' + dateStr + '.md';
+
+    // Build structured Markdown
+    var md = '# Oracle Draw — ' + dateStr + '\n\n';
+    md += '## Hexagram\n';
+    md += '- Primary: #' + draw.primary_number + ' ' + draw.primary_name + '\n';
+    md += '- Related: ' + (draw.related_number ? '#' + draw.related_number + ' ' + draw.related_name : 'none') + '\n';
+    md += '- Changing lines: ' + draw.changing_lines + '\n';
+    md += '- Timestamp: ' + (draw.timestamp_utc || now.toISOString()) + '\n\n';
+    md += '## Advisory\n';
+    md += (ai.text || '') + '\n';
+
+    // Upload via GitHub Contents API
+    var apiUrl = 'https://api.github.com/repos/TrueSightDAO/oracle_logs/contents/' + path;
+    var payload = {
+      message: 'Oracle draw for ' + dateStr,
+      content: Utilities.base64Encode(Utilities.newBlob(md).getBytes()),
+      branch: 'main'
+    };
+
+    var res = UrlFetchApp.fetch(apiUrl, {
+      method: 'put',
+      contentType: 'application/json',
+      headers: {
+        Authorization: 'Bearer ' + pat,
+        Accept: 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28'
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+
+    var code = res.getResponseCode();
+    if (code >= 200 && code < 300) {
+      Logger.log('[oracle_logs] Draw persisted to oracle_logs/' + path);
+    } else {
+      Logger.log('[oracle_logs] GitHub write failed (' + code + '): ' + res.getContentText().slice(0, 500));
+    }
+  } catch (err) {
+    Logger.log('[oracle_logs] Write exception (non-fatal): ' + err);
+  }
 }
