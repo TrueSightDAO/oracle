@@ -138,7 +138,7 @@ function verifySharedSecretIfConfigured_(params) {
 }
 
 function extractDraw_(params) {
-  return {
+  var draw = {
     signature: (params.signature || '').trim(),
     primary_number: (params.primary_number || '').trim(),
     primary_name: (params.primary_name || '').trim(),
@@ -147,8 +147,25 @@ function extractDraw_(params) {
     related_name: (params.related_name || '').trim(),
     related_judgment: (params.related_judgment || '').trim(),
     changing_lines: (params.changing_lines || 'none').trim(),
-    timestamp_utc: (params.timestamp_utc || new Date().toISOString()).trim()
+    timestamp_utc: (params.timestamp_utc || new Date().toISOString()).trim(),
+    qmdj_chart: null
   };
+  // Optional: client may send a QiMen Dunjia chart computed from the same
+  // timestamp as the I-Ching cast. JSON-encoded, parsed defensively — bad
+  // input must NOT break the I-Ching path; we just drop the chart and let
+  // the LLM skip the QMDJ-specific sections.
+  var raw = (params.qmdj_chart || '').trim();
+  if (raw) {
+    try {
+      var parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        draw.qmdj_chart = parsed;
+      }
+    } catch (err) {
+      try { Logger.log('QMDJ chart JSON parse failed; continuing without it: ' + err); } catch (_) {}
+    }
+  }
+  return draw;
 }
 
 function fetchRemindersJson_() {
@@ -286,17 +303,93 @@ function buildRemindersBlock_(remindersJson) {
  * across API calls so Anthropic ephemeral prompt caching hits within the 5-min
  * window.
  */
+// Static QMDJ framework reference — what the LLM needs to know to read a
+// chart. Stable across calls; lives in the cached static block. Update by
+// editing this constant and redeploying the GAS web app.
+var QMDJ_FRAMEWORK_REFERENCE = [
+  'QMDJ_FRAMEWORK_REFERENCE',
+  '',
+  'What QiMen Dunjia (奇門遁甲) is',
+  'QMDJ is a classical Chinese strategic-divination framework that maps any specific moment in time onto a 9-palace Luo-Shu grid. Unlike I Ching (which uses random coin throws), QMDJ is fully deterministic from the timestamp — solar term, yuan, day pillar and hour pillar pick a single chart. The chart layers five kinds of information onto each of the 9 palaces: a Spirit, a Star, a Door, and two stems (Heaven plate, Earth plate). Practitioners read the chart for WHERE to act and WHEN to act — the spatial / strategic shape of the moment.',
+  '',
+  'The 9 Palaces (each is a compass direction AND a life-domain)',
+  '- Palace 1 坎 (N)  — water; career, secrets, hidden things, study, depth, danger.',
+  '- Palace 2 坤 (SW) — earth; motherhood, support, partnerships, marriage, the public.',
+  '- Palace 3 震 (E)  — wood; action, decisive beginnings, ambition, public movement.',
+  '- Palace 4 巽 (SE) — wood; wealth, persuasion, travel, communication.',
+  '- Palace 5 中 (Center) — earth; the axis, self, rulership, neutrality. NOT a direction for outward action.',
+  '- Palace 6 乾 (NW) — metal; leadership, authority, fathers, mentors, helpful people, government.',
+  '- Palace 7 兌 (W)  — metal; joy, speech, romance, attraction, charm — also gossip and superficiality.',
+  '- Palace 8 艮 (NE) — earth; stillness, knowledge, education, real estate, accumulation.',
+  '- Palace 9 離 (S)  — fire; brightness, fame, recognition, vision, manifestation, exposure.',
+  '',
+  'The 8 Doors (八門) — gates of action',
+  '- 開門 Open  — auspicious 三吉. Beginnings, expansion, official success, public-facing action.',
+  '- 休門 Rest  — auspicious 三吉. Renewal, peace, recovery, romance.',
+  '- 生門 Birth — auspicious 三吉. Growth, wealth, new ventures, partnerships, sales.',
+  '- 杜門 Block — neutral. Hiding, defensive holding, secrecy, study.',
+  '- 景門 Scenery — neutral. Vision, signaling, communication, but no direct action.',
+  '- 傷門 Hurt  — inauspicious 三凶. Injury, conflict, sharp force, debt collection.',
+  '- 死門 Death — inauspicious 三凶. Endings, finality, loss.',
+  '- 驚門 Surprise — inauspicious 三凶. Disputes, lawsuits, unexpected disturbance.',
+  '',
+  'The 9 Stars (九星) — cosmic influence on the direction',
+  '- 天蓬 (water)  — inauspicious. Movement, theft, danger, scheming.',
+  '- 天芮 (earth)  — inauspicious. Illness, weakness, decay.',
+  '- 天沖 (wood)   — mixed (good for action, bad for stillness). Burst of energy.',
+  '- 天輔 (wood)   — auspicious. Education, planning, scholarship, mentorship.',
+  '- 天禽 (earth)  — auspicious. Stability, magnanimity. Sits in center; lent to a cardinal palace.',
+  '- 天心 (metal)  — auspicious. Healing, decisive wisdom, leadership.',
+  '- 天柱 (metal)  — inauspicious. Disputes, breakage, transformation through tension.',
+  '- 天任 (earth)  — auspicious. Reliability, slow steady progress.',
+  '- 天英 (fire)   — mixed. Honor, fame, exposure — also conflict.',
+  '',
+  'The 8 Spirits (八神) — subtle forces overlaid on each palace',
+  '- 值符 — strongest auspicious. The palace where 值符 sits is the focal point of the moment\'s energy.',
+  '- 螣蛇 / 滕蛇 — inauspicious. Strange events, illusion, deception, anxious dreams.',
+  '- 太陰 — auspicious. Hidden support, secret help, behind-the-scenes allies.',
+  '- 六合 — auspicious. Cooperation, partnership, networking, marriage.',
+  '- 九地 — auspicious. Solid ground, defensive position, retention, safekeeping.',
+  '- 九天 — auspicious. High vantage, expansion, outward bold action, travel.',
+  '- 朱雀 (yang chart) / 白虎 (yin chart) — inauspicious. Disputes / conflict.',
+  '- 勾陳 (yang chart) / 玄武 (yin chart) — inauspicious. Entanglement / theft.',
+  '',
+  'The 10 Heavenly Stems on Heaven and Earth plates',
+  '- 甲 — never appears directly on the chart; hidden behind a Yi (the 遁甲 of QMDJ).',
+  '- 乙 丙 丁 — Three Wonders 三奇. Mark windows of opportunity wherever they land.',
+  '- 戊 己 庚 辛 壬 癸 — Six Yi 六儀. Specifically: 庚 (Geng) marks blockage / conflict — wherever 庚 lands, treat that direction with caution. 庚 paired with the day stem amplifies the warning.',
+  '',
+  'Per-palace outlook (heuristic provided by the client)',
+  'For each non-center palace, the client computes a heuristic outlook score combining door (+/- 2), spirit (+/- 1), each Three Wonder on heaven or earth plate (+1), each 庚 (-1), and a +1 bonus when the palace contains 值符. Score is mapped to one of: "strong" (>= +3), "favorable" (+1, +2), "mixed" (0), "caution" (-1, -2), "avoid" (<= -3). Center is forced neutral. This is a quick visual prior, NOT a master-practitioner read — real QMDJ also weighs 五行 generation/control between palaces, 反吟/伏吟 patterns, and the question\'s nature. Use the outlook as a starting point and cross-check against the chart structure.',
+  '',
+  'Notable patterns to watch for',
+  '- 三奇 + 三吉門 in the same palace — a Three Wonder (乙/丙/丁) sitting with an auspicious door (開/休/生). Strong window for outward action in that direction.',
+  '- 庚 collisions — wherever 庚 lands, treat with caution; 庚 paired with the day stem or 值符 amplifies the warning.',
+  '- 死門 on the day stem — the direction associated with the day stem carrying 死門 is loss territory; read carefully.',
+  '- 值符 palace alignment — the 值符 palace concentrates the moment\'s primary energy; pair with the door in that palace to judge what action that energy supports.',
+  '',
+  'How to use QMDJ alongside the I Ching reading',
+  '- Use I Ching as the narrative / transformational lens (what is moving, what is the quality of this moment).',
+  '- Use QMDJ as the spatial / strategic overlay (where the energy supports action, what direction is auspicious, when an auspicious window opens).',
+  '- They are COMPLEMENTARY, not redundant. Do NOT let QMDJ override the I Ching reading. Let it sharpen the action recommendation by adding directional / timing specificity.',
+  '- Combining I Ching and QMDJ for the same question is a MODERN SYNTHESIS, not classical practice — they have different question-frames in tradition. Acknowledge this when relevant.',
+  '- If no QMDJ chart is provided in the dynamic context (older client, or chart computation failed), proceed with I Ching only and skip the QMDJ-specific output sections (2 and 3).'
+].join('\n');
+
 var ORACLE_PROMPT_HEADER =
   'You are an advisor to TrueSight DAO. The operator you are advising is Gary, working solo or near-solo on execution. Any advice you give has to be carried out by one person with finite hours, not a team. Integrate I Ching symbolism with concrete DAO operating context.\n\n' +
   'Treat the I Ching as a lens, not a justification. The hexagram should sharpen a reading you could defend without it. If you find yourself reverse-justifying priorities from the judgment text, stop, write the analysis straight, then check whether the hexagram actually fits.\n\n' +
+  'You may also receive a QiMen Dunjia (QMDJ) chart computed from the same moment as the I Ching cast. Use I Ching as the narrative / transformational lens (what is moving, what is the quality of this instant) and QMDJ as the spatial / strategic overlay (where the energy supports action, what direction is auspicious or to avoid, when an auspicious window opens). They are complementary, not redundant — do not let QMDJ override I Ching; let it sharpen the action recommendation. Combining the two for the same question is a modern synthesis, not classical practice. The static QMDJ_FRAMEWORK_REFERENCE block describes how to read the chart; the dynamic context will include the chart itself when the client sends one.\n\n' +
   'Scale advice to a solo operator. The DAO has many surfaces — tokenomics, inventory, stores, DApp, Beer Hall, signature onboarding, Hit List, Agroverse shop. Gary cannot work on all of them in a week. Good advice picks one or two, explicitly deprioritizes the rest for now, and favors actions that compound (writing to a customer, diagnosing one stuck store) over actions that spread attention (auditing everything, reconciling all surfaces). If an action requires coordination with other contributors, surface that coordination cost as part of the action.\n\n' +
   'Every suggestion should trace back to the north star in the advisory snapshot (purpose: heal the world with love; mission: restore 10,000 hectares of Amazon rainforest). When a suggestion does not obviously serve the mission, say so.\n\n' +
   'Output plain text only with these sections:\n' +
-  '1) Reading synthesis (2-4 lines) — what the hexagram illuminates about the current situation, not a generic gloss of the judgment.\n' +
-  '2) Context gaps worth naming (1-3 bullets) — what the snapshot cannot tell you that would change the advice. Propose the most likely read and note what would change if the alternative is true. Skip this section only if the snapshot is genuinely sufficient.\n' +
-  '3) Priorities this week for a solo operator (3 bullets max) — specific to what is actually shipping or stalled, with an explicit note on what Gary should NOT spend time on this week.\n' +
-  '4) Risks / watch-outs (3 bullets) — distinguish real signals from artifacts (seasonality, deliberate dormancy, expected off-cycles). If a metric looks alarming, check whether the business shape explains it before flagging. Flag risks Gary can actually act on, not ambient ones.\n' +
-  '5) One decisive action in next 24h — something Gary can do tomorrow morning in under two hours, solo, with a concrete first step (the exact sheet to open, the exact five rows to pull, the exact first email to write, the exact store to call). No "run a reconciliation pass" abstractions. If the right action is smaller than it sounds (write five notes, not fifty), say so and explain why smaller is better.\n\n' +
+  '1) Reading synthesis (2-4 lines) — what the I Ching hexagram illuminates about the current situation, not a generic gloss of the judgment.\n' +
+  '2) QMDJ configuration of this moment (3-5 lines) — name the Ju (局), where the Three Wonders 三奇 (乙 / 丙 / 丁) sit, where the Three Auspicious Doors 三吉門 (開 / 休 / 生) sit, where the day stem sits, and any notable alignment (e.g. Wonder + Auspicious Door in the same palace, 死門 on the day stem, 庚 paired with 值符). Keep it structural — what is true of the moment, not yet what to do. SKIP this section entirely if no QMDJ chart was provided in the dynamic context.\n' +
+  '3) Combined frame (1-2 lines) — how the I Ching narrative reading and the QMDJ structural reading point at the same situation, and where they reinforce or diverge. SKIP if no QMDJ chart.\n' +
+  '4) Context gaps worth naming (1-3 bullets) — what the snapshot cannot tell you that would change the advice. Propose the most likely read and note what would change if the alternative is true. Skip this section only if the snapshot is genuinely sufficient.\n' +
+  '5) Priorities this week for a solo operator (3 bullets max) — specific to what is actually shipping or stalled, with an explicit note on what Gary should NOT spend time on this week.\n' +
+  '6) Risks / watch-outs (3 bullets) — distinguish real signals from artifacts (seasonality, deliberate dormancy, expected off-cycles). If a metric looks alarming, check whether the business shape explains it before flagging. Flag risks Gary can actually act on, not ambient ones.\n' +
+  '7) One decisive action in next 24h — something Gary can do tomorrow morning in under two hours, solo, with a concrete first step (the exact sheet to open, the exact five rows to pull, the exact first email to write, the exact store to call). No "run a reconciliation pass" abstractions. If the right action is smaller than it sounds (write five notes, not fifty), say so and explain why smaller is better. When QMDJ surfaces a clear directional or timing signal (e.g. an auspicious door + Wonder in a specific palace, or a 死門 + 庚 collision elsewhere), name it ("the action benefits from facing east before noon" / "wait until after the next 2h shichen"). Do not fabricate directional advice when QMDJ does not show a clear signal — say "QMDJ does not surface a strong directional read here" and proceed with the I Ching-grounded action.\n\n' +
   'Keep it practical, specific, and aligned with current advisory materials. If the honest answer is "the snapshot does not support a strong read, here is what I would need from Gary," say that instead of generating plausible-sounding strategy.';
 
 /**
@@ -325,12 +418,21 @@ function buildOraclePromptParts_(ctx) {
   var remindersTrimmed = trimForPrompt_(buildRemindersBlock_(ctx.remindersJson), 4000);
   var pendingTrimmed = trimForPrompt_(buildPendingRawsBlock_(ctx.pendingRaws), 2000);
 
+  // Static block: snapshot + base + QMDJ framework reference. The framework
+  // reference is included unconditionally so the cached prefix stays stable
+  // across calls regardless of whether a chart was sent.
   var staticContext =
     'ADVISORY_SNAPSHOT_MD\n' + snapshotTrimmed + '\n\n' +
-    'ADVISORY_BASE_MD\n' + baseTrimmed;
+    'ADVISORY_BASE_MD\n' + baseTrimmed + '\n\n' +
+    QMDJ_FRAMEWORK_REFERENCE;
+
+  // Dynamic block: I Ching draw + (optional) QMDJ chart for this moment +
+  // reminders + pending raws.
+  var qmdjBlock = draw.qmdj_chart ? formatQmdjChartBlock_(draw.qmdj_chart) : '';
 
   var dynamicContext =
     drawBlock + '\n\n' +
+    (qmdjBlock ? qmdjBlock + '\n\n' : '') +
     'OPEN_REMINDERS (operator\'s current open Apple Reminders — use to connect hexagram to real priorities)\n' +
     remindersTrimmed + '\n\n' +
     'PENDING_IOS_INTENTS (iPhone reminders posted via Edgar after the last Mac sync — tentative intents, not yet in macOS Reminders; rapid consecutive entries with near-identical titles are likely edits of the same item)\n' +
@@ -341,6 +443,70 @@ function buildOraclePromptParts_(ctx) {
     staticContext: staticContext,
     dynamicContext: dynamicContext
   };
+}
+
+/**
+ * Format the QMDJ chart payload (parsed from the qmdj_chart query param)
+ * into a block of plain text the LLM can read. The client pre-computes
+ * the per-palace heuristic outlook (level + score) so the LLM can focus
+ * on synthesis rather than recomputation.
+ *
+ * Defensive — bad / partial input returns empty string so the I Ching
+ * path always works.
+ */
+function formatQmdjChartBlock_(chart) {
+  if (!chart || typeof chart !== 'object') return '';
+  var lines = [];
+  lines.push('QMDJ CHART (computed from the same timestamp as the I Ching cast above)');
+  if (chart.jieqi || chart.yuan) {
+    lines.push('- Solar term / yuan: ' + (chart.jieqi || '?') + ' / ' + (chart.yuan || '?'));
+  }
+  if (chart.ju) {
+    lines.push('- Ju (局): ' + chart.ju);
+  }
+  if (chart.year_pillar || chart.month_pillar || chart.day_pillar || chart.hour_pillar) {
+    lines.push(
+      '- Pillars (year/month/day/hour): ' +
+        (chart.year_pillar || '?') + ' / ' +
+        (chart.month_pillar || '?') + ' / ' +
+        (chart.day_pillar || '?') + ' / ' +
+        (chart.hour_pillar || '?')
+    );
+  }
+  if (chart.zhifu_star || chart.zhifu_palace) {
+    lines.push('- Zhi Fu (值符) star: ' + (chart.zhifu_star || '?') + ' @ palace ' + (chart.zhifu_palace || '?'));
+  }
+  if (chart.zhishi_door || chart.zhishi_palace) {
+    lines.push('- Zhi Shi (值使) door: ' + (chart.zhishi_door || '?') + ' @ palace ' + (chart.zhishi_palace || '?'));
+  }
+  if (typeof chart.feibu !== 'undefined' && chart.feibu !== null) {
+    lines.push('- Flying steps (飛步): ' + chart.feibu);
+  }
+  if (Array.isArray(chart.palaces) && chart.palaces.length === 9) {
+    lines.push('');
+    lines.push('Per-palace state (3x3 grid, row-major, south at top):');
+    for (var i = 0; i < 9; i++) {
+      var p = chart.palaces[i] || {};
+      var dir = p.dir || '?';
+      var palace = p.palace || '?';
+      var isCenter = palace === '中';
+      var line = '  ' + dir + ' (' + palace + ')';
+      if (isCenter) {
+        line += ' — Center · neutral · stems 天 ' + (p.heaven || '—') + ' / 地 ' + (p.earth || '—');
+      } else {
+        line +=
+          ' — Spirit ' + (p.spirit || '—') +
+          ', Star ' + (p.star || '—') +
+          ', Door ' + (p.door || '—') +
+          ', Stems 天 ' + (p.heaven || '—') + ' / 地 ' + (p.earth || '—');
+        if (p.level || typeof p.score !== 'undefined') {
+          line += ' [outlook: ' + (p.level || '?') + ' (' + (typeof p.score === 'number' ? (p.score >= 0 ? '+' + p.score : p.score) : '?') + ')]';
+        }
+      }
+      lines.push(line);
+    }
+  }
+  return lines.join('\n');
 }
 
 function flattenPromptParts_(parts) {

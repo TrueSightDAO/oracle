@@ -2422,6 +2422,9 @@
       const qmdjMeta = document.getElementById("qmdjMeta");
       const qmdjGrid = document.getElementById("qmdjGrid");
       const qmdjError = document.getElementById("qmdjError");
+      // Holds the structured QMDJ payload for the most recent cast so
+      // buildAdvisoryQuery can include it in the request to GAS.
+      let currentQmdjPayload = null;
       const daoAdvisoryStatus = document.getElementById("daoAdvisoryStatus");
       const daoAdvisoryBody = document.getElementById("daoAdvisoryBody");
       const daoAdvisoryActions = document.getElementById("daoAdvisoryActions");
@@ -3471,6 +3474,16 @@
         }
         params.set("changing_lines", changing || "none");
         params.set("timestamp_utc", reading?.timestamp || new Date().toISOString());
+        // Attach the QMDJ chart for this moment so the advisor can read
+        // the I Ching alongside QMDJ as the spatial / strategic overlay.
+        // Backward-compatible: GAS treats the field as optional.
+        if (currentQmdjPayload) {
+          try {
+            params.set("qmdj_chart", JSON.stringify(currentQmdjPayload));
+          } catch (err) {
+            console.warn("QMDJ payload serialize failed; advisor will fall back to I Ching only:", err);
+          }
+        }
         return params;
       }
 
@@ -3648,6 +3661,7 @@
         const zhishiPalace = chart["值使落宮"];
 
         const cells = [];
+        const palacePayload = [];
         for (let i = 0; i < 9; i++) {
           const palace = palaceNames[i] || "";
           const isCenter = i === 4;
@@ -3673,6 +3687,18 @@
           });
           classes.push(`qmdj-outlook-${outlook.level}`);
 
+          palacePayload.push({
+            dir: QMDJ_DIRECTIONS_EN[i],
+            palace,
+            spirit,
+            star,
+            door,
+            heaven: heavenStem,
+            earth: earthStem,
+            level: outlook.level,
+            score: outlook.score
+          });
+
           cells.push(
             `<div class="${classes.join(" ")}" data-qmdj-score="${outlook.score}">` +
               `<div class="qmdj-cell-head"><span class="qmdj-direction">${QMDJ_DIRECTIONS_EN[i]} · ${palace}</span><span>${QMDJ_LUOSHU_NUMBERS[i]}</span></div>` +
@@ -3694,6 +3720,26 @@
           );
         }
         qmdjGrid.innerHTML = cells.join("");
+        return palacePayload;
+      }
+
+      function buildQmdjAdvisoryPayload(chart, palacePayload) {
+        if (!chart || !palacePayload || palacePayload.length !== 9) return null;
+        return {
+          ju: `${chart["陰陽"] || ""}遁${chart["局數"] || "?"}局`,
+          jieqi: chart["節氣"] || "",
+          yuan: chart["三元"] || "",
+          feibu: chart["飛步"] ?? null,
+          year_pillar: chart["年柱"] || "",
+          month_pillar: chart["月柱"] || "",
+          day_pillar: chart["日柱"] || "",
+          hour_pillar: chart["時柱"] || "",
+          zhifu_star: chart["值符"] || "",
+          zhifu_palace: chart["值符落宮"] || "",
+          zhishi_door: chart["值使"] || "",
+          zhishi_palace: chart["值使落宮"] || "",
+          palaces: palacePayload
+        };
       }
 
       function renderQmdjPanel(reading) {
@@ -3708,6 +3754,7 @@
         const chart = castQmdjChart(castDate);
         if (!chart) {
           qmdjPanel.hidden = false;
+          currentQmdjPayload = null;
           if (qmdjError) {
             qmdjError.hidden = false;
             qmdjError.textContent = "Could not compute the QiMen chart for this moment.";
@@ -3716,13 +3763,15 @@
         }
         if (qmdjError) qmdjError.hidden = true;
         renderQmdjMeta(chart, castDate);
-        renderQmdjGrid(chart);
+        const palacePayload = renderQmdjGrid(chart);
+        currentQmdjPayload = buildQmdjAdvisoryPayload(chart, palacePayload);
         qmdjPanel.hidden = false;
       }
 
       function resetQmdjPanel() {
         if (!qmdjPanel) return;
         qmdjPanel.hidden = true;
+        currentQmdjPayload = null;
         if (qmdjMeta) qmdjMeta.innerHTML = "";
         if (qmdjGrid) qmdjGrid.innerHTML = "";
         if (qmdjError) {
