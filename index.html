@@ -1122,12 +1122,30 @@
       .qmdj-glossary-body {
         padding: 16px 18px;
         display: grid;
+        /* Single-column track with min-width:0 so long content (paragraphs,
+           tables) wraps or scrolls instead of pushing the panel wider. */
+        grid-template-columns: minmax(0, 1fr);
         gap: 14px;
         font-size: 0.92rem;
         line-height: 1.6;
         color: var(--ink);
       }
-      .qmdj-glossary-body p { margin: 0; color: var(--ink-soft); }
+      .qmdj-glossary-body > * {
+        min-width: 0;
+        max-width: 100%;
+      }
+      .qmdj-glossary-body p {
+        margin: 0;
+        color: var(--ink-soft);
+        overflow-wrap: anywhere;
+      }
+      /* Tables can have longer English glosses than the panel is wide;
+         wrap each in a horizontally scrollable container so they don't
+         force the .reference-panel (overflow: hidden) to clip content. */
+      .qmdj-table-scroll {
+        overflow-x: auto;
+        max-width: 100%;
+      }
       .qmdj-glossary-body h4 {
         margin: 4px 0 0;
         font-size: 0.95rem;
@@ -1791,6 +1809,37 @@
                   <em>what raw material the direction is made of</em>.
                 </p>
 
+                <h4>Why some palaces have a bold outline</h4>
+                <p>
+                  Two of the nine palaces carry special status in every chart and are
+                  marked with bold inset borders on the grid. Read the chart at a
+                  glance by <em>starting with the bold-outlined palace</em> — whatever
+                  spirit + door + stems landed there is the moment's primary signal.
+                  The other 8 palaces describe the surrounding terrain.
+                </p>
+                <dl>
+                  <dt>值符 palace — outer ring (focal point)</dt>
+                  <dd>
+                    The palace where the <strong>值符</strong> (Director / Zhi Fu)
+                    star sits. This is the moment's <em>energetic focal point</em> —
+                    the strongest auspicious anchor in the chart, where the moment's
+                    primary energy is concentrated.
+                  </dd>
+                  <dt>值使 palace — inner ring (active expression)</dt>
+                  <dd>
+                    The palace where the <strong>值使</strong> (Zhi Shi) door sits.
+                    This is <em>where action expresses most strongly</em> in this
+                    moment — the active door driving how the moment unfolds.
+                  </dd>
+                  <dt>Both in the same palace — double ring</dt>
+                  <dd>
+                    Common in many charts. That cell gets a doubly-bold outline (outer
+                    ring for 值符, inner ring for 值使). Treat it as the chart's
+                    <strong>primary signal</strong> — the focal point and the active
+                    expression collapsing onto one direction.
+                  </dd>
+                </dl>
+
                 <h4>Nine Palaces (九宮) — the directions and what they classically mean</h4>
                 <p class="qmdj-ref-note">
                   Each palace is a compass direction <em>and</em> a life-domain.
@@ -1800,6 +1849,7 @@
                   spirit/star/door/wonder lands in to know <em>what area of
                   life it touches</em>.
                 </p>
+                <div class="qmdj-table-scroll">
                 <table class="qmdj-ref-table">
                   <thead><tr><th>Palace</th><th>Direction</th><th>Trigram</th><th>Element</th><th>What it represents</th></tr></thead>
                   <tbody>
@@ -1814,6 +1864,7 @@
                     <tr><td><strong>9 離</strong> Lí</td><td>S</td><td>☲ Fire 火</td><td>Fire</td><td>Brightness, fame, recognition, vision, manifestation, public exposure, the heart. <em>(Middle daughter.)</em></td></tr>
                   </tbody>
                 </table>
+                </div>
                 <p class="qmdj-ref-note">
                   Reading tip: if the most auspicious door (e.g. 開門) lands in
                   Palace 4 巽 (wealth), that's a window for wealth-related
@@ -1824,6 +1875,7 @@
                 </p>
 
                 <h4>Eight Doors (八門) — the gate of action</h4>
+                <div class="qmdj-table-scroll">
                 <table class="qmdj-ref-table">
                   <thead><tr><th>Door</th><th>Meaning</th><th>Bias</th></tr></thead>
                   <tbody>
@@ -1837,9 +1889,11 @@
                     <tr><td><strong>驚門</strong> Jīng · Surprise</td><td>Shock, disputes, lawsuits, unexpected disturbance.</td><td class="qmdj-door-inaus">Inauspicious 三凶</td></tr>
                   </tbody>
                 </table>
+                </div>
                 <p class="qmdj-ref-note">The <strong>值使</strong> door is the active door driving the moment — track which palace it occupies.</p>
 
                 <h4>Nine Stars (九星) — cosmic influence</h4>
+                <div class="qmdj-table-scroll">
                 <table class="qmdj-ref-table">
                   <thead><tr><th>Star</th><th>Element</th><th>Meaning</th><th>Bias</th></tr></thead>
                   <tbody>
@@ -1854,12 +1908,14 @@
                     <tr><td><strong>天英</strong> Tiān Yīng · Brightness</td><td>Fire</td><td>Honor, fame, exposure — also conflict and being seen.</td><td>Mixed</td></tr>
                   </tbody>
                 </table>
+                </div>
 
                 <h4>Eight Spirits (八神) — subtle forces</h4>
                 <p class="qmdj-ref-note">
                   In a yang chart (陽遁) the spirit set includes 朱雀 / 勾陳; in a
                   yin chart (陰遁) those two are replaced by 玄武 / 白虎.
                 </p>
+                <div class="qmdj-table-scroll">
                 <table class="qmdj-ref-table">
                   <thead><tr><th>Spirit</th><th>Meaning</th><th>Bias</th></tr></thead>
                   <tbody>
@@ -1875,6 +1931,7 @@
                     <tr><td><strong>玄武</strong> Xuán Wǔ · Dark Warrior <em>(yin)</em></td><td>Theft, deception, hidden movement, illicit affairs.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
                   </tbody>
                 </table>
+                </div>
 
                 <h4>Ten Heavenly Stems (十天干) — heaven &amp; earth plates</h4>
                 <p class="qmdj-ref-note">
@@ -1884,6 +1941,7 @@
                   遁甲 of QiMen Dunjia. 甲 itself never appears directly on the
                   chart.
                 </p>
+                <div class="qmdj-table-scroll">
                 <table class="qmdj-ref-table">
                   <thead><tr><th>Stem</th><th>Element</th><th>Meaning in QMDJ</th><th>Role</th></tr></thead>
                   <tbody>
@@ -1899,6 +1957,7 @@
                     <tr><td><strong>癸</strong> Guǐ</td><td>Yin Water</td><td>Hidden water, secrets, reserves, things kept under the surface.</td><td>六儀 (hides 甲寅)</td></tr>
                   </tbody>
                 </table>
+                </div>
 
                 <h4>What time-basis is this chart? (時家 / hour-based)</h4>
                 <p>
@@ -1968,6 +2027,7 @@
                   and the nature of the specific question. Treat the tint as a
                   quick visual prior, not the verdict.
                 </p>
+                <div class="qmdj-table-scroll">
                 <table class="qmdj-ref-table">
                   <thead><tr><th>Component</th><th>Contribution</th></tr></thead>
                   <tbody>
@@ -1981,6 +2041,8 @@
                     <tr><td>Palace contains 值符 (focal-point bonus)</td><td>+1</td></tr>
                   </tbody>
                 </table>
+                </div>
+                <div class="qmdj-table-scroll">
                 <table class="qmdj-ref-table">
                   <thead><tr><th>Score</th><th>Outlook</th></tr></thead>
                   <tbody>
@@ -1991,6 +2053,7 @@
                     <tr><td>≤ −3</td><td><span class="qmdj-outlook-swatch qmdj-outlook-avoid">Avoid</span></td></tr>
                   </tbody>
                 </table>
+                </div>
                 <p class="qmdj-ref-note">
                   The center palace is held neutral by default — classically the
                   axis is not a direction for outward action. Hover any cell in
