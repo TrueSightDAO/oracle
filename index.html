@@ -22,6 +22,7 @@
     />
     <meta name="twitter:image" content="https://oracle.truesight.me/assets/truesight-logo.png" />
     <script src="scripts/hexagram_texts.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/qimen-dunjia@2.1.0/dist/qimen.standalone.min.js" defer></script>
     <style>
       :root {
         color-scheme: light;
@@ -995,6 +996,212 @@
         width: fit-content;
       }
 
+      /* QiMen Dunjia overlay — uses the shared .reference-panel frame; these
+         styles cover only the chart-internal pieces. */
+      .qmdj-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 6px 16px;
+        font-size: 0.88rem;
+        color: var(--ink-soft);
+      }
+      .qmdj-meta > div { min-width: 0; }
+      .qmdj-meta b { color: var(--ink); font-weight: 600; margin-right: 4px; }
+      .qmdj-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .qmdj-cell {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 10px 11px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 0.85rem;
+        line-height: 1.4;
+        min-height: 120px;
+      }
+      .qmdj-cell.qmdj-zhifu { box-shadow: inset 0 0 0 2px var(--accent-strong); }
+      .qmdj-cell.qmdj-zhishi { box-shadow: inset 0 0 0 2px rgba(185, 137, 76, 0.55); }
+      .qmdj-cell.qmdj-zhifu.qmdj-zhishi {
+        box-shadow:
+          inset 0 0 0 2px var(--accent-strong),
+          inset 0 0 0 4px rgba(185, 137, 76, 0.25);
+      }
+      .qmdj-cell.qmdj-center { background: rgba(185, 137, 76, 0.06); }
+      /* Heuristic outlook tints — subtle so per-element coloring still pops. */
+      .qmdj-cell.qmdj-outlook-strong    { background: rgba(42, 122, 74, 0.16); }
+      .qmdj-cell.qmdj-outlook-favorable { background: rgba(42, 122, 74, 0.08); }
+      .qmdj-cell.qmdj-outlook-caution   { background: rgba(168, 66, 58, 0.08); }
+      .qmdj-cell.qmdj-outlook-avoid     { background: rgba(168, 66, 58, 0.18); }
+      /* Mixed (score 0) and center keep their default backgrounds. */
+      .qmdj-cell-outlook {
+        font-size: 0.72rem;
+        font-style: italic;
+        color: var(--ink-soft);
+        letter-spacing: 0.02em;
+        margin-top: -2px;
+      }
+      .qmdj-cell.qmdj-outlook-strong .qmdj-cell-outlook,
+      .qmdj-cell.qmdj-outlook-favorable .qmdj-cell-outlook { color: #2a7a4a; font-weight: 600; }
+      .qmdj-cell.qmdj-outlook-caution .qmdj-cell-outlook,
+      .qmdj-cell.qmdj-outlook-avoid .qmdj-cell-outlook { color: #a8423a; font-weight: 600; }
+      .qmdj-cell-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+      }
+      .qmdj-cell-head .qmdj-direction { font-weight: 600; color: var(--ink); }
+      .qmdj-row { display: flex; gap: 8px; flex-wrap: wrap; }
+      .qmdj-row span { white-space: nowrap; }
+      .qmdj-stem-wonder { color: #a36b00; font-weight: 700; }
+      .qmdj-door-aus { color: #2a7a4a; font-weight: 600; }
+      .qmdj-door-inaus { color: #a8423a; font-weight: 600; }
+      .qmdj-door-mid { color: var(--ink); }
+      .qmdj-spirit-aus { color: #2a7a4a; }
+      .qmdj-spirit-inaus { color: #a8423a; }
+      .qmdj-legend {
+        font-size: 0.85rem;
+        color: var(--ink-soft);
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .qmdj-legend > span { display: inline-flex; gap: 4px; align-items: baseline; }
+      .qmdj-outlook-scale {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        font-size: 0.78rem;
+      }
+      .qmdj-outlook-swatch {
+        padding: 3px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-weight: 500;
+        line-height: 1.4;
+      }
+      .qmdj-outlook-swatch.qmdj-outlook-strong    { background: rgba(42, 122, 74, 0.16); color: #2a7a4a; border-color: rgba(42, 122, 74, 0.3); }
+      .qmdj-outlook-swatch.qmdj-outlook-favorable { background: rgba(42, 122, 74, 0.08); color: #2a7a4a; }
+      .qmdj-outlook-swatch.qmdj-outlook-mixed     { color: var(--ink-soft); }
+      .qmdj-outlook-swatch.qmdj-outlook-caution   { background: rgba(168, 66, 58, 0.08); color: #a8423a; }
+      .qmdj-outlook-swatch.qmdj-outlook-avoid     { background: rgba(168, 66, 58, 0.18); color: #a8423a; border-color: rgba(168, 66, 58, 0.3); }
+      .qmdj-glossary {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg-strong);
+        overflow: hidden;
+      }
+      .qmdj-glossary > summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 12px 16px;
+        font-weight: 600;
+        color: var(--accent-strong);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .qmdj-glossary > summary::-webkit-details-marker { display: none; }
+      .qmdj-glossary > summary::after {
+        content: "⯈";
+        font-size: 0.85rem;
+        transition: transform var(--transition);
+        margin-left: auto;
+      }
+      .qmdj-glossary[open] > summary::after { transform: rotate(90deg); }
+      .qmdj-glossary[open] > summary {
+        border-bottom: 1px solid var(--border);
+        background: rgba(185, 137, 76, 0.08);
+      }
+      .qmdj-glossary-body {
+        padding: 16px 18px;
+        display: grid;
+        gap: 14px;
+        font-size: 0.92rem;
+        line-height: 1.6;
+        color: var(--ink);
+      }
+      .qmdj-glossary-body p { margin: 0; color: var(--ink-soft); }
+      .qmdj-glossary-body h4 {
+        margin: 4px 0 0;
+        font-size: 0.95rem;
+        color: var(--accent-strong);
+      }
+      .qmdj-glossary-body dl {
+        display: grid;
+        grid-template-columns: minmax(140px, max-content) 1fr;
+        gap: 6px 14px;
+        margin: 0;
+      }
+      .qmdj-glossary-body dt { font-weight: 600; color: var(--ink); }
+      .qmdj-glossary-body dd { margin: 0; color: var(--ink-soft); }
+      .qmdj-glossary-body ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--ink-soft);
+      }
+      .qmdj-glossary-body ul li + li { margin-top: 6px; }
+      .qmdj-glossary-body ol {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--ink-soft);
+      }
+      .qmdj-glossary-body ol li + li { margin-top: 4px; }
+      .qmdj-ref-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        line-height: 1.5;
+      }
+      .qmdj-ref-table thead th {
+        text-align: left;
+        font-weight: 600;
+        color: var(--accent-strong);
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(185, 137, 76, 0.06);
+        font-size: 0.82rem;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+      .qmdj-ref-table tbody td {
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        color: var(--ink);
+      }
+      .qmdj-ref-table tbody tr:last-child td { border-bottom: 0; }
+      .qmdj-ref-table tbody td:nth-child(1) { white-space: nowrap; }
+      .qmdj-ref-table tbody td:last-child { white-space: nowrap; }
+      .qmdj-ref-note {
+        margin: 0;
+        font-size: 0.85rem;
+        font-style: italic;
+        color: var(--ink-soft);
+      }
+      @media (max-width: 640px) {
+        .qmdj-ref-table { font-size: 0.82rem; }
+        .qmdj-ref-table thead th,
+        .qmdj-ref-table tbody td { padding: 6px 8px; }
+        .qmdj-ref-table tbody td:nth-child(1),
+        .qmdj-ref-table tbody td:last-child { white-space: normal; }
+      }
+      @media (max-width: 640px) {
+        .qmdj-glossary-body dl { grid-template-columns: 1fr; }
+        .qmdj-glossary-body dt { margin-top: 4px; }
+      }
+      .qmdj-error {
+        font-size: 0.9rem;
+        color: #a8423a;
+        margin: 0;
+      }
+
       .share-button {
         background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
         color: white;
@@ -1517,6 +1724,269 @@
         </section>
       </section>
 
+      <section class="reference-panel" id="qmdjPanel" aria-label="QiMen Dunjia structural overlay" hidden>
+        <details id="qmdjDetails" class="reference-details">
+          <summary>Extended reading · QiMen Dunjia (奇門遁甲)</summary>
+          <div class="reference-content">
+            <div class="reference-intro">
+              Same moment, structural lens. The I&nbsp;Ching above reads the <em>quality</em>
+              of this instant; the chart below reads its <em>spatial / strategic
+              shape</em>. Combining the two is a modern synthesis, not a classical
+              practice — they have different question-frames in tradition.
+            </div>
+            <div class="qmdj-meta" id="qmdjMeta"></div>
+            <div class="qmdj-grid" id="qmdjGrid" role="group" aria-label="QiMen Dunjia 9-palace chart"></div>
+            <div class="qmdj-legend">
+              <span>三吉門 <span class="qmdj-door-aus">開 / 休 / 生</span></span>
+              <span>三凶門 <span class="qmdj-door-inaus">傷 / 死 / 驚</span></span>
+              <span>三奇 <span class="qmdj-stem-wonder">乙 / 丙 / 丁</span></span>
+              <span>值符 / 值使 palace = darker border.</span>
+            </div>
+            <div class="qmdj-outlook-scale" aria-label="Per-palace outlook scale">
+              <span class="qmdj-outlook-swatch qmdj-outlook-strong">Strong window</span>
+              <span class="qmdj-outlook-swatch qmdj-outlook-favorable">Favorable</span>
+              <span class="qmdj-outlook-swatch qmdj-outlook-mixed">Mixed</span>
+              <span class="qmdj-outlook-swatch qmdj-outlook-caution">Caution</span>
+              <span class="qmdj-outlook-swatch qmdj-outlook-avoid">Avoid</span>
+            </div>
+            <p class="qmdj-ref-note">
+              The cell tint is a <strong>heuristic synthesis</strong> of door + spirit + stems
+              + 值符 bonus — useful as a quick read, but not a master-practitioner
+              call. Real QMDJ also weighs 五行 generation/control between
+              palaces, 反吟 / 伏吟 patterns, and the nature of the question.
+              Hover a cell to see its raw score; <a id="qmdjScoringLink" href="#qmdjScoringExplanation">scoring rule</a>.
+            </p>
+            <details class="qmdj-glossary">
+              <summary>What does each part of the chart mean?</summary>
+              <div class="qmdj-glossary-body">
+                <p>
+                  Each cell in the 3 × 3 grid is a <strong>palace</strong> (宮) tied to a
+                  compass direction. South sits at the top by tradition. The
+                  numbers in the corners are the Luo Shu (洛書) magic-square
+                  numbers for each palace. Within every cell, the chart stacks
+                  five layers of meaning — read top to bottom: <strong>Spirit (八神)</strong> →
+                  <strong>Star (九星)</strong> → <strong>Door (八門)</strong> → <strong>Heaven Plate stem (天)</strong> →
+                  <strong>Earth Plate stem (地)</strong>. The Spirit and Star say <em>what kind
+                  of energy</em> is in that direction; the Door says <em>what
+                  action that direction supports or blocks</em>; the two stems say
+                  <em>what raw material the direction is made of</em>.
+                </p>
+
+                <h4>Nine Palaces (九宮) — the directions and what they classically mean</h4>
+                <p class="qmdj-ref-note">
+                  Each palace is a compass direction <em>and</em> a life-domain.
+                  The eight outer palaces map to the eight trigrams (八卦) of
+                  the Later Heaven sequence; the ninth is the center. When
+                  reading a chart, look at <em>which palace</em> a notable
+                  spirit/star/door/wonder lands in to know <em>what area of
+                  life it touches</em>.
+                </p>
+                <table class="qmdj-ref-table">
+                  <thead><tr><th>Palace</th><th>Direction</th><th>Trigram</th><th>Element</th><th>What it represents</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong>1 坎</strong> Kǎn</td><td>N</td><td>☵ Water 水</td><td>Water</td><td>Career, hidden things, study, ancestors, secrets, depth, danger. <em>(Middle son.)</em></td></tr>
+                    <tr><td><strong>2 坤</strong> Kūn</td><td>SW</td><td>☷ Earth 地</td><td>Earth (yin)</td><td>Motherhood, support, partnerships, marriage, the public, soft power, receptivity.</td></tr>
+                    <tr><td><strong>3 震</strong> Zhèn</td><td>E</td><td>☳ Thunder 雷</td><td>Wood (yang)</td><td>Action, decisive beginnings, shocks, ambition, public movement, initiative. <em>(Eldest son.)</em></td></tr>
+                    <tr><td><strong>4 巽</strong> Xùn</td><td>SE</td><td>☴ Wind 風</td><td>Wood (yin)</td><td>Wealth and money, persuasion, travel, communication, gentle persistent influence. <em>(Eldest daughter.)</em></td></tr>
+                    <tr><td><strong>5 中</strong> Zhōng</td><td>Center</td><td>—</td><td>Earth</td><td>The axis. Self, rulership, mediation, neutrality. The 天禽 star sits here and is "lent" to a cardinal palace.</td></tr>
+                    <tr><td><strong>6 乾</strong> Qián</td><td>NW</td><td>☰ Heaven 天</td><td>Metal (yang)</td><td>Leadership, authority, fathers, mentors, helpful people, government, the powerful.</td></tr>
+                    <tr><td><strong>7 兌</strong> Duì</td><td>W</td><td>☱ Lake 澤</td><td>Metal (yin)</td><td>Joy, speech, romance, attraction, charm, food and pleasure — also gossip and superficiality. <em>(Youngest daughter.)</em></td></tr>
+                    <tr><td><strong>8 艮</strong> Gèn</td><td>NE</td><td>☶ Mountain 山</td><td>Earth (yang)</td><td>Stillness, knowledge, education, real estate, accumulation, stopping. <em>(Youngest son.)</em></td></tr>
+                    <tr><td><strong>9 離</strong> Lí</td><td>S</td><td>☲ Fire 火</td><td>Fire</td><td>Brightness, fame, recognition, vision, manifestation, public exposure, the heart. <em>(Middle daughter.)</em></td></tr>
+                  </tbody>
+                </table>
+                <p class="qmdj-ref-note">
+                  Reading tip: if the most auspicious door (e.g. 開門) lands in
+                  Palace 4 巽 (wealth), that's a window for wealth-related
+                  action. If 死門 lands in Palace 6 乾 (leadership / mentors),
+                  read carefully when seeking authoritative help. The palace
+                  decides <em>what domain</em>; the door / star / spirit decide
+                  <em>how that domain is moving right now</em>.
+                </p>
+
+                <h4>Eight Doors (八門) — the gate of action</h4>
+                <table class="qmdj-ref-table">
+                  <thead><tr><th>Door</th><th>Meaning</th><th>Bias</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong>開門</strong> Kāi · Open</td><td>Beginnings, expansion, official success, public-facing action.</td><td class="qmdj-door-aus">Auspicious 三吉</td></tr>
+                    <tr><td><strong>休門</strong> Xiū · Rest</td><td>Renewal, peace, romance, recovery, soft consolidation.</td><td class="qmdj-door-aus">Auspicious 三吉</td></tr>
+                    <tr><td><strong>生門</strong> Shēng · Birth</td><td>Growth, wealth, new ventures, partnerships, sales.</td><td class="qmdj-door-aus">Auspicious 三吉</td></tr>
+                    <tr><td><strong>杜門</strong> Dù · Block</td><td>Hiding, defensive holding, secrecy, study, blocking.</td><td class="qmdj-door-mid">Neutral</td></tr>
+                    <tr><td><strong>景門</strong> Jǐng · Scenery</td><td>Vision, signaling, communication, but no direct action.</td><td class="qmdj-door-mid">Neutral</td></tr>
+                    <tr><td><strong>傷門</strong> Shāng · Hurt</td><td>Injury, conflict, hunting, sharp force, debt collection.</td><td class="qmdj-door-inaus">Inauspicious 三凶</td></tr>
+                    <tr><td><strong>死門</strong> Sǐ · Death</td><td>Endings, finality, loss; in some traditions, hunting / mortuary work.</td><td class="qmdj-door-inaus">Inauspicious 三凶</td></tr>
+                    <tr><td><strong>驚門</strong> Jīng · Surprise</td><td>Shock, disputes, lawsuits, unexpected disturbance.</td><td class="qmdj-door-inaus">Inauspicious 三凶</td></tr>
+                  </tbody>
+                </table>
+                <p class="qmdj-ref-note">The <strong>值使</strong> door is the active door driving the moment — track which palace it occupies.</p>
+
+                <h4>Nine Stars (九星) — cosmic influence</h4>
+                <table class="qmdj-ref-table">
+                  <thead><tr><th>Star</th><th>Element</th><th>Meaning</th><th>Bias</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong>天蓬</strong> Tiān Péng · Awning</td><td>Water</td><td>Movement, theft, water, danger, scheming.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
+                    <tr><td><strong>天芮</strong> Tiān Ruì · Affliction</td><td>Earth</td><td>Illness, weakness, decay, learning under hardship.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
+                    <tr><td><strong>天沖</strong> Tiān Chōng · Surge</td><td>Wood</td><td>Burst of energy, swift action, military.</td><td>Mixed (good for action, bad for stillness)</td></tr>
+                    <tr><td><strong>天輔</strong> Tiān Fǔ · Support</td><td>Wood</td><td>Education, planning, scholarship, mentorship.</td><td class="qmdj-spirit-aus">Auspicious</td></tr>
+                    <tr><td><strong>天禽</strong> Tiān Qín · Bird</td><td>Earth</td><td>Stability, magnanimity, leadership in stillness. Sits in the center; lent to a cardinal palace.</td><td class="qmdj-spirit-aus">Auspicious</td></tr>
+                    <tr><td><strong>天心</strong> Tiān Xīn · Heart</td><td>Metal</td><td>Healing, decisive wisdom, leadership, medicine.</td><td class="qmdj-spirit-aus">Auspicious</td></tr>
+                    <tr><td><strong>天柱</strong> Tiān Zhù · Pillar</td><td>Metal</td><td>Disputes, breakage, transformation through tension.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
+                    <tr><td><strong>天任</strong> Tiān Rén · Endurance</td><td>Earth</td><td>Reliability, slow steady progress, burden-bearing.</td><td class="qmdj-spirit-aus">Auspicious</td></tr>
+                    <tr><td><strong>天英</strong> Tiān Yīng · Brightness</td><td>Fire</td><td>Honor, fame, exposure — also conflict and being seen.</td><td>Mixed</td></tr>
+                  </tbody>
+                </table>
+
+                <h4>Eight Spirits (八神) — subtle forces</h4>
+                <p class="qmdj-ref-note">
+                  In a yang chart (陽遁) the spirit set includes 朱雀 / 勾陳; in a
+                  yin chart (陰遁) those two are replaced by 玄武 / 白虎.
+                </p>
+                <table class="qmdj-ref-table">
+                  <thead><tr><th>Spirit</th><th>Meaning</th><th>Bias</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong>值符</strong> Zhí Fú · Director</td><td>Strongest auspicious. The palace where 值符 sits is the focal point of the moment.</td><td class="qmdj-spirit-aus">Auspicious ★</td></tr>
+                    <tr><td><strong>螣蛇 / 滕蛇</strong> Téng Shé · Soaring Snake</td><td>Strange events, illusion, deception, anxious dreams.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
+                    <tr><td><strong>太陰</strong> Tài Yīn · Great Yin</td><td>Hidden support, secret help, behind-the-scenes allies.</td><td class="qmdj-spirit-aus">Auspicious</td></tr>
+                    <tr><td><strong>六合</strong> Liù Hé · Six Harmonies</td><td>Cooperation, partnership, networking, marriage.</td><td class="qmdj-spirit-aus">Auspicious</td></tr>
+                    <tr><td><strong>九地</strong> Jiǔ Dì · Nine Earths</td><td>Solid ground, defensive position, retention, safekeeping.</td><td class="qmdj-spirit-aus">Auspicious</td></tr>
+                    <tr><td><strong>九天</strong> Jiǔ Tiān · Nine Heavens</td><td>High vantage, expansion, outward bold action, travel.</td><td class="qmdj-spirit-aus">Auspicious</td></tr>
+                    <tr><td><strong>朱雀</strong> Zhū Què · Vermilion Bird <em>(yang)</em></td><td>Disputes, lawsuits, gossip, written-communication trouble.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
+                    <tr><td><strong>勾陳</strong> Gōu Chén · Hooked Chen <em>(yang)</em></td><td>Entanglement, delays, trapped situations, real-estate disputes.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
+                    <tr><td><strong>白虎</strong> Bái Hǔ · White Tiger <em>(yin)</em></td><td>Conflict, violence, sharp action, blood and metal.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
+                    <tr><td><strong>玄武</strong> Xuán Wǔ · Dark Warrior <em>(yin)</em></td><td>Theft, deception, hidden movement, illicit affairs.</td><td class="qmdj-spirit-inaus">Inauspicious</td></tr>
+                  </tbody>
+                </table>
+
+                <h4>Ten Heavenly Stems (十天干) — heaven &amp; earth plates</h4>
+                <p class="qmdj-ref-note">
+                  Three Wonders (三奇: <span class="qmdj-stem-wonder">乙 · 丙 · 丁</span>) mark
+                  windows of opportunity. Six Yi (六儀: 戊 · 己 · 庚 · 辛 · 壬 · 癸) sit on
+                  the earth plate and "hide" the Jia stems behind them — the
+                  遁甲 of QiMen Dunjia. 甲 itself never appears directly on the
+                  chart.
+                </p>
+                <table class="qmdj-ref-table">
+                  <thead><tr><th>Stem</th><th>Element</th><th>Meaning in QMDJ</th><th>Role</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong>甲</strong> Jiǎ</td><td>Yang Wood</td><td>The "general" stem — leadership and command. Hidden behind a Yi.</td><td>Hidden (遁)</td></tr>
+                    <tr><td><strong class="qmdj-stem-wonder">乙</strong> Yǐ</td><td>Yin Wood</td><td>Flexibility, cleverness, plans that adapt. The Sun's wonder.</td><td>三奇</td></tr>
+                    <tr><td><strong class="qmdj-stem-wonder">丙</strong> Bǐng</td><td>Yang Fire</td><td>Brightness, fame, exposure, public visibility. The Moon's wonder.</td><td>三奇</td></tr>
+                    <tr><td><strong class="qmdj-stem-wonder">丁</strong> Dīng</td><td>Yin Fire</td><td>Soft fire, hidden brilliance, healers, candles in the dark. The Star wonder.</td><td>三奇</td></tr>
+                    <tr><td><strong>戊</strong> Wù</td><td>Yang Earth</td><td>Solidity, foundations, walls, conservative holding.</td><td>六儀 (hides 甲子)</td></tr>
+                    <tr><td><strong>己</strong> Jǐ</td><td>Yin Earth</td><td>Flexible earth, gardens, soft support, adaptable foundations.</td><td>六儀 (hides 甲戌)</td></tr>
+                    <tr><td><strong>庚</strong> Gēng</td><td>Yang Metal</td><td><strong>⚠ Blockage and conflict.</strong> Wherever 庚 lands, treat that direction with caution.</td><td>六儀 (hides 甲申)</td></tr>
+                    <tr><td><strong>辛</strong> Xīn</td><td>Yin Metal</td><td>Refinement, jewels, errors, complaints, sharp small things.</td><td>六儀 (hides 甲午)</td></tr>
+                    <tr><td><strong>壬</strong> Rén</td><td>Yang Water</td><td>Flow, scheming, clever speech, large bodies of water.</td><td>六儀 (hides 甲辰)</td></tr>
+                    <tr><td><strong>癸</strong> Guǐ</td><td>Yin Water</td><td>Hidden water, secrets, reserves, things kept under the surface.</td><td>六儀 (hides 甲寅)</td></tr>
+                  </tbody>
+                </table>
+
+                <h4>Header line (above the grid)</h4>
+                <dl>
+                  <dt>節氣 / 三元</dt>
+                  <dd>
+                    Solar term and yuan (上 / 中 / 下). Together they pick the
+                    Ju — every moment within a yuan of a solar term shares
+                    the same chart base.
+                  </dd>
+                  <dt>局 (e.g. 陽遁4局)</dt>
+                  <dd>
+                    The chart number 1–9 plus 陽 (yang) or 陰 (yin) dunjia.
+                    Determines the Earth Plate layout and the direction of
+                    flying.
+                  </dd>
+                  <dt>四柱</dt>
+                  <dd>
+                    Year / month / day / hour pillars in stem-branch form.
+                    The hour pillar (時柱) is the most relevant for QMDJ —
+                    it drives the Heaven Plate rotation.
+                  </dd>
+                  <dt>值符 / 值使</dt>
+                  <dd>
+                    The "Director" star and door for this moment, with the
+                    palace each occupies. The 值符 palace concentrates the
+                    moment's energy; the 值使 palace is where action expresses
+                    most strongly.
+                  </dd>
+                  <dt>飛步</dt>
+                  <dd>
+                    Number of palaces the Heaven Plate has rotated relative to
+                    the Earth Plate. <strong>0</strong> means the chart is
+                    "still" — slow change. Larger values indicate more dynamic
+                    moments.
+                  </dd>
+                </dl>
+
+                <h4 id="qmdjScoringExplanation">How the per-palace outlook tint is computed</h4>
+                <p>
+                  The cell tint is a transparent heuristic combining door,
+                  spirit, stems, and the 值符 bonus into one number. <strong>It is
+                  not authoritative</strong> — a practitioner reading would also factor in
+                  五行 generation/control between palaces, 反吟 / 伏吟 patterns,
+                  and the nature of the specific question. Treat the tint as a
+                  quick visual prior, not the verdict.
+                </p>
+                <table class="qmdj-ref-table">
+                  <thead><tr><th>Component</th><th>Contribution</th></tr></thead>
+                  <tbody>
+                    <tr><td>Door is one of <span class="qmdj-door-aus">三吉 (開/休/生)</span></td><td>+2</td></tr>
+                    <tr><td>Door is one of <span class="qmdj-door-inaus">三凶 (傷/死/驚)</span></td><td>−2</td></tr>
+                    <tr><td>Door is 杜 or 景 (neutral)</td><td>0</td></tr>
+                    <tr><td>Spirit is auspicious (值符/太陰/六合/九地/九天)</td><td>+1</td></tr>
+                    <tr><td>Spirit is inauspicious (螣蛇/朱雀/勾陳/白虎/玄武)</td><td>−1</td></tr>
+                    <tr><td>Each Three Wonder (<span class="qmdj-stem-wonder">乙/丙/丁</span>) on heaven OR earth plate</td><td>+1 each</td></tr>
+                    <tr><td>Each 庚 on heaven OR earth plate</td><td>−1 each</td></tr>
+                    <tr><td>Palace contains 值符 (focal-point bonus)</td><td>+1</td></tr>
+                  </tbody>
+                </table>
+                <table class="qmdj-ref-table">
+                  <thead><tr><th>Score</th><th>Outlook</th></tr></thead>
+                  <tbody>
+                    <tr><td>≥ +3</td><td><span class="qmdj-outlook-swatch qmdj-outlook-strong">Strong window</span></td></tr>
+                    <tr><td>+1, +2</td><td><span class="qmdj-outlook-swatch qmdj-outlook-favorable">Favorable</span></td></tr>
+                    <tr><td>0</td><td><span class="qmdj-outlook-swatch qmdj-outlook-mixed">Mixed</span></td></tr>
+                    <tr><td>−1, −2</td><td><span class="qmdj-outlook-swatch qmdj-outlook-caution">Caution</span></td></tr>
+                    <tr><td>≤ −3</td><td><span class="qmdj-outlook-swatch qmdj-outlook-avoid">Avoid</span></td></tr>
+                  </tbody>
+                </table>
+                <p class="qmdj-ref-note">
+                  The center palace is held neutral by default — classically the
+                  axis is not a direction for outward action. Hover any cell in
+                  the chart to see its raw score in the tooltip.
+                </p>
+
+                <h4>Notable patterns to look for</h4>
+                <ul>
+                  <li>
+                    <strong>三奇 + 三吉門 in the same palace</strong> — a Three
+                    Wonder (<span class="qmdj-stem-wonder">乙/丙/丁</span>) sitting
+                    with an auspicious door (<span class="qmdj-door-aus">開/休/生</span>).
+                    Strong window for outward action in that direction.
+                  </li>
+                  <li>
+                    <strong>庚 (Geng) collisions</strong> — wherever 庚 lands,
+                    treat with caution. 庚 marks blockage and conflict; pairing
+                    it with the day stem or 值符 amplifies the warning.
+                  </li>
+                  <li>
+                    <strong>Death door (<span class="qmdj-door-inaus">死門</span>) on the day stem</strong> —
+                    the direction associated with the day stem carrying 死門 is
+                    where loss tends to surface; read carefully.
+                  </li>
+                  <li>
+                    <strong>值符 palace alignment</strong> — note which palace
+                    the 值符 sits in. That direction concentrates the moment's
+                    primary energy; pair it with the door in that palace to
+                    judge what action that energy supports.
+                  </li>
+                </ul>
+              </div>
+            </details>
+            <p class="qmdj-error" id="qmdjError" hidden></p>
+          </div>
+        </details>
+      </section>
+
       <section class="reference-panel" aria-label="Hexagram reference guide">
         <details id="hexagramReference" class="reference-details">
           <summary>Explore the 64 hexagrams</summary>
@@ -1948,6 +2418,10 @@
       const lastReadingPreview = document.getElementById("lastReadingPreview");
       const heroStatus = document.getElementById("heroStatus");
       const daoAdvisoryPanel = document.getElementById("daoAdvisoryPanel");
+      const qmdjPanel = document.getElementById("qmdjPanel");
+      const qmdjMeta = document.getElementById("qmdjMeta");
+      const qmdjGrid = document.getElementById("qmdjGrid");
+      const qmdjError = document.getElementById("qmdjError");
       const daoAdvisoryStatus = document.getElementById("daoAdvisoryStatus");
       const daoAdvisoryBody = document.getElementById("daoAdvisoryBody");
       const daoAdvisoryActions = document.getElementById("daoAdvisoryActions");
@@ -3055,6 +3529,208 @@
         }
       }
 
+      // QiMen Dunjia overlay — structural read of the same moment the I-Ching was cast.
+      // Library: qimen-dunjia (npm) loaded as an IIFE that exposes window.Qimen.
+      // The chart is array-indexed in 3x3 row-major order, south at top:
+      //   [0]巽SE [1]離S  [2]坤SW
+      //   [3]震E  [4]中C  [5]兌W
+      //   [6]艮NE [7]坎N  [8]乾NW
+      const QMDJ_AUS_DOORS = new Set(["開門", "休門", "生門"]);
+      const QMDJ_INAUS_DOORS = new Set(["傷門", "死門", "驚門"]);
+      const QMDJ_THREE_WONDERS = new Set(["乙", "丙", "丁"]);
+      // Yang-chart auspicious / inauspicious bias; in Yin charts 朱雀 / 勾陳 are
+      // replaced by 玄武 / 白虎 — same coloring intent applies.
+      const QMDJ_AUS_SPIRITS = new Set(["值符", "太陰", "六合", "九地", "九天"]);
+      const QMDJ_INAUS_SPIRITS = new Set(["滕蛇", "騰蛇", "朱雀", "勾陳", "白虎", "玄武"]);
+      const QMDJ_DIRECTIONS_EN = ["SE", "S", "SW", "E", "Center", "W", "NE", "N", "NW"];
+      const QMDJ_LUOSHU_NUMBERS = [4, 9, 2, 3, 5, 7, 8, 1, 6];
+
+      function formatQmdjLocalTimestamp(date) {
+        const Y = String(date.getFullYear());
+        const M = String(date.getMonth() + 1).padStart(2, "0");
+        const D = String(date.getDate()).padStart(2, "0");
+        const H = String(date.getHours()).padStart(2, "0");
+        return Y + M + D + H;
+      }
+
+      function castQmdjChart(date) {
+        if (typeof window === "undefined" || !window.Qimen) return null;
+        try {
+          const stamp = formatQmdjLocalTimestamp(date);
+          const raw = window.Qimen.generateChartByDatetime(stamp);
+          return window.Qimen.chartToObject(raw);
+        } catch (err) {
+          console.warn("QMDJ chart cast failed:", err);
+          return null;
+        }
+      }
+
+      function classifyQmdjStem(stem) {
+        if (!stem) return "";
+        return QMDJ_THREE_WONDERS.has(stem) ? "qmdj-stem-wonder" : "";
+      }
+      function classifyQmdjDoor(door) {
+        if (!door) return "";
+        if (QMDJ_AUS_DOORS.has(door)) return "qmdj-door-aus";
+        if (QMDJ_INAUS_DOORS.has(door)) return "qmdj-door-inaus";
+        return "qmdj-door-mid";
+      }
+      function classifyQmdjSpirit(spirit) {
+        if (!spirit) return "";
+        if (QMDJ_AUS_SPIRITS.has(spirit)) return "qmdj-spirit-aus";
+        if (QMDJ_INAUS_SPIRITS.has(spirit)) return "qmdj-spirit-inaus";
+        return "";
+      }
+
+      // Per-palace outlook — heuristic synthesis of door + spirit + stems + 值符 bonus.
+      // Weights:
+      //   Door  : 三吉門 (開/休/生) +2, 三凶門 (傷/死/驚) −2, 杜/景 0
+      //   Spirit: auspicious set +1, inauspicious set −1
+      //   Stems : each Three Wonder (乙/丙/丁) on heaven OR earth plate +1; each 庚 −1
+      //   值符 palace bonus: +1
+      // Center palace returns neutral regardless (no door/spirit slots; classically the axis, not a direction for action).
+      // Level cutoffs:
+      //   ≥ +3  → "strong"     (Strong window)
+      //   +1/+2 → "favorable"  (Favorable)
+      //   0     → "mixed"      (Mixed)
+      //   −1/−2 → "caution"    (Caution)
+      //   ≤ −3  → "avoid"      (Avoid)
+      function qmdjPalaceOutlook({ spirit, door, heavenStem, earthStem, isZhiFu, isCenter }) {
+        if (isCenter) {
+          return { score: 0, level: "mixed", label: "Axis · neutral" };
+        }
+        let score = 0;
+        if (QMDJ_AUS_DOORS.has(door)) score += 2;
+        else if (QMDJ_INAUS_DOORS.has(door)) score -= 2;
+        if (QMDJ_AUS_SPIRITS.has(spirit)) score += 1;
+        else if (QMDJ_INAUS_SPIRITS.has(spirit)) score -= 1;
+        for (const stem of [heavenStem, earthStem]) {
+          if (!stem) continue;
+          if (QMDJ_THREE_WONDERS.has(stem)) score += 1;
+          if (stem === "庚") score -= 1;
+        }
+        if (isZhiFu) score += 1;
+        let level = "mixed";
+        let label = "Mixed";
+        if (score >= 3) { level = "strong"; label = "Strong window"; }
+        else if (score >= 1) { level = "favorable"; label = "Favorable"; }
+        else if (score === 0) { level = "mixed"; label = "Mixed"; }
+        else if (score >= -2) { level = "caution"; label = "Caution"; }
+        else { level = "avoid"; label = "Avoid"; }
+        return { score, level, label };
+      }
+
+      function renderQmdjMeta(chart, castDate) {
+        const localTime = castDate.toLocaleString();
+        const ju = `${chart["陰陽"]}遁${chart["局數"]}局`;
+        const zhifu = `${chart["值符"] || "?"}`;
+        const zhishi = `${chart["值使"] || "?"}`;
+        const items = [
+          `<div><b>Cast</b> ${localTime}</div>`,
+          `<div><b>節氣</b> ${chart["節氣"] || "?"} · ${chart["三元"] || ""}</div>`,
+          `<div><b>局</b> ${ju}</div>`,
+          `<div><b>四柱</b> ${chart["年柱"]} ${chart["月柱"]} ${chart["日柱"]} ${chart["時柱"]}</div>`,
+          `<div><b>值符</b> ${zhifu} <span style="color:var(--ink-soft)">@ ${chart["值符落宮"] || "?"}</span></div>`,
+          `<div><b>值使</b> ${zhishi} <span style="color:var(--ink-soft)">@ ${chart["值使落宮"] || "?"}</span></div>`,
+          `<div><b>飛步</b> ${chart["飛步"] ?? "?"}</div>`
+        ];
+        qmdjMeta.innerHTML = items.join("");
+      }
+
+      function renderQmdjGrid(chart) {
+        const palaceNames = chart["方位"] || [];
+        const earth = chart["地盤"] || [];
+        const heaven = chart["天盤"] || [];
+        const doors = chart["天門"] || chart["地門"] || [];
+        const stars = chart["九星"] || [];
+        const spirits = chart["八神"] || [];
+        const zhifuPalace = chart["值符落宮"];
+        const zhishiPalace = chart["值使落宮"];
+
+        const cells = [];
+        for (let i = 0; i < 9; i++) {
+          const palace = palaceNames[i] || "";
+          const isCenter = i === 4;
+          const isZhiFu = palace && palace === zhifuPalace;
+          const isZhiShi = palace && palace === zhishiPalace;
+          const classes = ["qmdj-cell"];
+          if (isCenter) classes.push("qmdj-center");
+          if (isZhiFu) classes.push("qmdj-zhifu");
+          if (isZhiShi) classes.push("qmdj-zhishi");
+
+          const earthStem = earth[i] || "";
+          const heavenStem = heaven[i] || "";
+          const door = doors[i] || "";
+          const star = stars[i] || "";
+          const spirit = spirits[i] || "";
+
+          const earthCls = classifyQmdjStem(earthStem);
+          const heavenCls = classifyQmdjStem(heavenStem);
+          const doorCls = classifyQmdjDoor(door);
+          const spiritCls = classifyQmdjSpirit(spirit);
+          const outlook = qmdjPalaceOutlook({
+            spirit, door, heavenStem, earthStem, isZhiFu, isCenter
+          });
+          classes.push(`qmdj-outlook-${outlook.level}`);
+
+          cells.push(
+            `<div class="${classes.join(" ")}" data-qmdj-score="${outlook.score}">` +
+              `<div class="qmdj-cell-head"><span class="qmdj-direction">${QMDJ_DIRECTIONS_EN[i]} · ${palace}</span><span>${QMDJ_LUOSHU_NUMBERS[i]}</span></div>` +
+              `<div class="qmdj-cell-outlook" title="Heuristic score: ${outlook.score}">${outlook.label}</div>` +
+              `<div class="qmdj-row">` +
+                (spirit ? `<span class="${spiritCls}">${spirit}</span>` : `<span style="color:var(--ink-soft)">—</span>`) +
+              `</div>` +
+              `<div class="qmdj-row">` +
+                (star ? `<span>${star}</span>` : `<span style="color:var(--ink-soft)">—</span>`) +
+              `</div>` +
+              `<div class="qmdj-row">` +
+                (door ? `<span class="${doorCls}">${door}</span>` : `<span style="color:var(--ink-soft)">—</span>`) +
+              `</div>` +
+              `<div class="qmdj-row" style="font-size:0.72rem;color:var(--ink-soft)">` +
+                `<span>天 <span class="${heavenCls}">${heavenStem || "—"}</span></span>` +
+                `<span>地 <span class="${earthCls}">${earthStem || "—"}</span></span>` +
+              `</div>` +
+            `</div>`
+          );
+        }
+        qmdjGrid.innerHTML = cells.join("");
+      }
+
+      function renderQmdjPanel(reading) {
+        if (!qmdjPanel) return;
+        const tsRaw = reading?.timestamp;
+        const castDate = tsRaw ? new Date(tsRaw) : new Date();
+        if (!window.Qimen) {
+          // Library hasn't loaded yet — try once more after a moment, then give up gracefully.
+          window.setTimeout(() => renderQmdjPanel(reading), 600);
+          return;
+        }
+        const chart = castQmdjChart(castDate);
+        if (!chart) {
+          qmdjPanel.hidden = false;
+          if (qmdjError) {
+            qmdjError.hidden = false;
+            qmdjError.textContent = "Could not compute the QiMen chart for this moment.";
+          }
+          return;
+        }
+        if (qmdjError) qmdjError.hidden = true;
+        renderQmdjMeta(chart, castDate);
+        renderQmdjGrid(chart);
+        qmdjPanel.hidden = false;
+      }
+
+      function resetQmdjPanel() {
+        if (!qmdjPanel) return;
+        qmdjPanel.hidden = true;
+        if (qmdjMeta) qmdjMeta.innerHTML = "";
+        if (qmdjGrid) qmdjGrid.innerHTML = "";
+        if (qmdjError) {
+          qmdjError.hidden = true;
+          qmdjError.textContent = "";
+        }
+      }
+
       function presentReading(reading, { scrollIntoView = true } = {}) {
         if (!reading) return;
 
@@ -3096,6 +3772,7 @@
           shareFeedback.textContent = "";
         }
         currentReading = reading;
+        renderQmdjPanel(reading);
         fetchDaoAdvisory(reading);
 
         if (scrollIntoView) {
@@ -3333,6 +4010,7 @@
         setDaoAdvisoryCtaVisible(false);
         setDaoAdvisoryStatus("Advisory appears here after the reading is revealed.");
         setDaoAdvisoryBody("");
+        resetQmdjPanel();
         currentReading = null;
         buildLineCards();
       }
