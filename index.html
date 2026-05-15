@@ -1771,6 +1771,16 @@
               shape</em>. Combining the two is a modern synthesis, not a classical
               practice — they have different question-frames in tradition.
             </div>
+            <div class="qmdj-mode-toggle" id="qmdjModeToggle" role="radiogroup" aria-label="QMDJ time-basis mode" style="display:flex;gap:0.5rem;margin:0.4rem 0 0.6rem;flex-wrap:wrap;font-size:0.82rem;">
+              <label style="cursor:pointer;display:flex;align-items:center;gap:0.3rem">
+                <input type="radio" name="qmdjMode" value="day" id="qmdjModeDay" />
+                <span>Day-anchored (one chart per day, 午時 default)</span>
+              </label>
+              <label style="cursor:pointer;display:flex;align-items:center;gap:0.3rem">
+                <input type="radio" name="qmdjMode" value="hour" id="qmdjModeHour" />
+                <span>Hour-based (時家奇門, classical)</span>
+              </label>
+            </div>
             <div class="qmdj-meta" id="qmdjMeta"></div>
             <div class="qmdj-grid" id="qmdjGrid" role="group" aria-label="QiMen Dunjia 9-palace chart"></div>
             <div class="qmdj-legend">
@@ -3644,20 +3654,51 @@
       const QMDJ_DIRECTIONS_EN = ["SE", "S", "SW", "E", "Center", "W", "NE", "N", "NW"];
       const QMDJ_LUOSHU_NUMBERS = [4, 9, 2, 3, 5, 7, 8, 1, 6];
 
-      function formatQmdjLocalTimestamp(date) {
+      // QMDJ time-basis mode. "day" = anchor the chart to noon (午時) of the
+      // cast date so every cast on the same day produces the same chart — the
+      // "shape of today" register, suited to operators who cast once per day.
+      // "hour" = use the actual cast moment, classical 時家奇門, suited to
+      // operators casting multiple times per day for hour-by-hour direction.
+      // Persisted to localStorage so the toggle survives reloads.
+      const QMDJ_MODE_STORAGE_KEY = "truesight-oracle-qmdj-mode";
+      function getQmdjMode() {
+        try {
+          const stored = localStorage.getItem(QMDJ_MODE_STORAGE_KEY);
+          return stored === "hour" ? "hour" : "day";
+        } catch (_) {
+          return "day";
+        }
+      }
+      function setQmdjMode(mode) {
+        const safe = mode === "hour" ? "hour" : "day";
+        try { localStorage.setItem(QMDJ_MODE_STORAGE_KEY, safe); } catch (_) {}
+        return safe;
+      }
+
+      function formatQmdjLocalTimestamp(date, mode) {
         const Y = String(date.getFullYear());
         const M = String(date.getMonth() + 1).padStart(2, "0");
         const D = String(date.getDate()).padStart(2, "0");
-        const H = String(date.getHours()).padStart(2, "0");
+        // Day-anchored mode locks the hour pillar to 午時 (noon) of the cast
+        // date. Same date → same chart, regardless of when in the day the
+        // cast happens. This is a pragmatic "day-based reading" using the
+        // hour-based library — not classical 日家奇門 (which has its own
+        // chart-generation rules), but a single deterministic chart per day.
+        const H = mode === "hour"
+          ? String(date.getHours()).padStart(2, "0")
+          : "12";
         return Y + M + D + H;
       }
 
       function castQmdjChart(date) {
         if (typeof window === "undefined" || !window.Qimen) return null;
         try {
-          const stamp = formatQmdjLocalTimestamp(date);
+          const mode = getQmdjMode();
+          const stamp = formatQmdjLocalTimestamp(date, mode);
           const raw = window.Qimen.generateChartByDatetime(stamp);
-          return window.Qimen.chartToObject(raw);
+          const obj = window.Qimen.chartToObject(raw);
+          if (obj) obj.__chart_mode = mode;
+          return obj;
         } catch (err) {
           console.warn("QMDJ chart cast failed:", err);
           return null;
@@ -3812,6 +3853,7 @@
       function buildQmdjAdvisoryPayload(chart, palacePayload) {
         if (!chart || !palacePayload || palacePayload.length !== 9) return null;
         return {
+          chart_mode: chart.__chart_mode || "day",
           ju: `${chart["陰陽"] || ""}遁${chart["局數"] || "?"}局`,
           jieqi: chart["節氣"] || "",
           yuan: chart["三元"] || "",
@@ -3853,6 +3895,38 @@
         currentQmdjPayload = buildQmdjAdvisoryPayload(chart, palacePayload);
         qmdjPanel.hidden = false;
       }
+
+      // Wire up the day/hour toggle. On change: persist, re-render the panel
+      // from the current reading's timestamp, and trigger a fresh advisory
+      // call so the model sees the new chart_mode + chart structure.
+      (function initQmdjModeToggle() {
+        const dayRadio = document.getElementById("qmdjModeDay");
+        const hourRadio = document.getElementById("qmdjModeHour");
+        if (!dayRadio || !hourRadio) return;
+        const initial = getQmdjMode();
+        if (initial === "hour") hourRadio.checked = true; else dayRadio.checked = true;
+        function onChange(e) {
+          const v = (e && e.target && e.target.value) || "day";
+          setQmdjMode(v);
+          if (currentReading) {
+            renderQmdjPanel(currentReading);
+            // Drop the cached advisory for this reading so the next fetch
+            // sees the new chart_mode and produces a fresh read.
+            try {
+              const cache = advisoryCacheGet();
+              const sig = linesToSignature(currentReading.lines || []);
+              if (sig && cache[sig]) {
+                delete cache[sig];
+                localStorage.setItem(ADVISORY_CACHE_KEY, JSON.stringify(cache));
+              }
+            } catch (_) { /* non-fatal */ }
+            // Re-run the advisory call so the operator sees a refreshed reading.
+            fetchDaoAdvisory(currentReading);
+          }
+        }
+        dayRadio.addEventListener("change", onChange);
+        hourRadio.addEventListener("change", onChange);
+      })();
 
       function resetQmdjPanel() {
         if (!qmdjPanel) return;
