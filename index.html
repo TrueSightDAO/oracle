@@ -1023,6 +1023,64 @@
         font-size: 0.85rem;
         line-height: 1.4;
         min-height: 120px;
+        cursor: pointer;
+        transition: transform 0.08s ease, box-shadow 0.08s ease;
+      }
+      .qmdj-cell:hover { transform: translateY(-1px); }
+      .qmdj-cell:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+      .qmdj-cell.qmdj-cell-selected {
+        box-shadow: inset 0 0 0 3px var(--accent-strong), 0 2px 8px rgba(185, 137, 76, 0.25);
+      }
+      .qmdj-cell.qmdj-cell-selected.qmdj-zhifu,
+      .qmdj-cell.qmdj-cell-selected.qmdj-zhishi,
+      .qmdj-cell.qmdj-cell-selected.qmdj-zhifu.qmdj-zhishi {
+        box-shadow: inset 0 0 0 3px var(--accent-strong), 0 2px 8px rgba(185, 137, 76, 0.25);
+      }
+      .qmdj-detail {
+        margin: 12px 0 4px;
+        padding: 14px 16px;
+        background: rgba(185, 137, 76, 0.06);
+        border: 1px solid rgba(185, 137, 76, 0.25);
+        border-left-width: 3px;
+        border-left-color: var(--accent-strong);
+        border-radius: 8px;
+        font-size: 0.88rem;
+      }
+      .qmdj-detail[hidden] { display: none; }
+      .qmdj-detail-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 8px;
+      }
+      .qmdj-detail-title { font-weight: 600; color: var(--ink); font-size: 0.98rem; }
+      .qmdj-detail-outlook {
+        font-size: 0.74rem;
+        padding: 2px 9px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-weight: 500;
+        line-height: 1.4;
+      }
+      .qmdj-detail-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+      .qmdj-detail-list li {
+        display: grid;
+        grid-template-columns: 124px 1fr;
+        gap: 10px;
+        align-items: baseline;
+        font-size: 0.85rem;
+        padding: 2px 0;
+      }
+      .qmdj-detail-list .qmdj-detail-label { color: var(--ink-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+      .qmdj-detail-list strong { color: var(--ink); }
+      .qmdj-detail-roles { margin: 10px 0 0; font-size: 0.83rem; color: var(--accent-strong); display: flex; flex-direction: column; gap: 3px; }
+      .qmdj-detail-hint { margin-top: 8px; font-size: 0.82rem; color: var(--ink-soft); }
+      .qmdj-detail-hint em { font-style: normal; color: var(--ink); }
+      @media (max-width: 560px) {
+        .qmdj-detail-list li { grid-template-columns: 100px 1fr; gap: 8px; }
+        .qmdj-detail-list .qmdj-detail-label { font-size: 0.72rem; }
       }
       .qmdj-cell.qmdj-zhifu { box-shadow: inset 0 0 0 2px var(--accent-strong); }
       .qmdj-cell.qmdj-zhishi { box-shadow: inset 0 0 0 2px rgba(185, 137, 76, 0.55); }
@@ -1783,6 +1841,7 @@
             </div>
             <div class="qmdj-meta" id="qmdjMeta"></div>
             <div class="qmdj-grid" id="qmdjGrid" role="group" aria-label="QiMen Dunjia 9-palace chart"></div>
+            <div class="qmdj-detail" id="qmdjDetail" aria-live="polite" hidden></div>
             <div class="qmdj-legend">
               <span>三吉門 <span class="qmdj-door-aus">開 / 休 / 生</span></span>
               <span>三凶門 <span class="qmdj-door-inaus">傷 / 死 / 驚</span></span>
@@ -2517,7 +2576,10 @@
       const qmdjPanel = document.getElementById("qmdjPanel");
       const qmdjMeta = document.getElementById("qmdjMeta");
       const qmdjGrid = document.getElementById("qmdjGrid");
+      const qmdjDetail = document.getElementById("qmdjDetail");
       const qmdjError = document.getElementById("qmdjError");
+      // Cache for the click handler — keyed by cell index 0..8.
+      let qmdjCellMeta = [];
       // Holds the structured QMDJ payload for the most recent cast so
       // buildAdvisoryQuery can include it in the request to GAS.
       let currentQmdjPayload = null;
@@ -3777,6 +3839,189 @@
         qmdjMeta.innerHTML = items.join("");
       }
 
+      // Per-cell explanation dictionaries — mirror the glossary tables on the
+      // same page (kept here as JS so the detail panel can be rendered without
+      // scraping the DOM). One-line summaries; the full meanings live in the
+      // <details> glossary below.
+      const QMDJ_PALACE_INFO = {
+        "坎": { num: 1, dir_en: "N", trigram: "☵ Water 水", element: "Water", brief: "Career, hidden things, study, ancestors, depth, danger." },
+        "坤": { num: 2, dir_en: "SW", trigram: "☷ Earth 地", element: "Earth (yin)", brief: "Motherhood, support, partnerships, marriage, soft power." },
+        "震": { num: 3, dir_en: "E", trigram: "☳ Thunder 雷", element: "Wood (yang)", brief: "Decisive beginnings, shocks, ambition, initiative." },
+        "巽": { num: 4, dir_en: "SE", trigram: "☴ Wind 風", element: "Wood (yin)", brief: "Wealth, persuasion, travel, gentle persistent influence." },
+        "中": { num: 5, dir_en: "Center", trigram: "—", element: "Earth", brief: "The axis. Self, rulership, mediation, neutrality." },
+        "乾": { num: 6, dir_en: "NW", trigram: "☰ Heaven 天", element: "Metal (yang)", brief: "Leadership, authority, mentors, helpful people, government." },
+        "兌": { num: 7, dir_en: "W", trigram: "☱ Lake 澤", element: "Metal (yin)", brief: "Joy, speech, romance, attraction — also gossip." },
+        "艮": { num: 8, dir_en: "NE", trigram: "☶ Mountain 山", element: "Earth (yang)", brief: "Stillness, knowledge, real estate, accumulation, stopping." },
+        "離": { num: 9, dir_en: "S", trigram: "☲ Fire 火", element: "Fire", brief: "Brightness, fame, recognition, vision, public exposure." }
+      };
+      const QMDJ_DOOR_INFO = {
+        "開門": { pinyin: "Kāi · Open",     brief: "Beginnings, expansion, official success, public-facing action.", bias: "三吉 (auspicious)" },
+        "休門": { pinyin: "Xiū · Rest",     brief: "Renewal, peace, romance, recovery, soft consolidation.",          bias: "三吉 (auspicious)" },
+        "生門": { pinyin: "Shēng · Birth",  brief: "Growth, wealth, new ventures, partnerships, sales.",              bias: "三吉 (auspicious)" },
+        "杜門": { pinyin: "Dù · Block",     brief: "Hiding, defensive holding, secrecy, study, blocking.",            bias: "Neutral" },
+        "景門": { pinyin: "Jǐng · Scenery", brief: "Vision, signaling, communication — no direct action.",            bias: "Neutral" },
+        "傷門": { pinyin: "Shāng · Hurt",   brief: "Injury, conflict, hunting, sharp force, debt collection.",        bias: "三凶 (inauspicious)" },
+        "死門": { pinyin: "Sǐ · Death",     brief: "Endings, finality, loss; hunting / mortuary work.",               bias: "三凶 (inauspicious)" },
+        "驚門": { pinyin: "Jīng · Surprise",brief: "Shock, disputes, lawsuits, unexpected disturbance.",              bias: "三凶 (inauspicious)" }
+      };
+      const QMDJ_STAR_INFO = {
+        "天蓬": { pinyin: "Tiān Péng · Awning",     brief: "Movement, theft, water, danger, scheming. (Water)",                       bias: "Inauspicious" },
+        "天芮": { pinyin: "Tiān Ruì · Affliction",  brief: "Illness, weakness, decay, learning under hardship. (Earth)",              bias: "Inauspicious" },
+        "天沖": { pinyin: "Tiān Chōng · Surge",     brief: "Burst of energy, swift action, military. (Wood)",                         bias: "Mixed" },
+        "天輔": { pinyin: "Tiān Fǔ · Support",      brief: "Education, planning, scholarship, mentorship. (Wood)",                    bias: "Auspicious" },
+        "天禽": { pinyin: "Tiān Qín · Bird",        brief: "Stability, leadership in stillness; sits center, lent to a cardinal. (Earth)", bias: "Auspicious" },
+        "天心": { pinyin: "Tiān Xīn · Heart",       brief: "Healing, decisive wisdom, leadership, medicine. (Metal)",                  bias: "Auspicious" },
+        "天柱": { pinyin: "Tiān Zhù · Pillar",      brief: "Disputes, breakage, transformation through tension. (Metal)",             bias: "Inauspicious" },
+        "天任": { pinyin: "Tiān Rén · Endurance",   brief: "Reliability, slow steady progress, burden-bearing. (Earth)",              bias: "Auspicious" },
+        "天英": { pinyin: "Tiān Yīng · Brightness", brief: "Honor, fame, exposure — also conflict and being seen. (Fire)",            bias: "Mixed" }
+      };
+      const QMDJ_SPIRIT_INFO = {
+        "值符": { pinyin: "Zhí Fú · Director",          brief: "Strongest auspicious — focal point of the moment.", bias: "Auspicious ★" },
+        "螣蛇": { pinyin: "Téng Shé · Soaring Snake",   brief: "Strange events, illusion, deception, anxious dreams.", bias: "Inauspicious" },
+        "滕蛇": { pinyin: "Téng Shé · Soaring Snake",   brief: "Strange events, illusion, deception, anxious dreams.", bias: "Inauspicious" },
+        "太陰": { pinyin: "Tài Yīn · Great Yin",        brief: "Hidden support, secret help, behind-the-scenes allies.", bias: "Auspicious" },
+        "六合": { pinyin: "Liù Hé · Six Harmonies",     brief: "Cooperation, partnership, networking, marriage.",       bias: "Auspicious" },
+        "九地": { pinyin: "Jiǔ Dì · Nine Earths",       brief: "Solid ground, defensive position, retention, safekeeping.", bias: "Auspicious" },
+        "九天": { pinyin: "Jiǔ Tiān · Nine Heavens",    brief: "High vantage, expansion, outward bold action, travel.",  bias: "Auspicious" },
+        "朱雀": { pinyin: "Zhū Què · Vermilion Bird",   brief: "Disputes, lawsuits, gossip, written-communication trouble. (yang)", bias: "Inauspicious" },
+        "勾陳": { pinyin: "Gōu Chén · Hooked Chen",     brief: "Entanglement, delays, trapped situations, real-estate disputes. (yang)", bias: "Inauspicious" },
+        "白虎": { pinyin: "Bái Hǔ · White Tiger",       brief: "Conflict, violence, sharp action, blood and metal. (yin)", bias: "Inauspicious" },
+        "玄武": { pinyin: "Xuán Wǔ · Dark Warrior",     brief: "Theft, deception, hidden movement, illicit affairs. (yin)", bias: "Inauspicious" }
+      };
+      const QMDJ_STEM_INFO = {
+        "甲": { pinyin: "Jiǎ · Yang Wood",  brief: "The general stem — leadership and command. Hidden behind a Yi." },
+        "乙": { pinyin: "Yǐ · Yin Wood",    brief: "Flexibility, cleverness, adaptive plans. Sun wonder (三奇)." },
+        "丙": { pinyin: "Bǐng · Yang Fire", brief: "Brightness, fame, public visibility. Moon wonder (三奇)." },
+        "丁": { pinyin: "Dīng · Yin Fire",  brief: "Hidden brilliance, soft fire, healers. Star wonder (三奇)." },
+        "戊": { pinyin: "Wù · Yang Earth",  brief: "Solidity, foundations, walls, conservative holding." },
+        "己": { pinyin: "Jǐ · Yin Earth",   brief: "Flexible earth, gardens, soft support, adaptable foundations." },
+        "庚": { pinyin: "Gēng · Yang Metal",brief: "⚠ Blockage and conflict — treat that direction with caution." },
+        "辛": { pinyin: "Xīn · Yin Metal",  brief: "Refinement, jewels, errors, complaints, sharp small things." },
+        "壬": { pinyin: "Rén · Yang Water", brief: "Flow, scheming, clever speech, large bodies of water." },
+        "癸": { pinyin: "Guǐ · Yin Water",  brief: "Hidden water, secrets, reserves, things kept under the surface." }
+      };
+      const QMDJ_OUTLOOK_LABELS = {
+        strong: "Strong window",
+        favorable: "Favorable",
+        mixed: "Mixed",
+        caution: "Caution",
+        avoid: "Avoid"
+      };
+
+      // Render the per-palace explanation panel below the 3x3 chart. Pulls
+      // glossary content from the dictionaries above, contextualized to the
+      // specific door + star + spirit + stems that landed in this cell.
+      function renderQmdjDetail(meta) {
+        if (!qmdjDetail) return;
+        if (!meta) {
+          qmdjDetail.hidden = true;
+          qmdjDetail.innerHTML = "";
+          return;
+        }
+        const palaceInfo = QMDJ_PALACE_INFO[meta.palace] || null;
+        const door = meta.door ? QMDJ_DOOR_INFO[meta.door] : null;
+        const star = meta.star ? QMDJ_STAR_INFO[meta.star] : null;
+        const spirit = meta.spirit ? QMDJ_SPIRIT_INFO[meta.spirit] : null;
+        const heaven = meta.heaven ? QMDJ_STEM_INFO[meta.heaven] : null;
+        const earth = meta.earth ? QMDJ_STEM_INFO[meta.earth] : null;
+
+        const numLabel = palaceInfo ? `Palace ${palaceInfo.num} ` : "";
+        const trigramLabel = palaceInfo ? palaceInfo.trigram : "";
+        const elementLabel = palaceInfo ? palaceInfo.element : "";
+        const titleBits = [`${numLabel}${meta.palace || ""}`.trim(), meta.dir];
+        if (elementLabel) titleBits.push(elementLabel);
+        const title = titleBits.filter(Boolean).join(" · ");
+
+        const outlookLabel = QMDJ_OUTLOOK_LABELS[meta.level] || meta.level || "";
+
+        const rows = [];
+        const row = (label, symbol, info, extraCls) => {
+          if (!symbol) return;
+          const pin = info ? info.pinyin : "";
+          const brief = info ? info.brief : "";
+          const biasNote = info && info.bias ? ` <em style="color:var(--ink-soft);font-size:0.78rem;">— ${info.bias}</em>` : "";
+          const sym = `<strong${extraCls ? ` class="${extraCls}"` : ""}>${symbol}</strong>`;
+          rows.push(
+            `<li><span class="qmdj-detail-label">${label}</span>` +
+            `<span>${sym} ${pin}${brief ? ` — ${brief}` : ""}${biasNote}</span></li>`
+          );
+        };
+        const spiritCls = meta.spirit ? classifyQmdjSpirit(meta.spirit) : "";
+        const doorCls = meta.door ? classifyQmdjDoor(meta.door) : "";
+        const heavenCls = meta.heaven ? classifyQmdjStem(meta.heaven) : "";
+        const earthCls = meta.earth ? classifyQmdjStem(meta.earth) : "";
+        row("Spirit (八神)", meta.spirit, spirit, spiritCls);
+        row("Star (九星)", meta.star, star, "");
+        row("Door (八門)", meta.door, door, doorCls);
+        row("Heaven (天)", meta.heaven, heaven, heavenCls);
+        row("Earth (地)", meta.earth, earth, earthCls);
+        if (!rows.length) {
+          rows.push(`<li><span class="qmdj-detail-label">—</span><span style="color:var(--ink-soft)">No symbols landed in this palace.</span></li>`);
+        }
+
+        const roleLines = [];
+        if (meta.isCenter) {
+          roleLines.push("Center palace — the axis. 天禽 sits here and is lent to a cardinal palace.");
+        }
+        if (meta.isZhiFu) {
+          roleLines.push("<strong>值符 (Director)</strong> sits here — focal point of this moment's energy.");
+        }
+        if (meta.isZhiShi) {
+          roleLines.push("<strong>值使 (Active door)</strong> sits here — where action expresses most strongly.");
+        }
+
+        const palaceLine = palaceInfo
+          ? `<div class="qmdj-detail-hint"><em>${meta.palace} (${trigramLabel}) life-domain:</em> ${palaceInfo.brief}</div>`
+          : "";
+
+        qmdjDetail.innerHTML =
+          `<div class="qmdj-detail-head">` +
+            `<span class="qmdj-detail-title">${title}</span>` +
+            (outlookLabel ? `<span class="qmdj-detail-outlook qmdj-outlook-${meta.level}">${outlookLabel}</span>` : "") +
+          `</div>` +
+          `<ul class="qmdj-detail-list">${rows.join("")}</ul>` +
+          (roleLines.length ? `<div class="qmdj-detail-roles">${roleLines.map(r => `<div>${r}</div>`).join("")}</div>` : "") +
+          palaceLine;
+        qmdjDetail.hidden = false;
+      }
+
+      function selectQmdjCell(idx) {
+        if (!Number.isInteger(idx) || idx < 0 || idx > 8) return;
+        const meta = qmdjCellMeta[idx];
+        if (!meta) return;
+        if (qmdjGrid) {
+          qmdjGrid.querySelectorAll(".qmdj-cell.qmdj-cell-selected").forEach((el) => {
+            el.classList.remove("qmdj-cell-selected");
+            el.setAttribute("aria-pressed", "false");
+          });
+          const cell = qmdjGrid.querySelector(`.qmdj-cell[data-qmdj-idx="${idx}"]`);
+          if (cell) {
+            cell.classList.add("qmdj-cell-selected");
+            cell.setAttribute("aria-pressed", "true");
+          }
+        }
+        renderQmdjDetail(meta);
+      }
+
+      function wireQmdjGridInteractivity() {
+        if (!qmdjGrid || qmdjGrid.dataset.qmdjWired === "1") return;
+        qmdjGrid.dataset.qmdjWired = "1";
+        qmdjGrid.addEventListener("click", (e) => {
+          const cell = e.target.closest(".qmdj-cell[data-qmdj-idx]");
+          if (!cell) return;
+          const idx = parseInt(cell.dataset.qmdjIdx, 10);
+          if (!Number.isNaN(idx)) selectQmdjCell(idx);
+        });
+        qmdjGrid.addEventListener("keydown", (e) => {
+          if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+          const cell = e.target.closest && e.target.closest(".qmdj-cell[data-qmdj-idx]");
+          if (!cell) return;
+          e.preventDefault();
+          const idx = parseInt(cell.dataset.qmdjIdx, 10);
+          if (!Number.isNaN(idx)) selectQmdjCell(idx);
+        });
+      }
+
       function renderQmdjGrid(chart) {
         const palaceNames = chart["方位"] || [];
         const earth = chart["地盤"] || [];
@@ -3826,8 +4071,30 @@
             score: outlook.score
           });
 
+          // Click-handler payload — same shape as palacePayload[i] plus
+          // role markers so the detail panel doesn't have to re-derive them.
+          qmdjCellMeta[i] = {
+            dir: QMDJ_DIRECTIONS_EN[i],
+            palace,
+            spirit,
+            star,
+            door,
+            heaven: heavenStem,
+            earth: earthStem,
+            level: outlook.level,
+            score: outlook.score,
+            isZhiFu,
+            isZhiShi,
+            isCenter
+          };
+
+          const cellAriaLabel = [
+            QMDJ_DIRECTIONS_EN[i] + (palace ? " " + palace : ""),
+            spirit, star, door
+          ].filter(Boolean).join(" · ");
+
           cells.push(
-            `<div class="${classes.join(" ")}" data-qmdj-score="${outlook.score}">` +
+            `<div class="${classes.join(" ")}" data-qmdj-score="${outlook.score}" data-qmdj-idx="${i}" role="button" tabindex="0" aria-pressed="false" aria-label="${cellAriaLabel}">` +
               `<div class="qmdj-cell-head"><span class="qmdj-direction">${QMDJ_DIRECTIONS_EN[i]} · ${palace}</span><span>${QMDJ_LUOSHU_NUMBERS[i]}</span></div>` +
               `<div class="qmdj-cell-outlook" title="Heuristic score: ${outlook.score}">${outlook.label}</div>` +
               `<div class="qmdj-row">` +
@@ -3847,6 +4114,14 @@
           );
         }
         qmdjGrid.innerHTML = cells.join("");
+        wireQmdjGridInteractivity();
+
+        // Default the detail panel to the 值符 palace on each fresh render;
+        // fall back to the first non-empty cell, then the center cell.
+        let defaultIdx = qmdjCellMeta.findIndex((m) => m && m.isZhiFu);
+        if (defaultIdx < 0) defaultIdx = qmdjCellMeta.findIndex((m) => m && (m.spirit || m.star || m.door));
+        if (defaultIdx < 0) defaultIdx = 4;
+        selectQmdjCell(defaultIdx);
         return palacePayload;
       }
 
@@ -3932,8 +4207,13 @@
         if (!qmdjPanel) return;
         qmdjPanel.hidden = true;
         currentQmdjPayload = null;
+        qmdjCellMeta = [];
         if (qmdjMeta) qmdjMeta.innerHTML = "";
         if (qmdjGrid) qmdjGrid.innerHTML = "";
+        if (qmdjDetail) {
+          qmdjDetail.hidden = true;
+          qmdjDetail.innerHTML = "";
+        }
         if (qmdjError) {
           qmdjError.hidden = true;
           qmdjError.textContent = "";
