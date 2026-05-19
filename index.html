@@ -268,6 +268,25 @@
         background: rgba(185, 137, 76, 0.08);
       }
 
+      /* Static header used in place of a <summary> when the section is
+         intentionally always-open (e.g. the QMDJ structural overlay — it's
+         part of the integrated day's read, not optional reference material). */
+      .qmdj-section-header {
+        padding: 16px 20px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--accent-strong);
+        background: rgba(185, 137, 76, 0.08);
+        border-bottom: 1px solid var(--border);
+        text-align: center;
+      }
+      .qmdj-section-header h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: inherit;
+      }
+
       @media (min-width: 960px) {
         .casting-shell {
           grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
@@ -1075,6 +1094,12 @@
       }
       .qmdj-detail-list .qmdj-detail-label { color: var(--ink-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
       .qmdj-detail-list strong { color: var(--ink); }
+      .qmdj-detail-list li.qmdj-detail-synthesis {
+        margin-top: 6px;
+        padding-top: 8px;
+        border-top: 1px dashed rgba(185, 137, 76, 0.35);
+      }
+      .qmdj-detail-list li.qmdj-detail-synthesis .qmdj-detail-label { color: var(--accent-strong); }
       .qmdj-detail-roles { margin: 10px 0 0; font-size: 0.83rem; color: var(--accent-strong); display: flex; flex-direction: column; gap: 3px; }
       .qmdj-detail-hint { margin-top: 8px; font-size: 0.82rem; color: var(--ink-soft); }
       .qmdj-detail-hint em { font-style: normal; color: var(--ink); }
@@ -1820,9 +1845,10 @@
       </section>
 
       <section class="reference-panel" id="qmdjPanel" aria-label="QiMen Dunjia structural overlay" hidden>
-        <details id="qmdjDetails" class="reference-details">
-          <summary>Extended reading · QiMen Dunjia (奇門遁甲)</summary>
-          <div class="reference-content">
+        <div class="qmdj-section-header">
+          <h3>QiMen Dunjia (奇門遁甲) · structural overlay</h3>
+        </div>
+        <div class="reference-content">
             <div class="reference-intro">
               Same moment, structural lens. The I&nbsp;Ching above reads the <em>quality</em>
               of this instant; the chart below reads its <em>spatial / strategic
@@ -2158,7 +2184,6 @@
             </details>
             <p class="qmdj-error" id="qmdjError" hidden></p>
           </div>
-        </details>
       </section>
 
       <article class="dao-advisory-panel" id="daoAdvisoryPanel" hidden>
@@ -3908,6 +3933,48 @@
         avoid: "Avoid"
       };
 
+      // Synthesis row — palace life-domain rendered as a permissive verb keyed
+      // to the heuristic outlook tint. Stays soft ("Best for…", "Approach with
+      // caution if…") to match the "this is heuristic, not authoritative"
+      // framing the page already uses; the operator still makes the call.
+      const QMDJ_PALACE_DOMAINS = {
+        "坎": "career moves, study, secret work, deep research",
+        "坤": "partnerships, marriage matters, soft consensus, public outreach",
+        "震": "decisive starts, public movement, breakthrough action",
+        "巽": "wealth action, persuasion, travel, communication",
+        "中": "self-positioning, mediation, holding the axis",
+        "乾": "leadership asks, approaching authorities, official requests",
+        "兌": "romance, speech, networking conversations, social pleasure",
+        "艮": "study, real estate, accumulation, holding still",
+        "離": "public recognition, presentation work, vision-casting"
+      };
+      const QMDJ_SYNTHESIS_VERBS = {
+        strong:    { verb: "✓ Best for",                  cls: "qmdj-door-aus" },
+        favorable: { verb: "✓ Good for",                  cls: "qmdj-door-aus" },
+        mixed:     { verb: "↻ Workable for",              cls: "qmdj-door-mid" },
+        caution:   { verb: "⚠ Approach with caution for", cls: "qmdj-door-inaus" },
+        avoid:     { verb: "✗ Avoid for",                 cls: "qmdj-door-inaus" }
+      };
+
+      function buildQmdjSynthesisRow(meta) {
+        if (!meta || !meta.palace) return "";
+        const domain = QMDJ_PALACE_DOMAINS[meta.palace];
+        if (!domain) return "";
+        // Center palace is held neutral classically — the synthesis line should
+        // reflect "axis, not a direction for action" rather than a generic verb.
+        if (meta.isCenter) {
+          return (
+            `<li class="qmdj-detail-synthesis"><span class="qmdj-detail-label">Reading</span>` +
+            `<span><strong class="qmdj-door-mid">↻ Hold the axis</strong> — ${domain}. Not a direction for outward action; the chart's pivot rather than a window.</span></li>`
+          );
+        }
+        const synth = QMDJ_SYNTHESIS_VERBS[meta.level] || QMDJ_SYNTHESIS_VERBS.mixed;
+        return (
+          `<li class="qmdj-detail-synthesis"><span class="qmdj-detail-label">Reading</span>` +
+          `<span><strong class="${synth.cls}">${synth.verb}</strong> ${domain}.</span></li>`
+        );
+      }
+
       // Render the per-palace explanation panel below the 3x3 chart. Pulls
       // glossary content from the dictionaries above, contextualized to the
       // specific door + star + spirit + stems that landed in this cell.
@@ -3958,6 +4025,8 @@
         if (!rows.length) {
           rows.push(`<li><span class="qmdj-detail-label">—</span><span style="color:var(--ink-soft)">No symbols landed in this palace.</span></li>`);
         }
+        const synthesisRow = buildQmdjSynthesisRow(meta);
+        if (synthesisRow) rows.push(synthesisRow);
 
         const roleLines = [];
         if (meta.isCenter) {
