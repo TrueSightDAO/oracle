@@ -1220,6 +1220,132 @@
         margin: 0;
       }
 
+      .qmdj-detail-panel {
+        border: 1px solid rgba(36, 22, 11, 0.14);
+        border-radius: var(--radius-md);
+        background: var(--bg-strong);
+        overflow: hidden;
+      }
+
+      .qmdj-detail-panel[hidden] {
+        display: none !important;
+      }
+
+      .qmdj-detail-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        list-style: none;
+        margin: 0;
+        padding: 16px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        font-size: 1.02rem;
+        color: var(--accent-strong);
+      }
+
+      .qmdj-detail-head::-webkit-details-marker {
+        display: none;
+      }
+
+      .qmdj-detail-head::after {
+        content: "+";
+        font-size: 1.2rem;
+        line-height: 1;
+        font-weight: 600;
+        color: var(--accent-strong);
+        transition: transform var(--transition);
+      }
+
+      .qmdj-detail-panel[open] .qmdj-detail-head {
+        border-bottom: 1px solid var(--border);
+        background: rgba(185, 137, 76, 0.08);
+      }
+
+      .qmdj-detail-panel[open] .qmdj-detail-head::after {
+        content: "-";
+      }
+
+      .qmdj-detail-head:focus-visible {
+        outline: 2px solid rgba(185, 137, 76, 0.4);
+        outline-offset: 4px;
+      }
+
+      .qmdj-detail-content {
+        display: grid;
+        gap: 14px;
+        padding: 18px 20px 20px;
+      }
+
+      .qmdj-detail-hint {
+        margin: 0;
+        font-size: 0.88rem;
+        color: var(--ink-soft);
+        line-height: 1.55;
+      }
+
+      .qmdj-detail-body {
+        color: var(--ink);
+        line-height: 1.62;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        min-width: 0;
+      }
+
+      .qmdj-detail-body ul {
+        margin: 0 0 10px;
+        padding-left: 20px;
+      }
+
+      .qmdj-detail-body li {
+        margin: 4px 0;
+      }
+
+      .qmdj-detail-body code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.86em;
+        background: rgba(36, 22, 11, 0.08);
+        border-radius: 6px;
+        padding: 1px 6px;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      .qmdj-detail-body .qmdj-palace-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .qmdj-palace-cell {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.66);
+        padding: 10px 12px;
+        display: grid;
+        gap: 2px;
+        font-size: 0.84rem;
+      }
+
+      .qmdj-palace-label {
+        font-weight: 600;
+        color: var(--accent-strong);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .qmdj-detail-note {
+        margin: 0;
+        font-size: 0.78rem;
+        color: rgba(36, 22, 11, 0.5);
+        line-height: 1.45;
+        font-style: italic;
+      }
+
       .share-button {
         background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
         color: white;
@@ -2143,6 +2269,26 @@
         </div>
       </article>
 
+      <details class="qmdj-detail-panel" id="qmdjDetailPanel" hidden>
+        <summary class="qmdj-detail-head">Extended Reading: QiMenDunJia</summary>
+        <div class="qmdj-detail-content">
+          <p class="qmdj-detail-hint">
+            Chart computed from the moment of your cast. QiMenDunJia provides a spatial
+            and strategic overlay on the same instant — where to act, when the auspicious
+            window opens, which direction the energy supports. This is a modern synthesis
+            of two classical frameworks, not a traditional pairing.
+          </p>
+          <div class="qmdj-detail-body" id="qmdjDetailBody">
+            <p>QMDJ chart rendering will appear here after you cast.</p>
+          </div>
+          <p class="qmdj-detail-note">
+            Combining I-Ching (narrative lens) and QiMenDunJia (strategic overlay) for
+            the same question is a modern synthesis, not a traditional practice. Use both
+            lenses together for a richer read on the moment.
+          </p>
+        </div>
+      </details>
+
       <footer>
         <strong>Note:</strong> Lines highlighted in amber indicate changing energy—flip them to unveil the relating hexagram.
       </footer>
@@ -2517,6 +2663,8 @@
       const daoAdvisoryCta = document.getElementById("daoAdvisoryCta");
       const copyAdvisoryContextButton = document.getElementById("copyAdvisoryContextButton");
       const daoAdvisoryCopyStatus = document.getElementById("daoAdvisoryCopyStatus");
+      const qmdjDetailPanel = document.getElementById("qmdjDetailPanel");
+      const qmdjDetailBody = document.getElementById("qmdjDetailBody");
 
       const STORAGE_KEY = "truesight-oracle-last-reading";
       const ADVISORY_CACHE_KEY = "truesight-oracle-dao-advisory-cache-v1";
@@ -3910,6 +4058,10 @@
         renderQmdjPanel(reading);
         fetchDaoAdvisory(reading);
 
+        if (qmdjDetailPanel) {
+          qmdjDetailPanel.hidden = false;
+        }
+
         if (scrollIntoView) {
           resultsSection.scrollIntoView({ behavior: "smooth", block: "start" });
         }
@@ -4146,6 +4298,10 @@
         setDaoAdvisoryStatus("Advisory appears here after the reading is revealed.");
         setDaoAdvisoryBody("");
         resetQmdjPanel();
+        if (qmdjDetailPanel) {
+          qmdjDetailPanel.hidden = true;
+          qmdjDetailPanel.removeAttribute("open");
+        }
         currentReading = null;
         buildLineCards();
       }
@@ -4200,6 +4356,10 @@
       // stale DOM state after browser cache/restore.
       if (daoAdvisoryPanel) {
         daoAdvisoryPanel.hidden = true;
+      }
+      if (qmdjDetailPanel) {
+        qmdjDetailPanel.hidden = true;
+        qmdjDetailPanel.removeAttribute("open");
       }
       setDaoAdvisoryActionsVisible(false);
       setDaoAdvisoryCtaVisible(false);
