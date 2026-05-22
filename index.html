@@ -2328,6 +2328,26 @@
           </div>
       </section>
 
+      <details class="qmdj-detail-panel" id="qmdjDetailPanel" hidden>
+        <summary class="qmdj-detail-head">Extended Reading: QiMenDunJia</summary>
+        <div class="qmdj-detail-content">
+          <p class="qmdj-detail-hint">
+            Chart computed from the moment of your cast. QiMenDunJia provides a spatial
+            and strategic overlay on the same instant — where to act, when the auspicious
+            window opens, which direction the energy supports. This is a modern synthesis
+            of two classical frameworks, not a traditional pairing.
+          </p>
+          <div class="qmdj-detail-body" id="qmdjDetailBody">
+            <p>QMDJ chart rendering will appear here after you cast.</p>
+          </div>
+          <p class="qmdj-detail-note">
+            Combining I-Ching (narrative lens) and QiMenDunJia (strategic overlay) for
+            the same question is a modern synthesis, not a traditional practice. Use both
+            lenses together for a richer read on the moment.
+          </p>
+        </div>
+      </details>
+
       <article class="dao-advisory-panel" id="daoAdvisoryPanel" hidden>
         <h2>DAO Advisory (Grok)</h2>
         <p class="dao-advisory-status" id="daoAdvisoryStatus">
@@ -2378,26 +2398,6 @@
           </div>
         </div>
       </article>
-
-      <details class="qmdj-detail-panel" id="qmdjDetailPanel" hidden>
-        <summary class="qmdj-detail-head">Extended Reading: QiMenDunJia</summary>
-        <div class="qmdj-detail-content">
-          <p class="qmdj-detail-hint">
-            Chart computed from the moment of your cast. QiMenDunJia provides a spatial
-            and strategic overlay on the same instant — where to act, when the auspicious
-            window opens, which direction the energy supports. This is a modern synthesis
-            of two classical frameworks, not a traditional pairing.
-          </p>
-          <div class="qmdj-detail-body" id="qmdjDetailBody">
-            <p>QMDJ chart rendering will appear here after you cast.</p>
-          </div>
-          <p class="qmdj-detail-note">
-            Combining I-Ching (narrative lens) and QiMenDunJia (strategic overlay) for
-            the same question is a modern synthesis, not a traditional practice. Use both
-            lenses together for a richer read on the moment.
-          </p>
-        </div>
-      </details>
 
       <footer>
         <strong>Note:</strong> Lines highlighted in amber indicate changing energy—flip them to unveil the relating hexagram.
@@ -4212,9 +4212,9 @@
             `<span class="qmdj-detail-title">${title}</span>` +
             (outlookLabel ? `<span class="qmdj-detail-outlook qmdj-outlook-${meta.level}">${outlookLabel}</span>` : "") +
           `</div>` +
-          `<ul class="qmdj-detail-list">${rows.join("")}</ul>` +
           (roleLines.length ? `<div class="qmdj-detail-roles">${roleLines.map(r => `<div>${r}</div>`).join("")}</div>` : "") +
-          palaceLine;
+          palaceLine +
+          `<ul class="qmdj-detail-list">${rows.join("")}</ul>`;
         qmdjDetail.hidden = false;
       }
 
