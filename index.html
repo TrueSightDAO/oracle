@@ -4190,7 +4190,7 @@
           rows.push(`<li><span class="qmdj-detail-label">—</span><span style="color:var(--ink-soft)">No symbols landed in this palace.</span></li>`);
         }
         const synthesisRow = buildQmdjSynthesisRow(meta);
-        if (synthesisRow) rows.push(synthesisRow);
+        if (synthesisRow) rows.unshift(synthesisRow);
 
         const roleLines = [];
         if (meta.isCenter) {
