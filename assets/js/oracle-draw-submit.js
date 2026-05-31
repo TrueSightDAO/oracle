@@ -1,13 +1,15 @@
 /**
- * oracle-draw-submit.js — sign + submit [PRACTICE EVENT] to Edgar
+ * oracle-draw-submit.js — auto-generate keypair + auto-submit [PRACTICE EVENT] to Edgar
  *
- * On "Record Session" this module:
- *   1. Ensures a localStorage RSA keypair (generates one if absent).
- *   2. Reads the current reading from localStorage (truesight-oracle-last-reading).
- *   3. Builds the [PRACTICE EVENT] payload with hexagrams, QMDJ, advisory.
- *   4. Signs it with RSASSA-PKCS1-v1_5 / SHA-256 (same shape as capoeira).
- *   5. POSTs to Edgar /dao/submit_contribution.
- *   6. Marks the session as submitted in localStorage.
+ * On page load:
+ *   1. Auto-generates an RSA keypair if not present (no user action needed).
+ *   2. Watches #daoAdvisoryPanel for visibility (hidden=false) via MutationObserver.
+ *   3. When the advisory panel becomes visible, auto-submits the [PRACTICE EVENT]
+ *      to Edgar in the background.
+ *   4. Deduplicates via localStorage key 'truesight-grounding-submitted' — if the
+ *      signature matches today's reading, skip re-submission.
+ *   5. Exposes a "My Credentials" link pointing to
+ *      truesight.me/programs/truesight-grounding/credentials/#{slug}.
  *
  * Reuses the same dapp keypair pattern from:
  *   dapp/create_signature.html + capoeira/assets/js/practice-event-submit.js
@@ -163,7 +165,7 @@
 
   async function submitSession() {
     const statusEl = document.getElementById('recordStatus');
-    const button = document.getElementById('recordSession');
+    const linkEl = document.getElementById('cvLink');
 
     try {
       // Read the current reading from localStorage
@@ -190,7 +192,6 @@
         + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html'
       );
 
-      if (button) button.disabled = true;
       if (statusEl) {
         statusEl.textContent = 'Submitting to Edgar...';
         statusEl.className = 'hero-glass-status info';
@@ -209,7 +210,6 @@
           statusEl.textContent = 'Submission failed: HTTP ' + resp.status;
           statusEl.className = 'hero-glass-status error';
         }
-        if (button) button.disabled = false;
         return { ok: false, error: 'HTTP ' + resp.status + ' ' + errText.slice(0, 120) };
       }
 
@@ -217,16 +217,15 @@
       localStorage.setItem(LS_SUBMITTED_KEY, new Date().toISOString());
 
       if (statusEl) {
-        statusEl.textContent = '✓ Session recorded. View your practice log:';
+        statusEl.textContent = '✓ Session recorded.';
         statusEl.className = 'hero-glass-status success';
       }
 
       // Show CV link
       const cvUrl = await getCvUrl();
-      const linkEl = document.getElementById('cvLink');
       if (linkEl && cvUrl) {
         linkEl.href = cvUrl;
-        linkEl.textContent = 'View credentials';
+        linkEl.textContent = 'My Credentials →';
         linkEl.hidden = false;
       }
 
@@ -237,7 +236,6 @@
         statusEl.textContent = 'Error: ' + (err.message || err);
         statusEl.className = 'hero-glass-status error';
       }
-      if (button) button.disabled = false;
       return { ok: false, error: String(err && err.message || err) };
     }
   }
@@ -256,35 +254,74 @@
     }
   }
 
-  // ---- wire up the Record Session button ----
+  // ---- MutationObserver: watch #daoAdvisoryPanel for visibility ----
 
-  function init() {
-    const button = document.getElementById('recordSession');
-    if (!button) return;
+  function setupAdvisoryObserver() {
+    const panel = document.getElementById('daoAdvisoryPanel');
+    if (!panel) return;
 
-    // Check if already submitted today
+    const observer = new MutationObserver(function (mutations) {
+      for (const mutation of mutations) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'hidden') {
+          if (!panel.hidden) {
+            observer.disconnect();
+            // Small delay to let advisory body populate
+            setTimeout(() => {
+              autoSubmitIfNeeded();
+            }, 500);
+          }
+        }
+      }
+    });
+
+    observer.observe(panel, { attributes: true, attributeFilter: ['hidden'] });
+  }
+
+  // ---- auto-submit logic ----
+
+  async function autoSubmitIfNeeded() {
+    // Check dedup: if already submitted today, skip
     if (wasSubmittedToday()) {
-      button.disabled = true;
-      button.textContent = '✓ Today\'s session recorded';
+      // Still show the credentials link
+      const linkEl = document.getElementById('cvLink');
+      const cvUrl = await getCvUrl();
+      if (linkEl && cvUrl) {
+        linkEl.href = cvUrl;
+        linkEl.textContent = 'My Credentials →';
+        linkEl.hidden = false;
+      }
       const statusEl = document.getElementById('recordStatus');
       if (statusEl) {
         statusEl.textContent = 'Already submitted today.';
         statusEl.className = 'hero-glass-status success';
         statusEl.hidden = false;
       }
-      // Show CV link
-      getCvUrl().then(cvUrl => {
-        const linkEl = document.getElementById('cvLink');
-        if (linkEl && cvUrl) {
-          linkEl.href = cvUrl;
-          linkEl.textContent = 'View credentials';
-          linkEl.hidden = false;
-        }
-      });
       return;
     }
 
-    button.addEventListener('click', submitSession);
+    // Ensure keypair exists before submitting
+    await ensureKeypair();
+    await submitSession();
+  }
+
+  // ---- init ----
+
+  function init() {
+    // Auto-generate keypair on page load if not present
+    ensureKeypair().catch(function (err) {
+      console.error('[OracleDrawSubmit] keypair generation failed:', err);
+    });
+
+    // Set up observer to auto-submit when advisory panel appears
+    setupAdvisoryObserver();
+
+    // If the panel is already visible on init (e.g. restored from cache), submit immediately
+    const panel = document.getElementById('daoAdvisoryPanel');
+    if (panel && !panel.hidden) {
+      setTimeout(function () {
+        autoSubmitIfNeeded();
+      }, 500);
+    }
   }
 
   // Run on DOM ready
