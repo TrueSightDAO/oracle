@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TrueSight Grounding — Morning Oracle</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://oracle.truesight.me/draw.html" />
+    <meta property="og:title" content="TrueSight Grounding — Morning Oracle" />
+    <meta
+      property="og:description"
+      content="Cast the I Ching with the TrueSight Daily Oracle. Toss coins, trace changing lines, and explore Wilhelm/Baynes insights in a calm, mobile-first experience."
+    />
+    <meta property="og:image" content="https://oracle.truesight.me/assets/truesight-logo.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="TrueSight Grounding — Morning Oracle" />
+    <meta
+      name="twitter:description"
+      content="Cast the I Ching with the TrueSight Daily Oracle. Toss coins, trace changing lines, and explore Wilhelm/Baynes insights in a calm, mobile-first experience."
+    />
+    <meta name="twitter:image" content="https://oracle.truesight.me/assets/truesight-logo.png" />
+    <script src="scripts/hexagram_texts.js" defer></script>
+    <script src="assets/vendor/qimen-dunjia/qimen.standalone.patched.min.js" defer></script>
+    <script src="assets/js/oracle-draw-submit.js" defer></script>
+    <style>
+      /* Same styles as index.html — copied verbatim */
+      :root {
+        color-scheme: light;
+        --bg: #f9f4ee;
+        --bg-strong: #fffdf9;
+        --panel: rgba(255, 255, 255, 0.82);
+        --ink: #24160b;
+        --ink-soft: #5e4632;
+        --accent: #b9894c;
+        --accent-strong: #8f6124;
+        --accent-soft: rgba(185, 137, 76, 0.18);
+        --border: rgba(36, 22, 11, 0.18);
+        --shadow: 0 32px 70px rgba(46, 32, 20, 0.14);
+        --radius-lg: 28px;
+        --radius-md: 18px;
+        --radius-sm: 12px;
+        --transition: 220ms ease;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        font-family: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        padding: 40px 18px 48px;
+        background: radial-gradient(circle at top, rgba(255, 255, 255, 0.92) 0%, var(--bg) 55%, #efe3d4 100%);
+        color: var(--ink);
+      }
+      main {
+        width: min(1040px, 100%);
+        background: var(--panel);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: clamp(24px, 4vw, 48px);
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        gap: clamp(24px, 4vw, 40px);
+      }
+      header.hero {
+        display: grid;
+        gap: clamp(12px, 3vw, 28px);
+        text-align: left;
+      }
+      .hero-brand {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .brand-banner { display: flex; justify-content: center; align-items: center; }
+      .brand-logo {
+        width: clamp(120px, 18vw, 180px);
+        height: auto;
+        filter: drop-shadow(0 10px 24px rgba(36, 22, 11, 0.2));
+      }
+      .hero-badge {
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(185, 137, 76, 0.16);
+        color: var(--accent-strong);
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .hero-content { display: grid; gap: 18px; }
+      .hero-content h1 { margin: 0; }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      #beginCasting { min-width: 180px; }
+      .hero-glass {
+        margin-top: clamp(12px, 3vw, 20px);
+        padding: 18px 20px;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.62), rgba(185, 137, 76, 0.12));
+        box-shadow: 0 18px 32px rgba(36, 22, 11, 0.12);
+        display: grid;
+        gap: 8px;
+        color: var(--ink);
+      }
+      .hero-glass.has-reading {
+        border-color: rgba(185, 137, 76, 0.32);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(185, 137, 76, 0.18));
+      }
+      .hero-glass-title { font-weight: 600; letter-spacing: 0.02em; color: var(--accent-strong); }
+      .hero-glass-body { font-size: 0.95rem; color: var(--ink-soft); line-height: 1.5; }
+      .hero-glass-status {
+        margin: 0;
+        font-size: 0.8rem;
+        color: rgba(36, 22, 11, 0.6);
+        letter-spacing: 0.02em;
+      }
+      .hero-glass-status.info { color: rgba(36, 22, 11, 0.6); }
+      .hero-glass-status.success { color: var(--accent-strong); }
+      .hero-glass-status.warning { color: #ad711b; }
+      .hero-glass-status.error { color: #a13528; }
+      .hero-glass-primary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin: 0;
+      }
+      .hero-glass-arrow { font-weight: 600; color: var(--accent-strong); }
+      .hero-glass-static { color: var(--ink-soft); font-style: italic; }
+      .hero-glass-meta { margin: 0; font-size: 0.82rem; color: rgba(36, 22, 11, 0.6); }
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 3vw, 2.7rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--accent-strong);
+      }
+      p.lead {
+        margin: 0 auto;
+        max-width: 52ch;
+        line-height: 1.65;
+        color: var(--ink-soft);
+        font-size: clamp(0.98rem, 1.6vw, 1.1rem);
+      }
+      .overview-panel {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg-strong);
+        padding: 0;
+        overflow: hidden;
+      }
+      .reference-panel {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--bg-strong);
+        overflow: hidden;
+      }
+      .reference-details > summary {
+        list-style: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px 20px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        color: var(--accent-strong);
+      }
+      .reference-details > summary::-webkit-details-marker { display: none; }
+      .reference-details > summary::after {
+        content: "⯈";
+        font-size: 0.9rem;
+        transition: transform var(--transition);
+      }
+      .reference-details[open] > summary::after { transform: rotate(90deg); }
+      .reference-details[open] > summary {
+        border-bottom: 1px solid var(--border);
+        background: rgba(185, 137, 76, 0.08);
+      }
+      .qmdj-section-header {
+        padding: 16px 20px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--accent-strong);
+        background: rgba(185, 137, 76, 0.08);
+        border-bottom: 1px solid var(--border);
+        text-align: center;
+      }
+      .qmdj-section-header h3 { margin: 0; font-size: 1rem; font-weight: 600; color: inherit; }
+      @media (min-width: 960px) {
+        .casting-shell { grid-template-columns: minmax(0, 1fr) minmax(240px, 320px); align-items: start; }
+        .line-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); overflow: visible; padding: 0; }
+        .line-step { min-width: 0; }
+        .actions-wrap { position: sticky; top: 24px; }
+      }
+      .reference-content { display: grid; gap: 16px; padding: 20px; }
+      .reference-intro { font-size: 0.92rem; color: var(--ink-soft); line-height: 1.6; }
+      .reference-table-wrap { overflow-x: auto; }
+      #hexagramReferenceTable {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+        background: white;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        box-shadow: 0 8px 18px rgba(36, 22, 11, 0.08);
+      }
+      #hexagramReferenceTable caption { caption-side: top; padding-bottom: 12px; font-weight: 600; color: var(--accent-strong); text-align: left; }
+      #hexagramReferenceTable th, #hexagramReferenceTable td { border: 1px solid rgba(36, 22, 11, 0.1); padding: 10px 12px; text-align: center; }
+      #hexagramReferenceTable thead th { background: rgba(185, 137, 76, 0.12); color: var(--ink); font-weight: 600; }
+      .reference-corner { min-width: 150px; text-align: left; }
+      .reference-heading { display: grid; gap: 4px; justify-items: center; }
+      .reference-heading small { display: block; font-weight: 500; color: var(--ink-soft); font-size: 0.76rem; }
+      .trigram-symbol { font-size: 1.4rem; }
+      #hexagramReferenceTable tbody th { background: rgba(36, 22, 11, 0.05); font-weight: 600; text-align: left; }
+      .reference-cell { display: grid; gap: 4px; }
+      .reference-cell strong { font-size: 1rem; color: var(--ink); }
+      .reference-cell span { font-size: 0.78rem; color: var(--ink-soft); }
+      .overview-panel summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        list-style: none;
+        margin: 0;
+        padding: 16px 20px;
+        cursor: pointer;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--accent-strong);
+        font-size: 1.02rem;
+      }
+      .overview-panel summary::-webkit-details-marker { display: none; }
+      .overview-panel summary::after { content: "+"; font-size: 1.2rem; line-height: 1; font-weight: 600; color: var(--accent-strong); transition: transform var(--transition); }
+      .overview-panel[open] summary { border-bottom: 1px solid var(--border); background: rgba(185, 137, 76, 0.08); }
+      .overview-panel[open] summary::after { content: "-"; }
+      .overview-panel summary:focus-visible { outline: 2px solid rgba(185, 137, 76, 0.4); outline-offset: 4px; }
+      .overview-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; padding: 18px 20px 20px; }
+      .overview-card { background: var(--bg-strong); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; display: grid; gap: 10px; }
+      .overview-card.highlight { background: linear-gradient(135deg, rgba(185, 137, 76, 0.18), rgba(255, 255, 255, 0.88)); border-color: rgba(185, 137, 76, 0.3); }
+      .overview-card h2 { margin: 0; font-size: 1.05rem; color: var(--accent-strong); letter-spacing: 0.01em; }
+      .guide-list { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--ink-soft); font-size: 0.95rem; line-height: 1.5; }
+      .progress-area { background: var(--bg-strong); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; display: grid; gap: 12px; }
+      .progress-heading { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.95rem; color: var(--ink-soft); }
+      .progress-heading strong { font-size: 1rem; color: var(--ink); }
+      .progress-track { position: relative; width: 100%; height: 10px; border-radius: 999px; background: rgba(36, 22, 11, 0.08); overflow: hidden; }
+      .progress-indicator { position: absolute; inset: 0; width: 0%; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-strong) 100%); transition: width var(--transition); }
+      .progress-indicator.complete::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255, 255, 255, 0.35), transparent); mix-blend-mode: screen; }
+      .line-flow { display: grid; gap: 20px; }
+      .line-flow-header { display: grid; gap: 6px; }
+      .line-flow-header h2 { margin: 0; font-size: 1.4rem; color: var(--ink); }
+      .line-flow-header p { margin: 0; font-size: 0.92rem; color: var(--ink-soft); }
+      .casting-shell { display: grid; gap: clamp(20px, 4vw, 32px); }
+      .line-steps { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 6px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+      .line-step {
+        display: grid;
+        gap: 4px;
+        padding: 14px 16px;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(36, 22, 11, 0.12);
+        background: rgba(255, 255, 255, 0.85);
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+        transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+        font: inherit;
+        min-width: 200px;
+        scroll-snap-align: start;
+      }
+      .line-step:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(36, 22, 11, 0.12); }
+      .line-step:disabled { cursor: not-allowed; opacity: 0.45; transform: none; }
+      .line-step .step-label { font-weight: 600; }
+      .line-step .step-role { font-size: 0.82rem; color: var(--ink-soft); }
+      .line-step .step-status { font-size: 0.78rem; color: rgba(36, 22, 11, 0.65); }
+      .line-step.active-step { border-color: rgba(185, 137, 76, 0.55); box-shadow: 0 12px 24px rgba(185, 137, 76, 0.18); transform: translateY(-2px); }
+      .line-step.completed-step { border-color: rgba(36, 22, 11, 0.3); }
+      .line-step.has-change { border-color: rgba(185, 137, 76, 0.55); background: linear-gradient(140deg, rgba(185, 137, 76, 0.16), rgba(255, 255, 255, 0.92)); }
+      .line-inputs { position: relative; min-height: 240px; }
+      .line-card { display: none; gap: 14px; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-strong); transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition); }
+      .line-card.active-line { display: grid; }
+      .line-card.active-line:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(36, 22, 11, 0.12); }
+      .line-card.active-line:focus-within { border-color: rgba(185, 137, 76, 0.6); transform: translateY(-2px); box-shadow: 0 18px 34px rgba(36, 22, 11, 0.16); }
+      .line-card.completed { border-color: rgba(36, 22, 11, 0.22); box-shadow: 0 14px 28px rgba(36, 22, 11, 0.1); }
+      .line-card.has-change { border-color: rgba(185, 137, 76, 0.6); background: linear-gradient(160deg, rgba(185, 137, 76, 0.16), rgba(255, 255, 255, 0.92)); }
+      .line-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+      .line-meta { display: grid; gap: 2px; }
+      .line-name { font-weight: 600; letter-spacing: 0.01em; }
+      .line-role { font-size: 0.86rem; color: var(--ink-soft); }
+      .line-preview { display: flex; align-items: center; gap: 8px; }
+      .mini-line { width: 78px; height: 14px; border-radius: 7px; background: rgba(36, 22, 11, 0.12); position: relative; overflow: hidden; transition: background var(--transition), transform var(--transition); }
+      .mini-line.solid { background: rgba(36, 22, 11, 0.9); }
+      .mini-line.broken { background: linear-gradient(to right, rgba(36, 22, 11, 0.85) 0%, rgba(36, 22, 11, 0.85) 32%, transparent 32%, transparent 68%, rgba(36, 22, 11, 0.85) 68%, rgba(36, 22, 11, 0.85) 100%); }
+      .mini-line.changing { box-shadow: 0 0 0 2px rgba(185, 137, 76, 0.35); }
+      .line-detail-text { font-size: 0.85rem; color: var(--ink-soft); }
+      .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      .select-group { display: grid; gap: 6px; min-width: 180px; }
+      .select-label { font-size: 0.84rem; letter-spacing: 0.01em; color: var(--ink-soft); font-weight: 600; }
+      .auto-apply-hint { font-size: 0.78rem; color: var(--accent-strong); display: inline-flex; align-items: center; gap: 4px; }
+      .auto-apply-hint::before { content: "✓"; font-weight: 700; font-size: 0.8rem; }
+      select { padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid rgba(36, 22, 11, 0.22); background: white; font-size: 1rem; min-width: 140px; color: var(--ink); transition: border-color var(--transition), box-shadow var(--transition); }
+      select:focus { outline: none; border-color: var(--accent-strong); box-shadow: 0 0 0 3px rgba(185, 137, 76, 0.24); }
+      button { padding: 11px 18px; border-radius: 999px; border: none; background: var(--accent-strong); color: white; cursor: pointer; font-weight: 600; letter-spacing: 0.01em; transition: transform var(--transition), box-shadow var(--transition), background var(--transition); }
+      button:hover { transform: translateY(-2px); box-shadow: 0 18px 32px rgba(143, 97, 36, 0.28); }
+      button:disabled { cursor: not-allowed; opacity: 0.42; box-shadow: none; transform: none; }
+      button.secondary { background: rgba(36, 22, 11, 0.76); }
+      button.ghost { background: transparent; color: var(--accent-strong); border: 1px solid rgba(185, 137, 76, 0.4); box-shadow: none; }
+      button.ghost:hover { background: rgba(185, 137, 76, 0.08); transform: none; }
+      .toss-button.optional-action { background: rgba(36, 22, 11, 0.08); color: var(--ink); border: 1px dashed rgba(36, 22, 11, 0.26); }
+      .toss-button.optional-action:hover { box-shadow: none; transform: none; background: rgba(36, 22, 11, 0.12); }
+      .tooltip { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(36, 22, 11, 0.15); color: var(--accent-strong); font-size: 0.78rem; font-weight: 600; cursor: help; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+      .actions-wrap { display: grid; gap: 18px; }
+      #results { display: none; gap: 20px; }
+      #results.active { display: grid; }
+      .results-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      .dao-advisory-panel { border: 1px solid rgba(36, 22, 11, 0.14); border-radius: var(--radius-md); background: var(--bg-strong); padding: 18px 20px; display: grid; gap: 12px; min-width: 0; max-width: 100%; }
+      .dao-advisory-panel h2 { margin: 0; font-size: 1.1rem; color: var(--accent-strong); }
+      .dao-advisory-status { margin: 0; font-size: 0.86rem; color: var(--ink-soft); }
+      .dao-advisory-body { color: var(--ink); line-height: 1.62; overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
+      .dao-advisory-body h3, .dao-advisory-body h4 { margin: 10px 0 6px; color: var(--accent-strong); }
+      .dao-advisory-body p { margin: 0 0 10px; }
+      .dao-advisory-body ul { margin: 0 0 12px; padding-left: 20px; }
+      .dao-advisory-body li { margin: 4px 0; }
+      .dao-advisory-body code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86em; background: rgba(36, 22, 11, 0.08); border-radius: 6px; padding: 1px 6px; overflow-wrap: anywhere; word-break: break-word; }
+      .dao-advisory-links { display: flex; flex-wrap: wrap; gap: 8px; }
+      .dao-advisory-links a { font-size: 0.84rem; color: var(--accent-strong); text-decoration: none; border: 1px solid rgba(185, 137, 76, 0.35); border-radius: 999px; padding: 6px 12px; background: rgba(185, 137, 76, 0.08); }
+      .dao-advisory-copy { display: grid; gap: 8px; }
+      .dao-advisory-copy-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+      .dao-advisory-copy-row button { padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(185, 137, 76, 0.36); background: rgba(185, 137, 76, 0.08); color: var(--accent-strong); font-size: 0.84rem; font-weight: 600; }
+      .dao-advisory-copy-status { margin: 0; font-size: 0.82rem; color: var(--ink-soft); }
+      .dao-advisory-actions { display: grid; gap: 10px; }
+      .dao-advisory-panel[hidden], .dao-advisory-actions[hidden], .dao-advisory-cta[hidden], .dao-advisory-copy-status[hidden] { display: none !important; }
+      .dao-advisory-cta { display: grid; gap: 8px; margin-top: 4px; }
+      .dao-advisory-cta p { margin: 0; font-size: 0.9rem; color: var(--ink-soft); }
+      .dao-advisory-cta a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border-radius: 999px; background: var(--accent-strong); color: #fff; font-weight: 600; text-decoration: none; width: fit-content; }
+      .qmdj-meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 16px; font-size: 0.88rem; color: var(--ink-soft); }
+      .qmdj-meta > div { min-width: 0; }
+      .qmdj-meta b { color: var(--ink); font-weight: 600; margin-right: 4px; }
+      .qmdj-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+      .qmdj-cell { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; line-height: 1.4; min-height: 120px; cursor: pointer; transition: transform 0.08s ease, box-shadow 0.08s ease; }
+      .qmdj-cell:hover { transform: translateY(-1px); }
+      .qmdj-cell:focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
+      .qmdj-cell.qmdj-cell-selected { box-shadow: inset 0 0 0 3px var(--accent-strong), 0 2px 8px rgba(185, 137, 76, 0.25); }
+      .qmdj-cell.qmdj-cell-selected.qmdj-zhifu, .qmdj-cell.qmdj-cell-selected.qmdj-zhishi, .qmdj-cell.qmdj-cell-selected.qmdj-zhifu.qmdj-zhishi { box-shadow: inset 0 0 0 3px var(--accent-strong), 0 2px 8px rgba(185, 137, 76, 0.25); }
+      .qmdj-detail { margin: 12px 0 4px; padding: 14px 16px; background: rgba(185, 137, 76, 0.06); border: 1px solid rgba(185, 137, 76, 0.25); border-left-width: 3px; border-left-color: var(--accent-strong); border-radius: 8px; font-size: 0.88rem; }
+      .qmdj-detail[hidden] { display: none; }
+      .qmdj-detail-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+      .qmdj-detail-title { font-weight: 600; color: var(--ink); font-size: 0.98rem; }
+      .qmdj-detail-outlook { font-size: 0.74rem; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--border); font-weight: 500; line-height: 1.4; }
+      .qmdj-detail-list { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-direction: column; gap: 4px; }
+      .qmdj-detail-list li { display: grid; grid-template-columns: 124px 1fr; gap: 10px; align-items: baseline; font-size: 0.85rem; padding: 2px 0; }
+      .qmdj-detail-list .qmdj-detail-label { color: var(--ink-soft); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+      .qmdj-detail-list strong { color: var(--ink); }
+      .qmdj-detail-list li.qmdj-detail-synthesis { margin-top: 6px; padding-top: 8px; border-top: 1px dashed rgba(185, 137, 76, 0.35); }
+      .qmdj-detail-list li.qmdj-detail-synthesis .qmdj-detail-label { color: var(--accent-strong); }
+      .qmdj-detail-roles { margin: 10px 0 0; font-size: 0.83rem; color: var(--accent-strong); display: flex; flex-direction: column; gap: 3px; }
+      .qmdj-detail-hint { margin-top: 8px; font-size: 0.82rem; color: var(--ink-soft); }
+      .qmdj-detail-hint em { font-style: normal; color: var(--ink); }
+      @media (max-width: 560px) {
+        .qmdj-detail-list li { grid-template-columns: 100px 1fr; gap: 8px; }
+        .qmdj-detail-list .qmdj-detail-label { font-size: 0.72rem; }
+      }
+      .qmdj-cell.qmdj-zhifu { box-shadow: inset 0 0 0 2px var(--accent-strong); }
+      .qmdj-cell.qmdj-zhishi { box-shadow: inset 0 0 0 2px rgba(185, 137, 76, 0.55); }
+      .qmdj-cell.qmdj-zhifu.qmdj-zhishi { box-shadow: inset 0 0 0 2px var(--accent-strong), inset 0 0 0 4px rgba(185, 137, 76, 0.25); }
+      .qmdj-cell.qmdj-center { background: rgba(185, 137, 76, 0.06); }
+      .qmdj-cell.qmdj-outlook-strong { background: rgba(42, 122, 74, 0.16); }
+      .qmdj-cell.qmdj-outlook-favorable { background: rgba(42, 122, 74, 0.08); }
+      .qmdj-cell.qmdj-outlook-caution { background: rgba(168, 66, 58, 0.08); }
+      .qmdj-cell.qmdj-outlook-avoid { background: rgba(168, 66, 58, 0.18); }
+      .qmdj-cell-outlook { font-size: 0.72rem; font-style: italic; color: var(--ink-soft); letter-spacing: 0.02em; margin-top: -2px; }
+      .qmdj-cell.qmdj-outlook-strong .qmdj-cell-outlook, .qmdj-cell.qmdj-outlook-favorable .qmdj-cell-outlook { color: #2a7a4a; font-weight: 600; }
+      .qmdj-cell.qmdj-outlook-caution .qmdj-cell-outlook, .qmdj-cell.qmdj-outlook-avoid .qmdj-cell-outlook { color: #a8423a; font-weight: 600; }
+      .qmdj-cell-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.78rem; color: var(--ink-soft); }
+      .qmdj-cell-head .qmdj-direction { font-weight: 600; color: var(--ink); }
+      .qmdj-row { display: flex; gap: 8px; flex-wrap: wrap; }
+      .qmdj-row span { white-space: nowrap; }
+      .qmdj-stem-wonder { color: #a36b00; font-weight: 700; }
+      .qmdj-door-aus { color: #2a7a4a; font-weight: 600; }
+      .qmdj-door-inaus { color: #a8423a; font-weight: 600; }
+      .qmdj-door-mid { color: var(--ink); }
+      .qmdj-spirit-aus { color: #2a7a4a; }
+      .qmdj-spirit-inaus { color: #a8423a; }
+      .qmdj-legend { font-size: 0.85rem; color: var(--ink-soft); display: flex; gap: 16px; flex-wrap: wrap; }
+      .qmdj-legend > span { display: inline-flex; gap: 4px; align-items: baseline; }
+      .qmdj-outlook-scale { display: flex; gap: 6px; flex-wrap: wrap; font-size: 0.78rem; }
+      .qmdj-outlook-swatch { padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); font-weight: 500; line-height: 1.4; }
+      .qmdj-outlook-swatch.qmdj-outlook-strong { background: rgba(42, 122, 74, 0.16); color: #2a7a4a; border-color: rgba(42, 122, 74, 0.3); }
+      .qmdj-outlook-swatch.qmdj-outlook-favorable { background: rgba(42, 122, 74, 0.08); color: #2a7a4a; }
+      .qmdj-outlook-swatch.qmdj-outlook-mixed { color: var(--ink-soft); }
+      .qmdj-outlook-swatch.qmdj-outlook-caution { background: rgba(168, 66, 58, 0.08); color: #a8423a; }
+      .qmdj-outlook-swatch.qmdj-outlook-avoid { background: rgba(168, 66, 58, 0.18); color: #a8423a; border-color: rgba(168, 66, 58, 0.3); }
+      .qmdj-glossary { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-strong); overflow: hidden; }
+      .qmdj-glossary > summary { list-style: none; cursor: pointer; padding: 12px 16px; font-weight: 600; color: var(--accent-strong); display: flex; align-items: center; gap: 8px; }
+      .qmdj-glossary > summary::-webkit-details-marker { display: none; }
+      .qmdj-glossary > summary::after { content: "⯈"; font-size: 0.85rem; transition: transform var(--transition); margin-left: auto; }
+      .qmdj-glossary[open] > summary::after { transform: rotate(90deg); }
+      .qmdj-glossary[open] > summary { border-bottom: 1px solid var(--border); background: rgba(185, 137, 76, 0.08); }
+      .qmdj-glossary-body { padding: 16px 18px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; font-size: 0.92rem; line-height: 1.6; color: var(--ink); }
+      .qmdj-glossary-body > * { min-width: 0; max-width: 100%; }
+      .qmdj-glossary-body p { margin: 0; color: var(--ink-soft); overflow-wrap: anywhere; }
+      .qmdj-table-scroll { overflow-x: auto; max-width: 100%; }
+      .qmdj-glossary-body h4 { margin: 4px 0 0; font-size: 0.95rem; color: var(--accent-strong); }
+      .qmdj-glossary-body dl { display: grid; grid-template-columns: minmax(140px, max-content) 1fr; gap: 6px 14px; margin: 0; }
+      .qmdj-glossary-body dt { font-weight: 600; color: var(--ink); }
+      .qmdj-glossary-body dd { margin: 0; color: var(--ink-soft); }
+      .qmdj-glossary-body ul { margin: 0; padding-left: 18px; color: var(--ink-soft); }
+      .qmdj-glossary-body ul li + li { margin-top: 6px; }
+      .qmdj-glossary-body ol { margin: 0; padding-left: 20px; color: var(--ink-soft); }
+      .qmdj-glossary-body ol li + li { margin-top: 4px; }
+      .qmdj-ref-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; line-height: 1.5; }
+      .qmdj-ref-table thead th { text-align: left; font-weight: 600; color: var(--accent-strong); padding: 6px 10px; border-bottom: 1px solid var(--border); background: rgba(185, 137, 76, 0.06); font-size: 0.82rem; letter-spacing: 0.02em; text-transform: uppercase; }
+      .qmdj-ref-table tbody td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--ink); }
+      .qmdj-ref-table tbody tr:last-child td { border-bottom: 0; }
+      .qmdj-ref-table tbody td:nth-child(1) { white-space: nowrap; }
+      .qmdj-ref-table tbody td:last-child { white-space: nowrap; }
+      .qmdj-ref-note { margin: 0; font-size: 0.85rem; font-style: italic; color: var(--ink-soft); }
+      @media (max-width: 640px) {
+        .qmdj-ref-table { font-size: 0.82rem; }
+        .qmdj-ref-table thead th, .qmdj-ref-table tbody td { padding: 6px 8px; }
+        .qmdj-ref-table tbody td:nth-child(1), .qmdj-ref-table tbody td:last-child { white-space: normal; }
+      }
+      @media (max-width: 640px) {
+        .qmdj-glossary-body dl { grid-template-columns: 1fr; }
+        .qmdj-glossary-body dt { margin-top: 4px; }
+      }
+      .qmdj-error { font-size: 0.9rem; color: #a8423a; margin: 0; }
+      .qmdj-detail-panel { border: 1px solid rgba(36, 22, 11, 0.14); border-radius: var(--radius-md); background: var(--bg-strong); overflow: hidden; }
+      .qmdj-detail-panel[hidden] { display: none !important; }
+      .qmdj-detail-panel .qmdj-detail-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; list-style: none; margin: 0; padding: 16px 20px; cursor: pointer; font-weight: 600; letter-spacing: 0.01em; font-size: 1.02rem; color: var(--accent-strong); }
+      .qmdj-detail-panel .qmdj-detail-head::-webkit-details-marker { display: none; }
+      .qmdj-detail-panel .qmdj-detail-head::after { content: "+"; font-size: 1.2rem; line-height: 1; font-weight: 600; color: var(--accent-strong); transition: transform var(--transition); }
+      .qmdj-detail-panel[open] .qmdj-detail-head { border-bottom: 1px solid var(--border); background: rgba(185, 137, 76, 0.08); }
+      .qmdj-detail-panel[open] .qmdj-detail-head::after { content: "-"; }
+      .qmdj-detail-panel .qmdj-detail-head:focus-visible { outline: 2px solid rgba(185, 137, 76, 0.4); outline-offset: 4px; }
+      .qmdj-detail-content { display: grid; gap: 14px; padding: 18px 20px 20px; }
+      .qmdj-detail-panel .qmdj-detail-hint { margin: 0; font-size: 0.88rem; color: var(--ink-soft); line-height: 1.55; }
+      .qmdj-detail-body { color: var(--ink); line-height: 1.62; overflow-wrap: anywhere; word-break: break-word; min-width: 0; }
+      .qmdj-detail-body ul { margin: 0 0 10px; padding-left: 20px; }
+      .qmdj-detail-body li { margin: 4px 0; }
+      .qmdj-detail-body code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86em; background: rgba(36, 22, 11, 0.08); border-radius: 6px; padding: 1px 6px; overflow-wrap: anywhere; word-break: break-word; }
+      .qmdj-detail-body .qmdj-palace-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+      .qmdj-palace-cell { border: 1px solid var(--border); border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.66); padding: 10px 12px; display: grid; gap: 2px; font-size: 0.84rem; }
+      .qmdj-palace-label { font-weight: 600; color: var(--accent-strong); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      .qmdj-detail-note { margin: 0; font-size: 0.78rem; color: rgba(36, 22, 11, 0.5); line-height: 1.45; font-style: italic; }
+      .share-button { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%); color: white; border: none; border-radius: 999px; padding: 12px 20px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition); }
+      .share-button:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none; }
+      .share-button:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 18px 30px rgba(143, 97, 36, 0.28); }
+      .share-feedback { font-size: 0.88rem; color: var(--accent-strong); }
+      .hexagram-fulltext { border: 1px solid rgba(36, 22, 11, 0.1); border-radius: var(--radius-sm); background: rgba(255, 255, 255, 0.66); overflow: hidden; }
+      .hexagram-fulltext > summary { margin: 0; padding: 14px 16px; font-weight: 600; letter-spacing: 0.01em; cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--accent-strong); }
+      .hexagram-fulltext > summary::-webkit-details-marker { display: none; }
+      .hexagram-fulltext > summary::after { content: "⯈"; font-size: 0.9rem; transition: transform var(--transition); }
+      .hexagram-fulltext[open] > summary::after { transform: rotate(90deg); }
+      .hexagram-fulltext[open] > summary { background: rgba(185, 137, 76, 0.08); border-bottom: 1px solid rgba(36, 22, 11, 0.08); }
+      .hexagram-fulltext .fulltext-body { padding: 18px 20px; display: grid; gap: 14px; font-size: 0.95rem; color: var(--ink-soft); line-height: 1.6; }
+      .hexagram-fulltext .fulltext-section { display: grid; gap: 6px; }
+      .hexagram-fulltext .fulltext-section strong { color: var(--ink); }
+      .hexagram-fulltext .line-text-list { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+      .hexagram-fulltext .line-text-entry.line-change { position: relative; padding: 6px 10px; border-radius: var(--radius-sm); background: rgba(185, 137, 76, 0.12); color: var(--ink); }
+      .hexagram-fulltext .line-text-entry.line-change::before { content: "Changing line"; display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); margin-bottom: 2px; }
+      .hexagram-fulltext .fulltext-empty { font-style: italic; color: rgba(36, 22, 11, 0.6); }
+      .line-summary { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg-strong); padding: 22px; display: grid; gap: 16px; }
+      .line-summary h2 { margin: 0; font-size: 1.15rem; color: var(--accent-strong); }
+      .line-grid { display: grid; gap: 12px; }
+      .line-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; padding: 12px 14px; border-radius: var(--radius-sm); background: rgba(36, 22, 11, 0.08); align-items: center; }
+      .line-row.changing { background: var(--accent-soft); border: 1px solid rgba(185, 137, 76, 0.36); }
+      .line-row strong { color: var(--ink); }
+      .hexagram-section { display: grid; gap: 18px; }
+      .hexagram-layout { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); align-items: start; }
+      .hexagram-card { border-radius: var(--radius-md); border: 1px solid var(--border); background: var(--bg-strong); padding: 22px; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 16px; box-shadow: 0 12px 24px rgba(36, 22, 11, 0.08); }
+      .hexagram-card h2 { margin: 0; color: var(--accent-strong); font-size: 1.1rem; }
+      .hexagram-diagram { display: grid; gap: 10px; }
+      .hexagram-line { position: relative; height: 22px; border-radius: 6px; background: rgba(36, 22, 11, 0.12); overflow: hidden; }
+      .hexagram-line.solid { background: rgba(36, 22, 11, 0.88); }
+      .hexagram-line.broken { background: linear-gradient(to right, rgba(36, 22, 11, 0.88) 0%, rgba(36, 22, 11, 0.88) 33%, transparent 33%, transparent 67%, rgba(36, 22, 11, 0.88) 67%, rgba(36, 22, 11, 0.88) 100%); }
+      .hexagram-line.changing { box-shadow: 0 0 0 3px rgba(185, 137, 76, 0.4); }
+      .hexagram-info h3 { margin: 0; font-size: 1.06rem; color: var(--ink); }
+      .hexagram-info p { margin: 0; line-height: 1.6; color: var(--ink-soft); font-size: 0.95rem; }
+      .hexagram-info-block { display: flex; flex-direction: column; gap: 6px; }
+      .hexagram-info-block strong { color: var(--ink); }
+      #secondaryNote { margin: 0; font-size: 0.95rem; color: var(--ink-soft); text-align: center; }
+      footer { text-align: center; font-size: 0.85rem; color: var(--ink-soft); }
+      footer strong { color: var(--accent-strong); }
+      @media (max-width: 720px) {
+        body { padding: 24px 14px 32px; }
+        main { gap: 28px; }
+        header.hero { gap: 22px; }
+        .hero-brand { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .hero-steps { flex-direction: column; gap: 10px; }
+        .hero-actions { flex-direction: column; align-items: stretch; }
+        .hero-actions button { width: 100%; }
+        .hero-glass { order: 3; }
+        .overview-content { grid-template-columns: 1fr; }
+        .actions { flex-direction: column; }
+        .actions-wrap { display: flex; flex-direction: column; gap: 16px; }
+        .actions-wrap .progress-area { order: -1; }
+        .actions button { width: 100%; }
+      }
+      @media (max-width: 480px) {
+        body { padding: 18px 12px 28px; background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, var(--bg) 100%); }
+        main { padding: 22px 18px; border-radius: 22px; gap: 24px; }
+        h1 { font-size: clamp(1.65rem, 6vw, 2rem); }
+        p.lead { font-size: 0.98rem; text-align: left; }
+        .overview-card, .progress-area, .line-card, .line-summary, .hexagram-card { padding: 16px; }
+        .line-card { gap: 12px; }
+        .line-top { flex-direction: column; gap: 6px; }
+        .line-role { font-size: 0.82rem; }
+        .controls { flex-direction: column; align-items: stretch; }
+        select, .controls button { width: 100%; }
+        .mini-line { width: 100%; height: 16px; }
+        .line-step { min-width: 160px; }
+        .hero-steps li { width: 100%; }
+        .line-grid, .hexagram-layout { gap: 14px; }
+        .line-row { grid-template-columns: 1fr; gap: 6px; padding: 12px; }
+        .hexagram-layout { grid-template-columns: 1fr; }
+        .hexagram-info p, .hexagram-info h3 { font-size: 0.95rem; }
+        .progress-area { position: sticky; top: 12px; z-index: 2; box-shadow: 0 12px 24px rgba(36, 22, 11, 0.12); }
+        .actions { position: sticky; bottom: 12px; gap: 10px; background: rgba(249, 244, 238, 0.92); padding: 14px 16px; border-radius: 18px; box-shadow: 0 16px 28px rgba(36, 22, 11, 0.12); }
+        footer { font-size: 0.82rem; text-align: left; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header class="hero" aria-label="TrueSight Grounding introduction">
+        <div class="hero-brand">
+          <div class="brand-banner" role="presentation">
+            <img src="assets/truesight-logo.png" alt="TrueSight DAO logo" class="brand-logo" />
+          </div>
+          <span class="hero-badge">Morning Grounding</span>
+        </div>
+        <div class="hero-content">
+          <h1>Daily Oracle &amp; Grounding</h1>
+          <p class="lead">
+            Cast the I Ching, trace changing lines, and explore Wilhelm/Baynes insights.
+            When you're ready, record your session to your practice log.
+          </p>
+          <div class="hero-actions">
+            <button id="beginCasting" type="button">Begin your cast</button>
+            <button id="lastReadingButton" class="ghost" type="button" hidden>View saved insight</button>
+          </div>
+        </div>
+        <aside class="hero-glass" id="heroGlass" aria-live="polite">
+          <div class="hero-glass-title">Session Status</div>
+          <div class="hero-glass-body" id="lastReadingPreview">
+            <p>Cast the oracle, review the reading, then record your session.</p>
+          </div>
+          <p class="hero-glass-status" id="heroStatus" hidden></p>
+        </aside>
+      </header>
+
+      <!-- Record Session section — the key addition -->
+      <section class="overview-panel" id="recordSection" style="border-color: rgba(185, 137, 76, 0.4); background: linear-gradient(135deg, rgba(185, 137, 76, 0.08), rgba(255, 255, 255, 0.92));">
+        <div style="padding: 18px 20px; display: grid; gap: 12px;">
+          <h2 style="margin: 0; font-size: 1.1rem; color: var(--accent-strong);">Record Today's Session</h2>
+          <p style="margin: 0; font-size: 0.9rem; color: var(--ink-soft); line-height: 1.5;">
+            After reviewing your reading and advisory, click below to sign and record this session
+            to your practice log. The hexagrams, QMDJ overlay, and advisory summary will be
+            committed to your lineage-credentials as a <code>[PRACTICE EVENT]</code>.
+          </p>
+          <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+            <button id="recordSession" type="button" style="background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%); padding: 14px 24px; font-size: 1.05rem;">
+              Record Session
+            </button>
+            <a id="cvLink" href="#" target="_blank" rel="noopener noreferrer" hidden
+               style="font-size: 0.9rem; color: var(--accent-strong); text-decoration: none; border: 1px solid rgba(185, 137, 76, 0.35); border-radius: 999px; padding: 8px 14px;">
+              View credentials
+            </a>
+          </div>
+          <p class="hero-glass-status" id="recordStatus" hidden></p>
+        </div>
+      </section>
+
+      <!-- Rest of the page mirrors index.html -->
+      <details class="overview-panel" id="castingGuidance">
+        <summary>Guidance &amp; tips</summary>
+        <div class="overview-content" aria-label="Casting guidance">
+          <article class="overview-card">
+            <h2>Preparing Your Cast</h2>
+            <ul class="guide-list">
+              <li>Work from the bottom line upward—Line 1 anchors the hexagram.</li>
+              <li>Each coin toss produces 0–3 heads. Tails are counted automatically.</li>
+              <li>Solid lines represent yang (movement); broken lines show yin (receptive).</li>
+            </ul>
+          </article>
+          <article class="overview-card highlight">
+            <h2>Coin Method Quick Math</h2>
+            <ul class="guide-list">
+              <li>Heads count as 3, tails count as 2—sum to find each line.</li>
+              <li>6 = old yin (changing to yang); 7 = young yang; 8 = young yin; 9 = old yang (changing to yin).</li>
+              <li>Changing lines reveal a relating hexagram—trace both for nuance.</li>
+            </ul>
+          </article>
+        </div>
+      </details>
+
+      <section class="casting-shell" aria-label="Casting workspace">
+        <section class="line-flow">
+          <div class="line-flow-header">
+            <h2>Cast your lines</h2>
+            <p>Follow the sequence below—each choice updates instantly.</p>
+          </div>
+          <nav class="line-steps" id="lineTimeline" aria-label="Line sequence"></nav>
+          <section class="line-inputs" id="lineInputs" aria-label="Line inputs"></section>
+        </section>
+        <section class="actions-wrap" aria-label="Actions and progress">
+          <div class="actions">
+            <button id="tossAll" class="ghost" type="button">Toss All Lines</button>
+            <button id="calculate" type="button" disabled>Reveal Guidance</button>
+            <button id="reset" class="secondary" type="button">New Reading</button>
+          </div>
+          <section class="progress-area" aria-live="polite">
+            <div class="progress-heading">
+              <strong>Line Progress</strong>
+              <span id="progressLabel">0 / 6 lines set</span>
+            </div>
+            <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0">
+              <div class="progress-indicator" id="progressBar"></div>
+            </div>
+          </section>
+        </section>
+      </section>
+
+      <section id="results">
+        <div class="results-actions">
+          <button id="shareReading" class="share-button" type="button" disabled>Share today's reading</button>
+          <span class="share-feedback" id="shareFeedback" hidden></span>
+        </div>
+        <article class="line-summary" aria-live="polite"></article>
+        <section class="hexagram-section">
+          <div class="hexagram-layout" id="hexagramDisplay"></div>
+          <p id="secondaryNote" hidden></p>
+        </section>
+      </section>
+
+      <section class="reference-panel" aria-label="Hexagram reference guide">
+        <details id="hexagramReference" class="reference-details">
+          <summary>Explore the 64 hexagrams</summary>
+          <div class="reference-content">
+            <div class="reference-intro">
+              Use this lookup to cross-reference the primary and relating trigrams. Lower trigrams run along
+              the rows; upper trigrams span the columns.
+            </div>
+            <div class="reference-table-wrap">
+              <table id="hexagramReferenceTable" aria-describedby="referenceCaption">
+                <caption id="referenceCaption">
+                  Hexagram numbers by lower (rows) and upper (columns) trigram combinations
+                </caption>
+              </table>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <section class="reference-panel" id="qmdjPanel" aria-label="QiMen Dunjia structural overlay" hidden>
+        <div class="qmdj-section-header">
+          <h3>QiMen Dunjia (奇門遁甲) · structural overlay</h3>
+        </div>
+        <div class="reference-content">
+          <div class="reference-intro">
+            Same moment, structural lens. The I&nbsp;Ching above reads the <em>quality</em>
+            of this instant; the chart below reads its <em>spatial / strategic shape</em>.
+          </div>
+          <div class="qmdj-mode-toggle" id="qmdjModeToggle" role="radiogroup" aria-label="QMDJ time-basis mode" style="display:flex;gap:0.5rem;margin:0.4rem 0 0.6rem;flex-wrap:wrap;font-size:0.82rem;">
+            <label style="cursor:pointer;display:flex;align-items:center;gap:0.3rem">
+              <input type="radio" name="qmdjMode" value="day" id="qmdjModeDay" />
+              <span>Day-anchored (one chart per day, 午時 default)</span>
+            </label>
+            <label style="cursor:pointer;display:flex;align-items:center;gap:0.3rem">
+              <input type="radio" name="qmdjMode" value="hour" id="qmdjModeHour" />
+              <span>Hour-based (時家奇門, classical)</span>
+            </label>
+          </div>
+          <div class="qmdj-meta" id="qmdjMeta"></div>
+          <div class="qmdj-grid" id="qmdjGrid" role="group" aria-label="QiMen Dunjia 9-palace chart"></div>
+          <div class="qmdj-detail" id="qmdjDetail" aria-live="polite" hidden></div>
+          <div class="qmdj-legend">
+            <span>三吉門 <span class="qmdj-door-aus">開 / 休 / 生</span></span>
+            <span>三凶門 <span class="qmdj-door-inaus">傷 / 死 / 驚</span></span>
+            <span>三奇 <span class="qmdj-stem-wonder">乙 / 丙 / 丁</span></span>
+            <span>值符 / 值使 palace = darker border.</span>
+          </div>
+          <div class="qmdj-outlook-scale" aria-label="Per-palace outlook scale">
+            <span class="qmdj-outlook-swatch qmdj-outlook-strong">Strong window</span>
+            <span class="qmdj-outlook-swatch qmdj-outlook-favorable">Favorable</span>
+            <span class="qmdj-outlook-swatch qmdj-outlook-mixed">Mixed</span>
+            <span class="qmdj-outlook-swatch qmdj-outlook-caution">Caution</span>
+            <span class="qmdj-outlook-swatch qmdj-outlook-avoid">Avoid</span>
+          </div>
+          <p class="qmdj-ref-note">
+            The cell tint is a <strong>heuristic synthesis</strong> of door + spirit + stems
+            + 值符 bonus — useful as a quick read, but not a master-practitioner call.
+          </p>
+          <details class="qmdj-glossary">
+            <summary>What does each part of the chart mean?</summary>
+            <div class="qmdj-glossary-body">
+              <p>Each cell in the 3 × 3 grid is a <strong>palace</strong> (宮) tied to a compass direction.</p>
+            </div>
+          </details>
+          <p class="qmdj-error" id="qmdjError" hidden></p>
+        </div>
+      </section>
+
+      <details class="qmdj-detail-panel" id="qmdjDetailPanel" hidden>
+        <summary class="qmdj-detail-head">Extended Reading: QiMenDunJia</summary>
+        <div class="qmdj-detail-content">
+          <p class="qmdj-detail-hint">
+            Chart computed from the moment of your cast.
+          </p>
+          <div class="qmdj-detail-body" id="qmdjDetailBody">
+            <p>QMDJ chart rendering will appear here after you cast.</p>
+          </div>
+          <p class="qmdj-detail-note">
+            Combining I-Ching (narrative lens) and QiMenDunJia (strategic overlay) for
+            the same question is a modern synthesis, not a traditional practice.
+          </p>
+        </div>
+      </details>
+
+      <article class="dao-advisory-panel" id="daoAdvisoryPanel" hidden>
+        <h2>DAO Advisory (DeepSeek)</h2>
+        <p class="dao-advisory-status" id="daoAdvisoryStatus">
+          Advisory appears here after the reading is revealed.
+        </p>
+        <div class="dao-advisory-body" id="daoAdvisoryBody"></div>
+        <div class="dao-advisory-actions" id="daoAdvisoryActions" hidden>
+          <div class="dao-advisory-cta" id="daoAdvisoryCta" hidden>
+            <p>Act on this guidance while the signal is fresh.</p>
+            <a href="https://truesight.me/report_contribution.html" target="_blank" rel="noopener noreferrer">Start contributing</a>
+          </div>
+          <div class="dao-advisory-links">
+            <a href="https://raw.githubusercontent.com/TrueSightDAO/agentic_ai_context/main/ADVISORY_SNAPSHOT.md" target="_blank" rel="noopener noreferrer">Latest ADVISORY_SNAPSHOT</a>
+            <a href="https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/index.json" target="_blank" rel="noopener noreferrer">Advisory index.json</a>
+          </div>
+        </div>
+      </article>
+
+      <footer>
+        <strong>Note:</strong> Lines highlighted in amber indicate changing energy—flip them to unveil the relating hexagram.
+      </footer>
+    </main>
+
+    <script src="scripts/draw.js"></script>
+  </body>
+</html>
