@@ -227,6 +227,7 @@
         linkEl.href = cvUrl;
         linkEl.textContent = 'My Credentials →';
         linkEl.hidden = false;
+        revealCredentialsSection();
       }
 
       return { ok: true, requestHash, slug };
@@ -237,6 +238,37 @@
         statusEl.className = 'hero-glass-status error';
       }
       return { ok: false, error: String(err && err.message || err) };
+    }
+  }
+
+  // ---- credentials UI ----
+
+  // Unhide the wrapper section around the CV link (index.html keeps the
+  // link inside a `hidden` <section id="credentialsSection">; without this
+  // the link can never become visible there).
+  function revealCredentialsSection() {
+    const section = document.getElementById('credentialsSection');
+    if (section) section.hidden = false;
+  }
+
+  // Populate + reveal the "My Credentials" link as soon as a keypair exists —
+  // the practitioner's CV on truesight.me should always be one click away,
+  // not gated behind today's submission.
+  async function showCredentialsLink(statusText) {
+    const linkEl = document.getElementById('cvLink');
+    const cvUrl = await getCvUrl();
+    if (linkEl && cvUrl) {
+      linkEl.href = cvUrl;
+      linkEl.textContent = 'My Credentials →';
+      linkEl.hidden = false;
+      revealCredentialsSection();
+    }
+    if (statusText) {
+      const statusEl = document.getElementById('recordStatus');
+      if (statusEl) {
+        statusEl.textContent = statusText;
+        statusEl.hidden = false;
+      }
     }
   }
 
@@ -283,19 +315,9 @@
     // Check dedup: if already submitted today, skip
     if (wasSubmittedToday()) {
       // Still show the credentials link
-      const linkEl = document.getElementById('cvLink');
-      const cvUrl = await getCvUrl();
-      if (linkEl && cvUrl) {
-        linkEl.href = cvUrl;
-        linkEl.textContent = 'My Credentials →';
-        linkEl.hidden = false;
-      }
+      await showCredentialsLink('Already submitted today.');
       const statusEl = document.getElementById('recordStatus');
-      if (statusEl) {
-        statusEl.textContent = 'Already submitted today.';
-        statusEl.className = 'hero-glass-status success';
-        statusEl.hidden = false;
-      }
+      if (statusEl) statusEl.className = 'hero-glass-status success';
       return;
     }
 
@@ -307,10 +329,21 @@
   // ---- init ----
 
   function init() {
-    // Auto-generate keypair on page load if not present
-    ensureKeypair().catch(function (err) {
-      console.error('[OracleDrawSubmit] keypair generation failed:', err);
-    });
+    // Auto-generate keypair on page load if not present, then surface the
+    // practitioner's credential link immediately — oracle.truesight.me should
+    // always link to the generated credential on truesight.me, not only
+    // after today's session has been recorded.
+    ensureKeypair()
+      .then(function () {
+        return showCredentialsLink(
+          wasSubmittedToday()
+            ? '✓ Session recorded today.'
+            : 'Sessions record to your lineage automatically after each reading.'
+        );
+      })
+      .catch(function (err) {
+        console.error('[OracleDrawSubmit] keypair generation failed:', err);
+      });
 
     // Set up observer to auto-submit when advisory panel appears
     setupAdvisoryObserver();

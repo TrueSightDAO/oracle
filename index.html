@@ -956,6 +956,16 @@
         gap: 8px;
       }
 
+      .dao-advisory-debug summary {
+        cursor: pointer;
+        font-size: 0.84rem;
+        color: var(--muted, #8a7b6b);
+      }
+
+      .dao-advisory-debug[open] summary {
+        margin-bottom: 8px;
+      }
+
       .dao-advisory-links a {
         font-size: 0.84rem;
         color: var(--accent-strong);
@@ -2365,32 +2375,35 @@
               >Start contributing</a
             >
           </div>
-          <div class="dao-advisory-links">
-            <a
-              href="https://raw.githubusercontent.com/TrueSightDAO/agentic_ai_context/main/ADVISORY_SNAPSHOT.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Latest ADVISORY_SNAPSHOT</a
-            >
-            <a
-              href="https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/index.json"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Advisory index.json</a
-            >
-            <a
-              href="https://github.com/TrueSightDAO/ecosystem_change_logs/tree/main/advisory/snapshots"
-              target="_blank"
-              rel="noopener noreferrer"
-              >Advisory snapshots</a
-            >
-            <a
-              href="https://github.com/TrueSightDAO/tokenomics/blob/main/clasp_mirrors/1_jTHZZI033E0y2TQNZg98N_bW6lNP2I9sLA__nNQEWpRAw2Q6vsn9DsL/Code.js"
-              target="_blank"
-              rel="noopener noreferrer"
-              >GAS backend logic (GitHub)</a
-            >
-          </div>
+          <details class="dao-advisory-debug">
+            <summary>Under the hood (sources &amp; backend)</summary>
+            <div class="dao-advisory-links">
+              <a
+                href="https://raw.githubusercontent.com/TrueSightDAO/agentic_ai_context/main/ADVISORY_SNAPSHOT.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Latest ADVISORY_SNAPSHOT</a
+              >
+              <a
+                href="https://raw.githubusercontent.com/TrueSightDAO/ecosystem_change_logs/main/advisory/index.json"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Advisory index.json</a
+              >
+              <a
+                href="https://github.com/TrueSightDAO/ecosystem_change_logs/tree/main/advisory/snapshots"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Advisory snapshots</a
+              >
+              <a
+                href="https://github.com/TrueSightDAO/tokenomics/blob/main/clasp_mirrors/1_jTHZZI033E0y2TQNZg98N_bW6lNP2I9sLA__nNQEWpRAw2Q6vsn9DsL/Code.js"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GAS backend logic (GitHub)</a
+              >
+            </div>
+          </details>
           <div class="dao-advisory-copy">
             <div class="dao-advisory-copy-row">
               <button type="button" id="copyAdvisoryContextButton">Copy context for other LLM oracles</button>
@@ -2403,7 +2416,7 @@
       <section id="credentialsSection" hidden>
         <article class="dao-advisory-panel">
           <h2>Practice Credentials</h2>
-          <p class="dao-advisory-status" id="recordStatus">Recording session...</p>
+          <p class="dao-advisory-status" id="recordStatus">Sessions record to your lineage automatically after each reading.</p>
           <a id="cvLink" href="#" target="_blank" rel="noopener noreferrer" hidden>My Credentials →</a>
         </article>
       </section>
