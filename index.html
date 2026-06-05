@@ -2906,6 +2906,11 @@
           url.search = "";
           url.hash = "";
           url.searchParams.set("reading", signature);
+          // Carry the cast moment so the permalink reproduces the QMDJ chart
+          // for the original instant (QMDJ is timestamp-derived).
+          if (reading.timestamp) {
+            url.searchParams.set("cast", reading.timestamp);
+          }
           return url.toString();
         } catch (error) {
           console.warn("Unable to encode reading for share link:", error);
@@ -4615,20 +4620,38 @@
           const value = params.get("reading");
           if (!value) return null;
 
+          let reading = null;
           if (/^[0-9,\-\s]+$/.test(value)) {
             try {
-              return signatureToReading(value);
+              reading = signatureToReading(value);
             } catch (signatureError) {
               console.warn("Unable to parse signature:", signatureError);
             }
           }
 
-          try {
-            return decodeLegacyPayload(value);
-          } catch (legacyError) {
-            console.warn("Unable to parse legacy payload:", legacyError);
-            return null;
+          if (!reading) {
+            try {
+              reading = decodeLegacyPayload(value);
+            } catch (legacyError) {
+              console.warn("Unable to parse legacy payload:", legacyError);
+              return null;
+            }
           }
+
+          // Restore the ORIGINAL cast moment when the permalink carries it.
+          // QMDJ is derived entirely from the timestamp, so without this a
+          // restored reading would show the chart for the restore time, not
+          // the cast time.
+          const cast = params.get("cast");
+          if (cast && !Number.isNaN(new Date(cast).getTime())) {
+            reading.timestamp = new Date(cast).toISOString();
+          }
+
+          // Mark as restored-from-URL so the practice-event auto-submitter
+          // does not record a session for a reading that was merely viewed
+          // (e.g. via the credential page's source link or a shared link).
+          reading.sharedFromUrl = true;
+          return reading;
         } catch (error) {
           console.warn("Unable to parse shared reading:", error);
           return null;
