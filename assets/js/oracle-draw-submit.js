@@ -181,7 +181,7 @@
 
       const reading = JSON.parse(raw);
       const publicKey = await ensureKeypair();
-      const sourceUrl = window.location.href;
+      const sourceUrl = buildReadingPermalink(reading);
       const requestText = buildPracticeEventText(reading, { publicKey, sourceUrl });
       const requestHash = await signRequestText(requestText);
       const shareText = (
@@ -238,6 +238,31 @@
         statusEl.className = 'hero-glass-status error';
       }
       return { ok: false, error: String(err && err.message || err) };
+    }
+  }
+
+  // ---- reading permalink ----
+
+  // Build a URL that fully reproduces the reading: the `reading` signature
+  // (six line sums) restores the hexagram(s), and `cast` restores the
+  // original timestamp the QMDJ chart is derived from. This is what lands in
+  // the [PRACTICE EVENT] Source URL, so the credential page's source link
+  // shows the actual reading — not a blank oracle page.
+  function buildReadingPermalink(reading) {
+    try {
+      const lines = Array.isArray(reading && reading.lines) ? reading.lines : [];
+      const sums = lines
+        .slice()
+        .sort(function (a, b) { return (a.lineNumber || 0) - (b.lineNumber || 0); })
+        .map(function (l) { return l.sum; })
+        .filter(function (s) { return [6, 7, 8, 9].indexOf(Number(s)) !== -1; });
+      if (sums.length !== 6) return window.location.origin + '/';
+      const url = new URL(window.location.origin + '/');
+      url.searchParams.set('reading', sums.join('-'));
+      if (reading.timestamp) url.searchParams.set('cast', reading.timestamp);
+      return url.toString();
+    } catch (e) {
+      return window.location.origin + '/';
     }
   }
 
@@ -312,6 +337,17 @@
   // ---- auto-submit logic ----
 
   async function autoSubmitIfNeeded() {
+    // Never auto-record a reading that was merely VIEWED via a permalink
+    // (credential source link, shared link) rather than freshly cast.
+    try {
+      const raw = localStorage.getItem(LS_READING_KEY);
+      const reading = raw ? JSON.parse(raw) : null;
+      if (reading && reading.sharedFromUrl) {
+        await showCredentialsLink('Viewing a restored reading — not recorded as a session.');
+        return;
+      }
+    } catch (e) { /* fall through to normal flow */ }
+
     // Check dedup: if already submitted today, skip
     if (wasSubmittedToday()) {
       // Still show the credentials link
