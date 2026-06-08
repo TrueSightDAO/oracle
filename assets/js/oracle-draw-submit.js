@@ -196,17 +196,41 @@
       }
 
       const reading = JSON.parse(raw);
-      const publicKey = await ensureKeypair();
-      const sourceUrl = buildReadingPermalink(reading);
-      const requestText = buildPracticeEventText(reading, { publicKey, sourceUrl });
-      const requestHash = await signRequestText(requestText);
-      const shareText = (
-        requestText
-        + '\n\nMy Digital Signature: ' + publicKey
-        + '\n\nRequest Transaction ID: ' + requestHash
-        + '\n\nThis submission was generated using ' + sourceUrl
-        + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html'
-      );
+      const kp = await client.generateKeyPair();
+      const publicKey = kp.publicKey;
+
+      // Build fields for the PRACTICE EVENT
+      const primary = reading.primaryHexagram || {};
+      const related = reading.relatedHexagram || null;
+      const lines = reading.lines || [];
+
+      const hexagrams = [{
+        number: primary.number,
+        name: primary.name,
+        changing_lines: lines.filter(l => l.isChanging).map(l => l.lineNumber),
+      }];
+      if (related) {
+        hexagrams[0].relates_to = related.number;
+        hexagrams[0].relates_to_name = related.name;
+      }
+
+      // Get advisory summary from the DOM if available
+      const advisoryBody = document.getElementById('daoAdvisoryBody');
+      const advisorySummary = advisoryBody ? advisoryBody.textContent.trim().slice(0, 500) : '';
+
+      const fields = {
+        hexagrams: hexagrams,
+        advisory_summary: advisorySummary || 'Morning oracle grounding session.',
+        qmdj_card: '',
+        total_minutes: 15,
+        mood: 'reflective',
+      };
+
+      // Try to get QMDJ card from the panel
+      const qmdjMeta = document.getElementById('qmdjMeta');
+      if (qmdjMeta && qmdjMeta.textContent.trim()) {
+        fields.qmdj_card = qmdjMeta.textContent.trim().slice(0, 200);
+      }
 
       if (statusEl) {
         statusEl.textContent = 'Submitting to Edgar...';
@@ -214,20 +238,12 @@
         statusEl.hidden = false;
       }
 
-      const formData = new FormData();
-      formData.append('text', shareText);
+      const result = await client.submitEvent({
+        eventType: 'PRACTICE EVENT',
+        fields: fields,
+      });
 
-      const resp = await fetch(EDGAR_SUBMIT_URL, { method: 'POST', body: formData });
-      const slug = await publicKeyToSlug(publicKey);
-
-      if (!resp.ok) {
-        const errText = await resp.text().catch(() => '');
-        if (statusEl) {
-          statusEl.textContent = 'Submission failed: HTTP ' + resp.status;
-          statusEl.className = 'hero-glass-status error';
-        }
-        return { ok: false, error: 'HTTP ' + resp.status + ' ' + errText.slice(0, 120) };
-      }
+      const slug = await client.getSlug(publicKey);
 
       // Mark as submitted
       localStorage.setItem(LS_SUBMITTED_KEY, new Date().toISOString());
@@ -246,7 +262,7 @@
         revealCredentialsSection();
       }
 
-      return { ok: true, requestHash, slug };
+      return { ok: true, slug };
     } catch (err) {
       console.error('[OracleDrawSubmit] submit failed:', err);
       if (statusEl) {
