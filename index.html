@@ -2432,7 +2432,7 @@
 
       <article class="dao-advisory-panel" id="daoIdentityLinkedPanel" hidden>
         <h2>DAO Identity</h2>
-        <p class="dao-advisory-status">This oracle key is linked to your DAO identity. Your name will appear on the credential page.</p>
+        <p class="dao-advisory-status" id="daoIdentityLinkedStatus">This oracle key is linked to your DAO identity. Your name will appear on the credential page.</p>
         <a id="daoIdentityCvLink" href="#" target="_blank" rel="noopener noreferrer" hidden>My Credentials →</a>
       </article>
 
@@ -4932,6 +4932,23 @@
         if (daoIdentityLink) { daoIdentityLink.textContent = '✓ Identity Linked'; daoIdentityLink.disabled = true; }
       }
 
+      function setLinkedPanelMessage(msg) {
+        var p = document.getElementById('daoIdentityLinkedStatus');
+        if (p && msg) p.textContent = msg;
+      }
+
+      // Authoritative status, like create_signature.html: drive the UI off
+      // Edgar's check_digital_signature, not just the submit reply (activation
+      // lags). Returns {registered, pending_verification, contributor_email,…}.
+      var EDGAR_CHECK_URL = 'https://edgar.truesight.me/dao/check_digital_signature';
+      async function checkDaoRegistration(pub) {
+        if (!pub) return null;
+        try {
+          var r = await fetch(EDGAR_CHECK_URL + '?signature=' + encodeURIComponent(pub), { cache: 'no-store' });
+          return await r.json();
+        } catch (e) { return null; }
+      }
+
       function setDaoIdentityStatus(msg, cls) {
         daoIdentityStatus.textContent = msg;
         daoIdentityStatus.className = 'hero-glass-status' + (cls ? ' ' + cls : '');
@@ -5112,21 +5129,32 @@
               throw new Error(data.error || 'HTTP ' + resp.status);
             }
 
+            // Render from Edgar's authoritative status, not just the submit
+            // reply — activation can lag a beat (mirrors create_signature.html,
+            // which re-checks check_digital_signature after verifying).
+            daoIdentitySubmit.textContent = 'Verified';
             var er = data && data.email_registration;
-            if (er && er.activated) {
-              setDaoIdentityStatus('✓ Email verified! Your identity is now linked.', 'success');
+            var st = null;
+            for (var i = 0; i < 6; i++) {
+              st = await checkDaoRegistration(pub);
+              if (st && st.registered) break;
+              if (er && (er.activated || er.already_consumed)) break;
+              await new Promise(function(r) { setTimeout(r, 1500); });
+            }
+            if ((st && st.registered) || (er && (er.activated || er.already_consumed))) {
               localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
-              daoIdentitySubmit.textContent = 'Verified';
               var slug = await publicKeyToSlug(pub);
               applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
-            } else if (er && er.already_consumed) {
-              setDaoIdentityStatus('✓ Already verified. Your identity is linked.', 'success');
-              localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
-              daoIdentitySubmit.textContent = 'Verified';
-              var slugC = await publicKeyToSlug(pub);
-              applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slugC);
+              setLinkedPanelMessage('✓ Verified — ' + (((st && st.contributor_email) || em)) + '. Your name will appear on the credential page.');
+            } else if (st && st.pending_verification) {
+              if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+              if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
+              if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
+              setLinkedPanelMessage('Verification received — activating. Refresh in a moment if this doesn’t update.');
             } else {
-              setDaoIdentityStatus('Verification submitted. It may take a moment to activate.', 'info');
+              setDaoIdentityStatus('This oracle key isn’t registered to that email yet. If you re-created your oracle key after registering, click “Link to DAO Identity” to start again.', 'error');
+              daoIdentitySubmit.disabled = false;
+              daoIdentitySubmit.textContent = 'Retry';
             }
           } catch (err) {
             console.error('[Verification]', err);
@@ -5137,18 +5165,31 @@
         })();
       })();
 
-      // Check if already linked on page load — collapse the form, show the
-      // confirmation + single credentials link.
-      if (isEmailLinked()) {
-        const pub = localStorage.getItem('publicKey');
-        if (pub) {
-          publicKeyToSlug(pub).then(function(slug) {
-            applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
-          });
-        } else {
-          applyLinkedUI(null);
+      // On load, render the DAO-identity UI from Edgar's authoritative status
+      // (mirrors create_signature.html). The verification callback above owns
+      // the render when ?em/&vk are present, so skip then.
+      (async function initDaoIdentityState() {
+        var hasVerifyParams = /[?&](em|vk)=/.test(window.location.search || '');
+        if (hasVerifyParams) return;
+        var pub = localStorage.getItem('publicKey');
+        if (!pub) return;
+        var data = await checkDaoRegistration(pub);
+        if (data && data.registered) {
+          try { localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true'); } catch (e) {}
+          var slug = await publicKeyToSlug(pub);
+          applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
+          setLinkedPanelMessage('✓ Verified — ' + (data.contributor_email || 'your email') + '. Your name will appear on the credential page.');
+        } else if (data && data.pending_verification) {
+          if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+          if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
+          if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
+          setLinkedPanelMessage('Check your email' + (data.contributor_email ? ' (' + data.contributor_email + ')' : '') + ' for the verification link to finish linking.');
+        } else if (isEmailLinked()) {
+          // Edgar unreachable/transient — optimistic collapse from local flag.
+          var slug2 = await publicKeyToSlug(pub);
+          applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug2);
         }
-      }
+      })();
 
       // Wire up the link button
       if (daoIdentityLink) {
