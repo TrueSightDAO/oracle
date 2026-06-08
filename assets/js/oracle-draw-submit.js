@@ -113,7 +113,7 @@
     // sorts keys by insertion order. The browser's JSON.stringify with a replacer
     // that sorts keys produces the same result.
     const sortedCompact = JSON.stringify(payload, Object.keys(payload).sort());
-    const signature = await signRequestText(sortedCompact);
+    const signature = await client.sign(sortedCompact);
     return signature;
   }
 
