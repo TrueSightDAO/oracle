@@ -39,7 +39,6 @@
       https://cdn.jsdelivr.net/npm/qimen-dunjia@2.1.0/dist/qimen.standalone.min.js
     -->
     <script src="assets/vendor/qimen-dunjia/qimen.standalone.patched.min.js" defer></script>
-    <script src="https://unpkg.com/@truesight/dao-client@1.0.0"></script>
     <script src="assets/js/oracle-draw-submit.js" defer></script>
     <style>
       :root {
@@ -4944,109 +4943,8 @@
         if (daoIdentityStatus) { daoIdentityStatus.hidden = true; daoIdentityStatus.textContent = ''; }
         if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
         if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
-        var msg = '⏳ Almost there — we emailed a verification link to ' + (email || 'your inbox') + '. Open it in THIS browser to finish (your signing key lives only here). Check spam if you don’t see it.';
-        msg += '<br><br><a href="#" id="resendVerificationLink" style="color:var(--accent-strong);text-decoration:underline;font-weight:600;">Didn't get it? Resend</a>';
-        msg += ' <span id="resendVerificationStatus" style="font-size:0.82rem;color:var(--ink-soft);"></span>';
-        setLinkedPanelMessage(msg);
+        setLinkedPanelMessage('⏳ Almost there — we emailed a verification link to ' + (email || 'your inbox') + '. Open it in THIS browser to finish (your signing key lives only here). Check spam if you don’t see it.');
         if (daoIdentityLink) { daoIdentityLink.textContent = '⏳ Awaiting email verification'; daoIdentityLink.disabled = true; }
-        setTimeout(function() {
-          var resendLink = document.getElementById('resendVerificationLink');
-          if (resendLink) {
-            resendLink.addEventListener('click', function(e) {
-              e.preventDefault();
-              handleResendVerification(email);
-            });
-          }
-        }, 50);
-      }
-
-      async function handleResendVerification(email) {
-        var resendLink = document.getElementById('resendVerificationLink');
-        var resendStatus = document.getElementById('resendVerificationStatus');
-        if (!resendLink || !resendStatus) return;
-        resendLink.style.pointerEvents = 'none';
-        resendLink.style.opacity = '0.5';
-        resendStatus.textContent = 'Sending...';
-        try {
-          var publicKey = localStorage.getItem('publicKey');
-          var privateKey = localStorage.getItem('privateKey');
-          if (!publicKey || !privateKey) {
-            resendStatus.textContent = 'No keys found. Please start registration again.';
-            resendLink.style.pointerEvents = '';
-            resendLink.style.opacity = '';
-            return;
-          }
-          var nonce = new Date().toISOString();
-          var requestText = [
-            '[EMAIL REGISTERED EVENT]',
-            '- Email: ' + email,
-            '- Timestamp: ' + nonce,
-            '--------'
-          ].join('
-');
-          var privateKeyObj = await window.crypto.subtle.importKey(
-            'pkcs8',
-            base64ToArrayBuffer(privateKey),
-            { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-            false,
-            ['sign']
-          );
-          var encoder = new TextEncoder();
-          var sig = await window.crypto.subtle.sign(
-            'RSASSA-PKCS1-v1_5',
-            privateKeyObj,
-            encoder.encode(requestText)
-          );
-          var sigBase64 = arrayBufferToBase64(sig);
-          var generationSource = window.location.origin + window.location.pathname;
-          var shareText = requestText
-            + '
-
-My Digital Signature: ' + publicKey
-            + '
-
-Request Transaction ID: ' + sigBase64
-            + '
-
-This submission was generated using ' + generationSource
-            + '
-
-Verify submission here: https://dapp.truesight.me/verify_request.html';
-          var formData = new FormData();
-          formData.append('text', shareText);
-          var resp = await fetch(EDGAR_SUBMIT_URL, { method: 'POST', body: formData });
-          var data = await resp.json();
-          if (!resp.ok) {
-            throw new Error(data.error || 'HTTP ' + resp.status);
-          }
-          var er = data && data.email_registration;
-          if (er && er.resent) {
-            resendStatus.textContent = 'Sent again — check inbox/spam';
-            resendStatus.style.color = 'var(--accent-strong)';
-          } else if (er && er.cooldown) {
-            resendStatus.textContent = 'Please wait ' + (er.retry_after_s || 60) + 's before resending';
-            resendStatus.style.color = '#ad711b';
-            setTimeout(function() {
-              resendLink.style.pointerEvents = '';
-              resendLink.style.opacity = '';
-              resendStatus.textContent = '';
-            }, (er.retry_after_s || 60) * 1000);
-            return;
-          } else if (er && er.skipped) {
-            resendStatus.textContent = 'Already verified — reloading...';
-            setTimeout(function() { window.location.reload(); }, 1500);
-            return;
-          } else {
-            resendStatus.textContent = 'Verification email sent — check inbox/spam';
-            resendStatus.style.color = 'var(--accent-strong)';
-          }
-        } catch (err) {
-          console.error('[Resend Verification]', err);
-          resendStatus.textContent = 'Error: ' + (err.message || err).slice(0, 80);
-          resendStatus.style.color = '#a13528';
-        }
-        resendLink.style.pointerEvents = '';
-        resendLink.style.opacity = '';
       }
 
       // Back-compat alias — verified state without a known email.
