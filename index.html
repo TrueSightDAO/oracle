@@ -1903,7 +1903,16 @@
           <div class="hero-actions">
             <button id="beginCasting" type="button">Begin your cast</button>
             <button id="lastReadingButton" class="ghost" type="button" hidden>View saved insight</button>
+            <button id="daoIdentityLink" class="ghost" type="button">Link to DAO Identity</button>
             <button id="refreshAssets" class="ghost" type="button" hidden>Refresh assets</button>
+          </div>
+          <div id="daoIdentityPanel" class="hero-glass" hidden style="margin-top:0">
+            <div class="hero-glass-title">Link this oracle to your DAO identity</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+              <input type="email" id="daoIdentityEmail" placeholder="your@email.com" style="flex:1;min-width:200px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);font-size:0.95rem;font-family:inherit;background:var(--bg-strong);color:var(--ink)" />
+              <button id="daoIdentitySubmit" type="button" style="white-space:nowrap">Link</button>
+            </div>
+            <p class="hero-glass-status" id="daoIdentityStatus" hidden></p>
           </div>
         </div>
         <aside class="hero-glass" id="heroGlass" aria-live="polite">
@@ -2420,6 +2429,12 @@
           <a id="cvLink" href="#" target="_blank" rel="noopener noreferrer" hidden>My Credentials →</a>
         </article>
       </section>
+
+      <article class="dao-advisory-panel" id="daoIdentityLinkedPanel" hidden>
+        <h2>DAO Identity</h2>
+        <p class="dao-advisory-status">This oracle key is linked to your DAO identity. Your name will appear on the credential page.</p>
+        <a id="daoIdentityCvLink" href="#" target="_blank" rel="noopener noreferrer" hidden>My Credentials →</a>
+      </article>
 
       <footer>
         <strong>Note:</strong> Lines highlighted in amber indicate changing energy—flip them to unveil the relating hexagram.
@@ -4856,6 +4871,176 @@
         copyAdvisoryContextButton.addEventListener("click", () => {
           const parityPrompt = buildParityContextTemplate(currentReading || loadStoredReading());
           copyToClipboardOrPrompt(parityPrompt, "oracle parity prompt");
+        });
+      }
+
+      // ---- DAO Identity Link ----
+      const LS_EMAIL_LINKED_KEY = 'truesight-oracle-email-linked';
+      const EDGAR_SUBMIT_URL = 'https://edgar.truesight.me/dao/submit_contribution';
+
+      const daoIdentityLink = document.getElementById('daoIdentityLink');
+      const daoIdentityPanel = document.getElementById('daoIdentityPanel');
+      const daoIdentityEmail = document.getElementById('daoIdentityEmail');
+      const daoIdentitySubmit = document.getElementById('daoIdentitySubmit');
+      const daoIdentityStatus = document.getElementById('daoIdentityStatus');
+      const daoIdentityLinkedPanel = document.getElementById('daoIdentityLinkedPanel');
+      const daoIdentityCvLink = document.getElementById('daoIdentityCvLink');
+
+      function base64ToArrayBuffer(b64) {
+        const bin = window.atob(b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return bytes.buffer;
+      }
+
+      function arrayBufferToBase64(buf) {
+        let bin = '';
+        const bytes = new Uint8Array(buf);
+        for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
+        return window.btoa(bin);
+      }
+
+      function base64ToBase64Url(b64) {
+        return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      }
+
+      async function publicKeyToSlug(publicKeyBase64) {
+        const keyBytes = base64ToArrayBuffer(publicKeyBase64);
+        const hashBuf = await window.crypto.subtle.digest('SHA-256', keyBytes);
+        const b64 = arrayBufferToBase64(hashBuf);
+        return 'pk-' + base64ToBase64Url(b64).slice(0, 12);
+      }
+
+      function isEmailLinked() {
+        try {
+          return localStorage.getItem(LS_EMAIL_LINKED_KEY) === 'true';
+        } catch (e) { return false; }
+      }
+
+      function setDaoIdentityStatus(msg, cls) {
+        daoIdentityStatus.textContent = msg;
+        daoIdentityStatus.className = 'hero-glass-status' + (cls ? ' ' + cls : '');
+        daoIdentityStatus.hidden = false;
+      }
+
+      async function handleDaoIdentityLink() {
+        const email = daoIdentityEmail.value.trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          setDaoIdentityStatus('Please enter a valid email address.', 'error');
+          return;
+        }
+
+        const publicKey = localStorage.getItem('publicKey');
+        const privateKey = localStorage.getItem('privateKey');
+        if (!publicKey || !privateKey) {
+          setDaoIdentityStatus('No oracle keypair found. Cast a reading first to generate keys.', 'error');
+          return;
+        }
+
+        daoIdentitySubmit.disabled = true;
+        daoIdentitySubmit.textContent = 'Linking...';
+        setDaoIdentityStatus('Submitting to Edgar...', 'info');
+
+        try {
+          // Build the [EMAIL REGISTERED EVENT] text
+          const requestText = [
+            '[EMAIL REGISTERED EVENT]',
+            '- Email: ' + email,
+            '',
+            'My Digital Signature: ' + publicKey,
+            'Request Transaction ID: ' + publicKey.slice(0, 20) + '...'
+          ].join('\n');
+
+          // Sign with the existing private key
+          const privateKeyObj = await window.crypto.subtle.importKey(
+            'pkcs8',
+            base64ToArrayBuffer(privateKey),
+            { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+            false,
+            ['sign']
+          );
+          const encoder = new TextEncoder();
+          const sig = await window.crypto.subtle.sign(
+            'RSASSA-PKCS1-v1_5',
+            privateKeyObj,
+            encoder.encode(requestText)
+          );
+          const sigBase64 = arrayBufferToBase64(sig);
+
+          const shareText = requestText + '\n\nMy Digital Signature: ' + publicKey + '\n\nRequest Transaction ID: ' + sigBase64;
+
+          const formData = new FormData();
+          formData.append('text', shareText);
+
+          const resp = await fetch(EDGAR_SUBMIT_URL, { method: 'POST', body: formData });
+
+          if (!resp.ok) {
+            const errText = await resp.text().catch(() => '');
+            throw new Error('HTTP ' + resp.status + ': ' + errText.slice(0, 120));
+          }
+
+          // Mark as linked
+          localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
+
+          setDaoIdentityStatus('✓ Check your email for a verification link.', 'success');
+          daoIdentityEmail.disabled = true;
+          daoIdentitySubmit.disabled = true;
+          daoIdentitySubmit.textContent = 'Linked';
+
+          // Show the linked panel with CV link
+          const slug = await publicKeyToSlug(publicKey);
+          const cvUrl = 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug;
+          daoIdentityCvLink.href = cvUrl;
+          daoIdentityCvLink.textContent = 'My Credentials →';
+          daoIdentityCvLink.hidden = false;
+          daoIdentityLinkedPanel.hidden = false;
+
+          // Update the button
+          daoIdentityLink.textContent = '✓ Identity Linked';
+          daoIdentityLink.disabled = true;
+
+        } catch (err) {
+          console.error('[DAO Identity Link]', err);
+          setDaoIdentityStatus('Error: ' + (err.message || err), 'error');
+          daoIdentitySubmit.disabled = false;
+          daoIdentitySubmit.textContent = 'Link';
+        }
+      }
+
+      // Check if already linked on page load
+      if (isEmailLinked()) {
+        daoIdentityLink.textContent = '✓ Identity Linked';
+        daoIdentityLink.disabled = true;
+        const pub = localStorage.getItem('publicKey');
+        if (pub) {
+          publicKeyToSlug(pub).then(function(slug) {
+            const cvUrl = 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug;
+            daoIdentityCvLink.href = cvUrl;
+            daoIdentityCvLink.textContent = 'My Credentials →';
+            daoIdentityCvLink.hidden = false;
+            daoIdentityLinkedPanel.hidden = false;
+          });
+        }
+      }
+
+      // Wire up the link button
+      if (daoIdentityLink) {
+        daoIdentityLink.addEventListener('click', function() {
+          if (isEmailLinked()) return;
+          daoIdentityPanel.hidden = !daoIdentityPanel.hidden;
+          if (!daoIdentityPanel.hidden) {
+            daoIdentityEmail.focus();
+          }
+        });
+      }
+
+      if (daoIdentitySubmit) {
+        daoIdentitySubmit.addEventListener('click', handleDaoIdentityLink);
+      }
+
+      if (daoIdentityEmail) {
+        daoIdentityEmail.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') handleDaoIdentityLink();
         });
       }
 
