@@ -4974,10 +4974,16 @@
           );
           const sigBase64 = arrayBufferToBase64(sig);
 
+          // Generation source = wherever this page is actually served (origin +
+          // path, no query/hash), like dapp create_signature.html derives it
+          // from window.location. Edgar's GAS mailer appends ?em=&vk= to this to
+          // build the verification email link, so it returns to the same origin
+          // the user registered from — localhost when testing here, oracle in prod.
+          const generationSource = window.location.origin + window.location.pathname;
           const shareText = requestText
             + '\n\nMy Digital Signature: ' + publicKey
             + '\n\nRequest Transaction ID: ' + sigBase64
-            + '\n\nThis submission was generated using https://oracle.truesight.me/'
+            + '\n\nThis submission was generated using ' + generationSource
             + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html';
 
           const formData = new FormData();
@@ -5076,10 +5082,11 @@
             );
             var sigBase64 = arrayBufferToBase64(sig);
 
+            var generationSource = window.location.origin + window.location.pathname;
             var shareText = requestText
               + '\n\nMy Digital Signature: ' + pub
               + '\n\nRequest Transaction ID: ' + sigBase64
-              + '\n\nThis submission was generated using https://oracle.truesight.me/'
+              + '\n\nThis submission was generated using ' + generationSource
               + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html';
 
             var formData = new FormData();
