@@ -4942,13 +4942,19 @@
         setDaoIdentityStatus('Submitting to Edgar...', 'info');
 
         try {
-          // Build the [EMAIL REGISTERED EVENT] text
+          // Build the [EMAIL REGISTERED EVENT] text with -------- separator
+          // matching the format SignatureVerifier expects:
+          //   [EVENT HEADER]
+          //   - Field: value
+          //   --------
+          //
+          //   My Digital Signature: <publicKey>
+          //
+          //   Request Transaction ID: <base64 signature>
           const requestText = [
             '[EMAIL REGISTERED EVENT]',
             '- Email: ' + email,
-            '',
-            'My Digital Signature: ' + publicKey,
-            'Request Transaction ID: ' + publicKey.slice(0, 20) + '...'
+            '--------'
           ].join('\n');
 
           // Sign with the existing private key
