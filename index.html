@@ -4960,7 +4960,10 @@
             '[EMAIL REGISTERED EVENT]',
             '- Email: ' + email,
             '- Timestamp: ' + nonce,
-            '--------'
+            '--------',
+            '',
+            'This submission was generated using',
+            'https://oracle.truesight.me/'
           ].join('\n');
 
           // Sign with the existing private key
@@ -5056,7 +5059,10 @@
               '[EMAIL VERIFICATION EVENT]',
               '- Email: ' + em,
               '- Verification Key: ' + vk,
-              '--------'
+              '--------',
+              '',
+              'This submission was generated using',
+              'https://oracle.truesight.me/'
             ].join('\n');
 
             var privateKeyObj = await window.crypto.subtle.importKey(
