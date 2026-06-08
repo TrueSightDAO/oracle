@@ -39,6 +39,7 @@
       https://cdn.jsdelivr.net/npm/qimen-dunjia@2.1.0/dist/qimen.standalone.min.js
     -->
     <script src="assets/vendor/qimen-dunjia/qimen.standalone.patched.min.js" defer></script>
+    <script src="https://unpkg.com/@truesight_dao/dao-client@1.0.1/dist/dao-client.min.js"></script>
     <script src="assets/js/oracle-draw-submit.js" defer></script>
     <style>
       :root {
@@ -4886,30 +4887,12 @@
       const daoIdentityLinkedPanel = document.getElementById('daoIdentityLinkedPanel');
       const daoIdentityCvLink = document.getElementById('daoIdentityCvLink');
 
-      function base64ToArrayBuffer(b64) {
-        const bin = window.atob(b64);
-        const bytes = new Uint8Array(bin.length);
-        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        return bytes.buffer;
-      }
-
-      function arrayBufferToBase64(buf) {
-        let bin = '';
-        const bytes = new Uint8Array(buf);
-        for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
-        return window.btoa(bin);
-      }
-
-      function base64ToBase64Url(b64) {
-        return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      }
-
-      async function publicKeyToSlug(publicKeyBase64) {
-        const keyBytes = base64ToArrayBuffer(publicKeyBase64);
-        const hashBuf = await window.crypto.subtle.digest('SHA-256', keyBytes);
-        const b64 = arrayBufferToBase64(hashBuf);
-        return 'pk-' + base64ToBase64Url(b64).slice(0, 12);
-      }
+      // DaoClient static helpers are now loaded from the CDN bundle above.
+      // Aliases for backward compat with the rest of the inline code:
+      const base64ToArrayBuffer = DaoClient.base64ToArrayBuffer;
+      const arrayBufferToBase64 = DaoClient.arrayBufferToBase64;
+      const base64ToBase64Url = DaoClient.base64ToBase64Url;
+      const publicKeyToSlug = DaoClient.publicKeyToSlug;
 
       function isEmailLinked() {
         try {
