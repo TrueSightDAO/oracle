@@ -4942,19 +4942,25 @@
         setDaoIdentityStatus('Submitting to Edgar...', 'info');
 
         try {
-          // The SIGNED payload must be EXACTLY the canonical event body up to
-          // and including the "--------" separator. Edgar's SignatureVerifier
-          // verifies the signature against everything up to (and including)
-          // that separator, .strip()-ed — nothing after it. Anything appended
-          // here after -------- (a generation-source line, etc.) becomes part
-          // of the signed bytes but NOT part of what Edgar verifies, so the
-          // signature fails. Generation source + verify link therefore live in
-          // the share-text WRAPPER after the signature (same shape as dapp
-          // create_signature.html), never in the signed payload. No Timestamp
-          // field either — it's not part of the canonical EMAIL REGISTERED body.
+          // The SIGNED payload is the event body UP TO AND INCLUDING the
+          // "--------" separator. Edgar's SignatureVerifier verifies against
+          // exactly that (.strip()-ed) — nothing after it. Two consequences:
+          //  1. A nonce that must vary the signature goes INSIDE the body,
+          //     before --------, so it's part of the verified bytes. The oracle
+          //     reuses ONE persistent key, so without a nonce the same email
+          //     always signs identical bytes → identical Request Transaction ID
+          //     → Edgar 409 "duplicate" on any retry. The Timestamp line gives
+          //     that uniqueness AND still verifies (it's before --------).
+          //  2. Things Edgar parses from the wrapper but must NOT be signed
+          //     (generation source, verify link) go AFTER the signature in the
+          //     share text — never appended into requestText. Appending the
+          //     generation-source there was the original bug: signed bytes ≠
+          //     verified bytes → signature_verification failed.
+          var nonce = new Date().toISOString();
           const requestText = [
             '[EMAIL REGISTERED EVENT]',
             '- Email: ' + email,
+            '- Timestamp: ' + nonce,
             '--------'
           ].join('\n');
 
