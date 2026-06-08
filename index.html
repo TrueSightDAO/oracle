@@ -4887,12 +4887,8 @@
       const daoIdentityLinkedPanel = document.getElementById('daoIdentityLinkedPanel');
       const daoIdentityCvLink = document.getElementById('daoIdentityCvLink');
 
-      // DaoClient static helpers are now loaded from the CDN bundle above.
-      // Aliases for backward compat with the rest of the inline code:
-      const base64ToArrayBuffer = DaoClient.base64ToArrayBuffer;
-      const arrayBufferToBase64 = DaoClient.arrayBufferToBase64;
-      const base64ToBase64Url = DaoClient.base64ToBase64Url;
-      const publicKeyToSlug = DaoClient.publicKeyToSlug;
+      // DaoClient instance for high-level methods
+      const client = new DaoClient();
 
       function isEmailLinked() {
         try {
