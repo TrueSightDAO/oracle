@@ -1,14 +1,17 @@
 /**
  * oracle-draw-submit.js — auto-generate keypair + auto-submit [PRACTICE EVENT] to Edgar
+ *                     + fire-and-forget daily briefing trigger
  *
  * On page load:
  *   1. Auto-generates an RSA keypair if not present (no user action needed).
  *   2. Watches #daoAdvisoryPanel for visibility (hidden=false) via MutationObserver.
  *   3. When the advisory panel becomes visible, auto-submits the [PRACTICE EVENT]
  *      to Edgar in the background.
- *   4. Deduplicates via localStorage key 'truesight-grounding-submitted' — if the
+ *   4. Also fire-and-forgets a signed POST to sophia.truesight.me/daily-briefing
+ *      so Sophia composes and posts the governor's morning standup to Telegram #General.
+ *   5. Deduplicates via localStorage key 'truesight-grounding-submitted' — if the
  *      signature matches today's reading, skip re-submission.
- *   5. Exposes a "My Credentials" link pointing to
+ *   6. Exposes a "My Credentials" link pointing to
  *      truesight.me/programs/truesight-grounding/credentials/#{slug}.
  *
  * Reuses the same dapp keypair pattern from:
@@ -18,6 +21,7 @@
   'use strict';
 
   const EDGAR_SUBMIT_URL = 'https://edgar.truesight.me/dao/submit_contribution';
+  const DAILY_BRIEFING_URL = 'https://sophia.truesight.me/daily-briefing';
   const TRUESIGHT_BASE = 'https://truesight.me';
   const PROGRAM = 'truesight-grounding';
   const PRACTICE_TYPE = 'oracle-consultation';
@@ -27,6 +31,7 @@
   const LS_PRIVATE_KEY = 'privateKey';
   const LS_READING_KEY = 'truesight-oracle-last-reading';
   const LS_SUBMITTED_KEY = 'truesight-grounding-submitted';
+  const LS_BRIEFING_KEY = 'truesight-daily-briefing-sent';
 
   // ---- low-level helpers (mirror the dapp implementations) ----
 
@@ -161,6 +166,130 @@
     return arrayBufferToBase64(sig);
   }
 
+  // ---- daily briefing trigger ----
+
+  /**
+   * Build the briefing payload from the current reading.
+   * Matches the shape expected by sophia.truesight.me/daily-briefing:
+   *   payload.reading.primary_hexagram
+   *   payload.reading.related_hexagram (optional)
+   *   payload.reading.changing_lines (optional)
+   *   payload.reading.timestamp_utc
+   *   payload.timestamp (ISO 8601, for server-side skew check)
+   *   payload.nonce (unique per request, for replay protection)
+   */
+  function buildBriefingPayload(reading) {
+    const primary = reading.primaryHexagram || {};
+    const related = reading.relatedHexagram || null;
+    const lines = reading.lines || [];
+    const changingLines = lines.filter(l => l.isChanging).map(l => l.lineNumber);
+    const now = new Date().toISOString();
+
+    const readingPayload = {
+      primary_hexagram: {
+        number: primary.number,
+        name: primary.name,
+      },
+      timestamp_utc: reading.timestamp || now,
+    };
+
+    if (related) {
+      readingPayload.related_hexagram = {
+        number: related.number,
+        name: related.name,
+      };
+    }
+
+    if (changingLines.length > 0) {
+      readingPayload.changing_lines = changingLines;
+    }
+
+    return {
+      reading: readingPayload,
+      timestamp: now,
+      nonce: now + '-' + Math.random().toString(36).slice(2, 10),
+    };
+  }
+
+  /**
+   * Sign the briefing payload using the same scheme as the chat endpoint:
+   * JSON-serialize with separators=(",", ":"), RSA-SHA256 sign.
+   */
+  async function signBriefingPayload(payload) {
+    const payloadJson = JSON.stringify(payload, (key, value) => {
+      // Ensure undefined values are omitted (JSON.stringify drops them anyway)
+      return value;
+    }, '');
+    // Use compact serialization matching the server's separators=(",", ":")
+    const compact = JSON.stringify(payload, Object.keys(payload).sort(), '');
+    // Actually the server uses json.dumps(payload, separators=(",", ":")) which
+    // sorts keys by insertion order. The browser's JSON.stringify with a replacer
+    // that sorts keys produces the same result.
+    const sortedCompact = JSON.stringify(payload, Object.keys(payload).sort());
+    const signature = await signRequestText(sortedCompact);
+    return signature;
+  }
+
+  /**
+   * Fire-and-forget the daily briefing request.
+   * Non-blocking — errors are logged to console only.
+   * The server handles dedup (per governor per day), so the browser always sends.
+   */
+  async function triggerDailyBriefing() {
+    try {
+      const raw = localStorage.getItem(LS_READING_KEY);
+      if (!raw) {
+        console.log('[DailyBriefing] No reading found — skipping.');
+        return;
+      }
+
+      const reading = JSON.parse(raw);
+
+      // Skip if this is a restored/shared reading (not a fresh cast)
+      if (reading.sharedFromUrl) {
+        console.log('[DailyBriefing] Restored reading — skipping briefing.');
+        return;
+      }
+
+      const publicKey = await ensureKeypair();
+      const payload = buildBriefingPayload(reading);
+      const signature = await signBriefingPayload(payload);
+
+      const body = JSON.stringify({
+        payload: payload,
+        signature: signature,
+      });
+
+      console.log('[DailyBriefing] Sending briefing request...');
+
+      const resp = await fetch(DAILY_BRIEFING_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Public-Key': publicKey,
+        },
+        body: body,
+      });
+
+      const result = await resp.json();
+
+      if (result.ok) {
+        console.log('[DailyBriefing] Success:', result.message || 'Briefing posted');
+        // Mark as sent so we don't retry on page reload
+        try {
+          localStorage.setItem(LS_BRIEFING_KEY, new Date().toISOString());
+        } catch (e) { /* non-fatal */ }
+      } else if (result.dedup) {
+        console.log('[DailyBriefing] Already briefed today — server dedup.');
+      } else {
+        console.warn('[DailyBriefing] Server rejected:', result.error || 'unknown error');
+      }
+    } catch (err) {
+      // Fire-and-forget: never disrupt the user's reading flow
+      console.warn('[DailyBriefing] Failed to send briefing (non-blocking):', err);
+    }
+  }
+
   // ---- submit ----
 
   async function submitSession() {
@@ -217,7 +346,7 @@
       localStorage.setItem(LS_SUBMITTED_KEY, new Date().toISOString());
 
       if (statusEl) {
-        statusEl.textContent = '✓ Session recorded.';
+        statusEl.textContent = '\u2713 Session recorded.';
         statusEl.className = 'hero-glass-status success';
       }
 
@@ -225,7 +354,7 @@
       const cvUrl = await getCvUrl();
       if (linkEl && cvUrl) {
         linkEl.href = cvUrl;
-        linkEl.textContent = 'My Credentials →';
+        linkEl.textContent = 'My Credentials \u2192';
         linkEl.hidden = false;
         revealCredentialsSection();
       }
@@ -284,7 +413,7 @@
     const cvUrl = await getCvUrl();
     if (linkEl && cvUrl) {
       linkEl.href = cvUrl;
-      linkEl.textContent = 'My Credentials →';
+      linkEl.textContent = 'My Credentials \u2192';
       linkEl.hidden = false;
       revealCredentialsSection();
     }
@@ -354,12 +483,16 @@
       await showCredentialsLink('Already submitted today.');
       const statusEl = document.getElementById('recordStatus');
       if (statusEl) statusEl.className = 'hero-glass-status success';
-      return;
+    } else {
+      // Ensure keypair exists before submitting
+      await ensureKeypair();
+      await submitSession();
     }
 
-    // Ensure keypair exists before submitting
-    await ensureKeypair();
-    await submitSession();
+    // Fire-and-forget the daily briefing trigger (always sends; server dedups)
+    // This runs regardless of whether the PRACTICE EVENT was submitted or deduped,
+    // because the briefing and the practice event are independent concerns.
+    triggerDailyBriefing();
   }
 
   // ---- init ----
@@ -373,7 +506,7 @@
       .then(function () {
         return showCredentialsLink(
           wasSubmittedToday()
-            ? '✓ Session recorded today.'
+            ? '\u2713 Session recorded today.'
             : 'Sessions record to your lineage automatically after each reading.'
         );
       })
@@ -407,5 +540,6 @@
     getCvUrl,
     submitSession,
     wasSubmittedToday,
+    triggerDailyBriefing,
   };
 })();
