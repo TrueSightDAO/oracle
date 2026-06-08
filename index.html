@@ -4917,6 +4917,21 @@
         } catch (e) { return false; }
       }
 
+      // Render the "already linked" UI. Once linked the "Link this oracle to
+      // your DAO identity" form is just noise (only a re-link would need it),
+      // so hide it. There were also two identical "My Credentials →" links
+      // (Practice Credentials + the DAO-identity panel) → keep ONE: surface the
+      // Practice Credentials link, hide the duplicate, leave the DAO-identity
+      // panel as a plain confirmation line.
+      function applyLinkedUI(cvUrl) {
+        if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+        var practiceCvLink = document.getElementById('cvLink');
+        if (cvUrl && practiceCvLink) { practiceCvLink.href = cvUrl; practiceCvLink.hidden = false; }
+        if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
+        if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
+        if (daoIdentityLink) { daoIdentityLink.textContent = '✓ Identity Linked'; daoIdentityLink.disabled = true; }
+      }
+
       function setDaoIdentityStatus(msg, cls) {
         daoIdentityStatus.textContent = msg;
         daoIdentityStatus.className = 'hero-glass-status' + (cls ? ' ' + cls : '');
@@ -5010,17 +5025,9 @@
           daoIdentitySubmit.disabled = true;
           daoIdentitySubmit.textContent = 'Linked';
 
-          // Show the linked panel with CV link
+          // Collapse the link form, show the linked confirmation + single CV link
           const slug = await publicKeyToSlug(publicKey);
-          const cvUrl = 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug;
-          daoIdentityCvLink.href = cvUrl;
-          daoIdentityCvLink.textContent = 'My Credentials →';
-          daoIdentityCvLink.hidden = false;
-          daoIdentityLinkedPanel.hidden = false;
-
-          // Update the button
-          daoIdentityLink.textContent = '✓ Identity Linked';
-          daoIdentityLink.disabled = true;
+          applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
 
         } catch (err) {
           console.error('[DAO Identity Link]', err);
@@ -5109,22 +5116,15 @@
             if (er && er.activated) {
               setDaoIdentityStatus('✓ Email verified! Your identity is now linked.', 'success');
               localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
-              daoIdentityLink.textContent = '✓ Identity Linked';
-              daoIdentityLink.disabled = true;
               daoIdentitySubmit.textContent = 'Verified';
-
               var slug = await publicKeyToSlug(pub);
-              var cvUrl = 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug;
-              daoIdentityCvLink.href = cvUrl;
-              daoIdentityCvLink.textContent = 'My Credentials →';
-              daoIdentityCvLink.hidden = false;
-              daoIdentityLinkedPanel.hidden = false;
+              applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
             } else if (er && er.already_consumed) {
               setDaoIdentityStatus('✓ Already verified. Your identity is linked.', 'success');
               localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
-              daoIdentityLink.textContent = '✓ Identity Linked';
-              daoIdentityLink.disabled = true;
               daoIdentitySubmit.textContent = 'Verified';
+              var slugC = await publicKeyToSlug(pub);
+              applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slugC);
             } else {
               setDaoIdentityStatus('Verification submitted. It may take a moment to activate.', 'info');
             }
@@ -5137,19 +5137,16 @@
         })();
       })();
 
-      // Check if already linked on page load
+      // Check if already linked on page load — collapse the form, show the
+      // confirmation + single credentials link.
       if (isEmailLinked()) {
-        daoIdentityLink.textContent = '✓ Identity Linked';
-        daoIdentityLink.disabled = true;
         const pub = localStorage.getItem('publicKey');
         if (pub) {
           publicKeyToSlug(pub).then(function(slug) {
-            const cvUrl = 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug;
-            daoIdentityCvLink.href = cvUrl;
-            daoIdentityCvLink.textContent = 'My Credentials →';
-            daoIdentityCvLink.hidden = false;
-            daoIdentityLinkedPanel.hidden = false;
+            applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
           });
+        } else {
+          applyLinkedUI(null);
         }
       }
 
