@@ -4942,28 +4942,20 @@
         setDaoIdentityStatus('Submitting to Edgar...', 'info');
 
         try {
-          // Build the [EMAIL REGISTERED EVENT] text with -------- separator
-          // matching the format SignatureVerifier expects:
-          //   [EVENT HEADER]
-          //   - Field: value
-          //   --------
-          //
-          //   My Digital Signature: <publicKey>
-          //
-          //   Request Transaction ID: <base64 signature>
-          //
-          // Include a Timestamp field so each submission produces a unique
-          // signature — otherwise the same email always signs the same bytes
-          // and Edgar's dedup guard rejects subsequent attempts with 409.
-          var nonce = new Date().toISOString();
+          // The SIGNED payload must be EXACTLY the canonical event body up to
+          // and including the "--------" separator. Edgar's SignatureVerifier
+          // verifies the signature against everything up to (and including)
+          // that separator, .strip()-ed — nothing after it. Anything appended
+          // here after -------- (a generation-source line, etc.) becomes part
+          // of the signed bytes but NOT part of what Edgar verifies, so the
+          // signature fails. Generation source + verify link therefore live in
+          // the share-text WRAPPER after the signature (same shape as dapp
+          // create_signature.html), never in the signed payload. No Timestamp
+          // field either — it's not part of the canonical EMAIL REGISTERED body.
           const requestText = [
             '[EMAIL REGISTERED EVENT]',
             '- Email: ' + email,
-            '- Timestamp: ' + nonce,
-            '--------',
-            '',
-            'This submission was generated using',
-            'https://oracle.truesight.me/'
+            '--------'
           ].join('\n');
 
           // Sign with the existing private key
@@ -4982,7 +4974,11 @@
           );
           const sigBase64 = arrayBufferToBase64(sig);
 
-          const shareText = requestText + '\n\nMy Digital Signature: ' + publicKey + '\n\nRequest Transaction ID: ' + sigBase64;
+          const shareText = requestText
+            + '\n\nMy Digital Signature: ' + publicKey
+            + '\n\nRequest Transaction ID: ' + sigBase64
+            + '\n\nThis submission was generated using https://oracle.truesight.me/'
+            + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html';
 
           const formData = new FormData();
           formData.append('text', shareText);
@@ -5055,14 +5051,14 @@
         // Submit [EMAIL VERIFICATION EVENT] using the same pattern as create_signature.html
         (async function() {
           try {
+            // Signed payload = canonical body up to "--------" only (see the
+            // EMAIL REGISTERED block above). Generation source + verify link
+            // go in the wrapper after the signature, not in the signed bytes.
             var requestText = [
               '[EMAIL VERIFICATION EVENT]',
               '- Email: ' + em,
               '- Verification Key: ' + vk,
-              '--------',
-              '',
-              'This submission was generated using',
-              'https://oracle.truesight.me/'
+              '--------'
             ].join('\n');
 
             var privateKeyObj = await window.crypto.subtle.importKey(
@@ -5080,7 +5076,11 @@
             );
             var sigBase64 = arrayBufferToBase64(sig);
 
-            var shareText = requestText + '\n\nMy Digital Signature: ' + pub + '\n\nRequest Transaction ID: ' + sigBase64;
+            var shareText = requestText
+              + '\n\nMy Digital Signature: ' + pub
+              + '\n\nRequest Transaction ID: ' + sigBase64
+              + '\n\nThis submission was generated using https://oracle.truesight.me/'
+              + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html';
 
             var formData = new FormData();
             formData.append('text', shareText);
