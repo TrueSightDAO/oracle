@@ -31,21 +31,15 @@
   // ---- low-level helpers (mirror the dapp implementations) ----
 
   function base64ToArrayBuffer(b64) {
-    const bin = window.atob(b64);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return bytes.buffer;
+    return DaoClient.base64ToArrayBuffer(b64);
   }
 
   function arrayBufferToBase64(buf) {
-    let bin = '';
-    const bytes = new Uint8Array(buf);
-    for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
-    return window.btoa(bin);
+    return DaoClient.arrayBufferToBase64(buf);
   }
 
   function base64ToBase64Url(b64) {
-    return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return DaoClient.base64ToBase64Url(b64);
   }
 
   async function publicKeyToSlug(publicKeyBase64) {
