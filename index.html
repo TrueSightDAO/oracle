@@ -4951,9 +4951,15 @@
           //   My Digital Signature: <publicKey>
           //
           //   Request Transaction ID: <base64 signature>
+          //
+          // Include a Timestamp field so each submission produces a unique
+          // signature — otherwise the same email always signs the same bytes
+          // and Edgar's dedup guard rejects subsequent attempts with 409.
+          var nonce = new Date().toISOString();
           const requestText = [
             '[EMAIL REGISTERED EVENT]',
             '- Email: ' + email,
+            '- Timestamp: ' + nonce,
             '--------'
           ].join('\n');
 
