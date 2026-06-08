@@ -4925,6 +4925,10 @@
       // panel as a plain confirmation line.
       function applyLinkedUI(cvUrl) {
         if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+        // Explicitly clear the transient "Verifying email link…" status so it
+        // can never linger once we've reached the linked/verified state (it
+        // lives inside the form panel, but clear it directly to be safe).
+        if (daoIdentityStatus) { daoIdentityStatus.hidden = true; daoIdentityStatus.textContent = ''; }
         var practiceCvLink = document.getElementById('cvLink');
         if (cvUrl && practiceCvLink) { practiceCvLink.href = cvUrl; practiceCvLink.hidden = false; }
         if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
