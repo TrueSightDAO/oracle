@@ -1,83 +1,45 @@
-const CACHE_VERSION = "iching-oracle-v20251110";
-const CORE_ASSETS = [
-  "./",
-  "./index.html",
-  "./assets/favicon.svg",
-  "./assets/truesight-logo.png",
-  "./scripts/hexagram_texts.js"
-];
+// Kill switch — the oracle no longer uses a service worker.
+//
+// Older versions of index.html registered a cache-first service worker, which
+// served stale pages after every deploy (it returned the cached index.html and
+// only refreshed the cache in the background). The current index.html does NOT
+// register any service worker, so new visitors never get one — but browsers
+// that loaded an old version still have the cache-first SW stuck, serving stale
+// code (this is why fixes don't appear without a manual DevTools unregister).
+//
+// This file replaces that SW with a self-destruct: on activation it purges all
+// caches, unregisters itself, and reloads open windows. The byte change trips
+// the browser's SW update check on the next navigation, so every already-
+// registered client self-heals to fresh network content automatically — no
+// DevTools, no manual "refresh cache" link. Safe to delete this file once
+// traffic from old clients has drained (a few weeks).
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(CORE_ASSETS))
-  );
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_VERSION)
-          .map((key) => caches.delete(key))
-      )
-    )
+    (async () => {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      } catch (e) {}
+      await self.clients.claim();
+      try {
+        await self.registration.unregister();
+      } catch (e) {}
+      const clients = await self.clients.matchAll({ type: "window" });
+      clients.forEach((c) => {
+        try { c.navigate(c.url); } catch (e) {}
+      });
+    })()
   );
-  self.clients.claim();
 });
 
-function fromCache(request) {
-  return caches.match(request).then((response) => response || fetch(request));
-}
-
-function updateCache(request, response) {
-  if (!response || response.status !== 200) {
-    return;
-  }
-  const cacheRequest =
-    typeof request === "string" ? new Request(request) : request;
-  const copy = response.clone();
-  caches.open(CACHE_VERSION).then((cache) => cache.put(cacheRequest, copy));
-}
-
+// Always hit the network; only fall back to the (being-deleted) cache when
+// offline. Never serve a stale page from cache.
 self.addEventListener("fetch", (event) => {
-  const { request } = event;
-  if (request.method !== "GET") return;
-
-  if (request.mode === "navigate") {
-    event.respondWith(
-      caches
-        .match("./index.html")
-        .then((cached) =>
-          cached ||
-          fetch(request)
-            .then((networkResponse) => {
-              updateCache("./index.html", networkResponse.clone());
-              return networkResponse;
-            })
-            .catch(() => cached)
-        )
-    );
-    return;
-  }
-
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      const fetchPromise = fetch(request)
-        .then((response) => {
-          updateCache(request, response);
-          return response;
-        })
-        .catch(() => cached);
-      return cached || fetchPromise;
-    })
-  );
+  if (event.request.method !== "GET") return;
+  event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
 });
-
-self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
-});
-

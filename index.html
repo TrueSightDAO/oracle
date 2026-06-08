@@ -2432,7 +2432,7 @@
 
       <article class="dao-advisory-panel" id="daoIdentityLinkedPanel" hidden>
         <h2>DAO Identity</h2>
-        <p class="dao-advisory-status">This oracle key is linked to your DAO identity. Your name will appear on the credential page.</p>
+        <p class="dao-advisory-status" id="daoIdentityLinkedStatus">This oracle key is linked to your DAO identity. Your name will appear on the credential page.</p>
         <a id="daoIdentityCvLink" href="#" target="_blank" rel="noopener noreferrer" hidden>My Credentials →</a>
       </article>
 
@@ -4917,6 +4917,56 @@
         } catch (e) { return false; }
       }
 
+      // Three explicit DAO-identity UI states (mirrors create_signature.html):
+      //  • verified — key is ACTIVE on Edgar (email link clicked).
+      //  • pending  — registered, awaiting the email-link click. NOT done.
+      //  • unlinked — default ("Link to DAO Identity" button + form on demand).
+      // The Practice Credentials link is the single "My Credentials →"; the
+      // duplicate in the DAO-identity panel stays hidden.
+      function showVerifiedState(email, cvUrl) {
+        if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+        if (daoIdentityStatus) { daoIdentityStatus.hidden = true; daoIdentityStatus.textContent = ''; }
+        var practiceCvLink = document.getElementById('cvLink');
+        if (cvUrl && practiceCvLink) { practiceCvLink.href = cvUrl; practiceCvLink.hidden = false; }
+        if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
+        if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
+        setLinkedPanelMessage('✓ Verified — ' + (email || 'your email') + '. Your name now appears on your credential page.');
+        if (daoIdentityLink) { daoIdentityLink.textContent = '✓ Identity verified'; daoIdentityLink.disabled = true; }
+      }
+
+      // Pending: registered but the email link hasn't been clicked yet. Make it
+      // unmistakable the user is NOT done and must check their inbox — in THIS
+      // browser (the signing key lives in this browser's localStorage). No
+      // credential link until verified.
+      function showPendingState(email) {
+        if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+        if (daoIdentityStatus) { daoIdentityStatus.hidden = true; daoIdentityStatus.textContent = ''; }
+        if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
+        if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
+        setLinkedPanelMessage('⏳ Almost there — we emailed a verification link to ' + (email || 'your inbox') + '. Open it in THIS browser to finish (your signing key lives only here). Check spam if you don’t see it.');
+        if (daoIdentityLink) { daoIdentityLink.textContent = '⏳ Awaiting email verification'; daoIdentityLink.disabled = true; }
+      }
+
+      // Back-compat alias — verified state without a known email.
+      function applyLinkedUI(cvUrl) { showVerifiedState(null, cvUrl); }
+
+      function setLinkedPanelMessage(msg) {
+        var p = document.getElementById('daoIdentityLinkedStatus');
+        if (p && msg) p.textContent = msg;
+      }
+
+      // Authoritative status, like create_signature.html: drive the UI off
+      // Edgar's check_digital_signature, not just the submit reply (activation
+      // lags). Returns {registered, pending_verification, contributor_email,…}.
+      var EDGAR_CHECK_URL = 'https://edgar.truesight.me/dao/check_digital_signature';
+      async function checkDaoRegistration(pub) {
+        if (!pub) return null;
+        try {
+          var r = await fetch(EDGAR_CHECK_URL + '?signature=' + encodeURIComponent(pub), { cache: 'no-store' });
+          return await r.json();
+        } catch (e) { return null; }
+      }
+
       function setDaoIdentityStatus(msg, cls) {
         daoIdentityStatus.textContent = msg;
         daoIdentityStatus.className = 'hero-glass-status' + (cls ? ' ' + cls : '');
@@ -4942,28 +4992,26 @@
         setDaoIdentityStatus('Submitting to Edgar...', 'info');
 
         try {
-          // Build the [EMAIL REGISTERED EVENT] text with -------- separator
-          // matching the format SignatureVerifier expects:
-          //   [EVENT HEADER]
-          //   - Field: value
-          //   --------
-          //
-          //   My Digital Signature: <publicKey>
-          //
-          //   Request Transaction ID: <base64 signature>
-          //
-          // Include a Timestamp field so each submission produces a unique
-          // signature — otherwise the same email always signs the same bytes
-          // and Edgar's dedup guard rejects subsequent attempts with 409.
+          // The SIGNED payload is the event body UP TO AND INCLUDING the
+          // "--------" separator. Edgar's SignatureVerifier verifies against
+          // exactly that (.strip()-ed) — nothing after it. Two consequences:
+          //  1. A nonce that must vary the signature goes INSIDE the body,
+          //     before --------, so it's part of the verified bytes. The oracle
+          //     reuses ONE persistent key, so without a nonce the same email
+          //     always signs identical bytes → identical Request Transaction ID
+          //     → Edgar 409 "duplicate" on any retry. The Timestamp line gives
+          //     that uniqueness AND still verifies (it's before --------).
+          //  2. Things Edgar parses from the wrapper but must NOT be signed
+          //     (generation source, verify link) go AFTER the signature in the
+          //     share text — never appended into requestText. Appending the
+          //     generation-source there was the original bug: signed bytes ≠
+          //     verified bytes → signature_verification failed.
           var nonce = new Date().toISOString();
           const requestText = [
             '[EMAIL REGISTERED EVENT]',
             '- Email: ' + email,
             '- Timestamp: ' + nonce,
-            '--------',
-            '',
-            'This submission was generated using',
-            'https://oracle.truesight.me/'
+            '--------'
           ].join('\n');
 
           // Sign with the existing private key
@@ -4982,7 +5030,17 @@
           );
           const sigBase64 = arrayBufferToBase64(sig);
 
-          const shareText = requestText + '\n\nMy Digital Signature: ' + publicKey + '\n\nRequest Transaction ID: ' + sigBase64;
+          // Generation source = wherever this page is actually served (origin +
+          // path, no query/hash), like dapp create_signature.html derives it
+          // from window.location. Edgar's GAS mailer appends ?em=&vk= to this to
+          // build the verification email link, so it returns to the same origin
+          // the user registered from — localhost when testing here, oracle in prod.
+          const generationSource = window.location.origin + window.location.pathname;
+          const shareText = requestText
+            + '\n\nMy Digital Signature: ' + publicKey
+            + '\n\nRequest Transaction ID: ' + sigBase64
+            + '\n\nThis submission was generated using ' + generationSource
+            + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html';
 
           const formData = new FormData();
           formData.append('text', shareText);
@@ -4994,25 +5052,15 @@
             throw new Error('HTTP ' + resp.status + ': ' + errText.slice(0, 120));
           }
 
-          // Mark as linked
-          localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
-
-          setDaoIdentityStatus('✓ Check your email for a verification link.', 'success');
+          // Registered, NOT verified yet. Remember the email (for the pending
+          // message + a future resend) but do NOT set the "linked" flag — that
+          // only flips once Edgar reports the key ACTIVE (after the email click).
+          try { localStorage.setItem('oracle-dao-email', email); } catch (e) {}
           daoIdentityEmail.disabled = true;
           daoIdentitySubmit.disabled = true;
-          daoIdentitySubmit.textContent = 'Linked';
-
-          // Show the linked panel with CV link
-          const slug = await publicKeyToSlug(publicKey);
-          const cvUrl = 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug;
-          daoIdentityCvLink.href = cvUrl;
-          daoIdentityCvLink.textContent = 'My Credentials →';
-          daoIdentityCvLink.hidden = false;
-          daoIdentityLinkedPanel.hidden = false;
-
-          // Update the button
-          daoIdentityLink.textContent = '✓ Identity Linked';
-          daoIdentityLink.disabled = true;
+          daoIdentitySubmit.textContent = 'Sent';
+          // Show the PENDING state — make it clear the inbox step is required.
+          showPendingState(email);
 
         } catch (err) {
           console.error('[DAO Identity Link]', err);
@@ -5055,14 +5103,14 @@
         // Submit [EMAIL VERIFICATION EVENT] using the same pattern as create_signature.html
         (async function() {
           try {
+            // Signed payload = canonical body up to "--------" only (see the
+            // EMAIL REGISTERED block above). Generation source + verify link
+            // go in the wrapper after the signature, not in the signed bytes.
             var requestText = [
               '[EMAIL VERIFICATION EVENT]',
               '- Email: ' + em,
               '- Verification Key: ' + vk,
-              '--------',
-              '',
-              'This submission was generated using',
-              'https://oracle.truesight.me/'
+              '--------'
             ].join('\n');
 
             var privateKeyObj = await window.crypto.subtle.importKey(
@@ -5080,7 +5128,12 @@
             );
             var sigBase64 = arrayBufferToBase64(sig);
 
-            var shareText = requestText + '\n\nMy Digital Signature: ' + pub + '\n\nRequest Transaction ID: ' + sigBase64;
+            var generationSource = window.location.origin + window.location.pathname;
+            var shareText = requestText
+              + '\n\nMy Digital Signature: ' + pub
+              + '\n\nRequest Transaction ID: ' + sigBase64
+              + '\n\nThis submission was generated using ' + generationSource
+              + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html';
 
             var formData = new FormData();
             formData.append('text', shareText);
@@ -5092,28 +5145,28 @@
               throw new Error(data.error || 'HTTP ' + resp.status);
             }
 
+            // Render from Edgar's authoritative status, not just the submit
+            // reply — activation can lag a beat (mirrors create_signature.html,
+            // which re-checks check_digital_signature after verifying).
+            daoIdentitySubmit.textContent = 'Verified';
             var er = data && data.email_registration;
-            if (er && er.activated) {
-              setDaoIdentityStatus('✓ Email verified! Your identity is now linked.', 'success');
+            var st = null;
+            for (var i = 0; i < 6; i++) {
+              st = await checkDaoRegistration(pub);
+              if (st && st.registered) break;
+              if (er && (er.activated || er.already_consumed)) break;
+              await new Promise(function(r) { setTimeout(r, 1500); });
+            }
+            if ((st && st.registered) || (er && (er.activated || er.already_consumed))) {
               localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
-              daoIdentityLink.textContent = '✓ Identity Linked';
-              daoIdentityLink.disabled = true;
-              daoIdentitySubmit.textContent = 'Verified';
-
               var slug = await publicKeyToSlug(pub);
-              var cvUrl = 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug;
-              daoIdentityCvLink.href = cvUrl;
-              daoIdentityCvLink.textContent = 'My Credentials →';
-              daoIdentityCvLink.hidden = false;
-              daoIdentityLinkedPanel.hidden = false;
-            } else if (er && er.already_consumed) {
-              setDaoIdentityStatus('✓ Already verified. Your identity is linked.', 'success');
-              localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
-              daoIdentityLink.textContent = '✓ Identity Linked';
-              daoIdentityLink.disabled = true;
-              daoIdentitySubmit.textContent = 'Verified';
+              showVerifiedState(((st && st.contributor_email) || em), 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
+            } else if (st && st.pending_verification) {
+              showPendingState((st && st.contributor_email) || em);
             } else {
-              setDaoIdentityStatus('Verification submitted. It may take a moment to activate.', 'info');
+              setDaoIdentityStatus('This oracle key isn’t registered to that email yet. If you re-created your oracle key after registering, click “Link to DAO Identity” to start again.', 'error');
+              daoIdentitySubmit.disabled = false;
+              daoIdentitySubmit.textContent = 'Retry';
             }
           } catch (err) {
             console.error('[Verification]', err);
@@ -5124,21 +5177,27 @@
         })();
       })();
 
-      // Check if already linked on page load
-      if (isEmailLinked()) {
-        daoIdentityLink.textContent = '✓ Identity Linked';
-        daoIdentityLink.disabled = true;
-        const pub = localStorage.getItem('publicKey');
-        if (pub) {
-          publicKeyToSlug(pub).then(function(slug) {
-            const cvUrl = 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug;
-            daoIdentityCvLink.href = cvUrl;
-            daoIdentityCvLink.textContent = 'My Credentials →';
-            daoIdentityCvLink.hidden = false;
-            daoIdentityLinkedPanel.hidden = false;
-          });
+      // On load, render the DAO-identity UI from Edgar's authoritative status
+      // (mirrors create_signature.html). The verification callback above owns
+      // the render when ?em/&vk are present, so skip then.
+      (async function initDaoIdentityState() {
+        var hasVerifyParams = /[?&](em|vk)=/.test(window.location.search || '');
+        if (hasVerifyParams) return;
+        var pub = localStorage.getItem('publicKey');
+        if (!pub) return;
+        var data = await checkDaoRegistration(pub);
+        if (data && data.registered) {
+          try { localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true'); } catch (e) {}
+          var slug = await publicKeyToSlug(pub);
+          showVerifiedState(data.contributor_email, 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
+        } else if (data && data.pending_verification) {
+          showPendingState(data.contributor_email || localStorage.getItem('oracle-dao-email'));
+        } else if (isEmailLinked()) {
+          // Edgar unreachable/transient — optimistic collapse from local flag.
+          var slug2 = await publicKeyToSlug(pub);
+          showVerifiedState(localStorage.getItem('oracle-dao-email'), 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug2);
         }
-      }
+      })();
 
       // Wire up the link button
       if (daoIdentityLink) {
