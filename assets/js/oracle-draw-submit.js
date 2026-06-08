@@ -439,7 +439,6 @@
   window.OracleDrawSubmit = {
     ensureKeypair,
     getStoredPublicKey,
-    publicKeyToSlug,
     getCvUrl,
     submitSession,
     wasSubmittedToday,
