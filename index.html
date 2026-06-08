@@ -4917,24 +4917,38 @@
         } catch (e) { return false; }
       }
 
-      // Render the "already linked" UI. Once linked the "Link this oracle to
-      // your DAO identity" form is just noise (only a re-link would need it),
-      // so hide it. There were also two identical "My Credentials →" links
-      // (Practice Credentials + the DAO-identity panel) → keep ONE: surface the
-      // Practice Credentials link, hide the duplicate, leave the DAO-identity
-      // panel as a plain confirmation line.
-      function applyLinkedUI(cvUrl) {
+      // Three explicit DAO-identity UI states (mirrors create_signature.html):
+      //  • verified — key is ACTIVE on Edgar (email link clicked).
+      //  • pending  — registered, awaiting the email-link click. NOT done.
+      //  • unlinked — default ("Link to DAO Identity" button + form on demand).
+      // The Practice Credentials link is the single "My Credentials →"; the
+      // duplicate in the DAO-identity panel stays hidden.
+      function showVerifiedState(email, cvUrl) {
         if (daoIdentityPanel) daoIdentityPanel.hidden = true;
-        // Explicitly clear the transient "Verifying email link…" status so it
-        // can never linger once we've reached the linked/verified state (it
-        // lives inside the form panel, but clear it directly to be safe).
         if (daoIdentityStatus) { daoIdentityStatus.hidden = true; daoIdentityStatus.textContent = ''; }
         var practiceCvLink = document.getElementById('cvLink');
         if (cvUrl && practiceCvLink) { practiceCvLink.href = cvUrl; practiceCvLink.hidden = false; }
         if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
         if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
-        if (daoIdentityLink) { daoIdentityLink.textContent = '✓ Identity Linked'; daoIdentityLink.disabled = true; }
+        setLinkedPanelMessage('✓ Verified — ' + (email || 'your email') + '. Your name now appears on your credential page.');
+        if (daoIdentityLink) { daoIdentityLink.textContent = '✓ Identity verified'; daoIdentityLink.disabled = true; }
       }
+
+      // Pending: registered but the email link hasn't been clicked yet. Make it
+      // unmistakable the user is NOT done and must check their inbox — in THIS
+      // browser (the signing key lives in this browser's localStorage). No
+      // credential link until verified.
+      function showPendingState(email) {
+        if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+        if (daoIdentityStatus) { daoIdentityStatus.hidden = true; daoIdentityStatus.textContent = ''; }
+        if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
+        if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
+        setLinkedPanelMessage('⏳ Almost there — we emailed a verification link to ' + (email || 'your inbox') + '. Open it in THIS browser to finish (your signing key lives only here). Check spam if you don’t see it.');
+        if (daoIdentityLink) { daoIdentityLink.textContent = '⏳ Awaiting email verification'; daoIdentityLink.disabled = true; }
+      }
+
+      // Back-compat alias — verified state without a known email.
+      function applyLinkedUI(cvUrl) { showVerifiedState(null, cvUrl); }
 
       function setLinkedPanelMessage(msg) {
         var p = document.getElementById('daoIdentityLinkedStatus');
@@ -5038,17 +5052,15 @@
             throw new Error('HTTP ' + resp.status + ': ' + errText.slice(0, 120));
           }
 
-          // Mark as linked
-          localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
-
-          setDaoIdentityStatus('✓ Check your email for a verification link.', 'success');
+          // Registered, NOT verified yet. Remember the email (for the pending
+          // message + a future resend) but do NOT set the "linked" flag — that
+          // only flips once Edgar reports the key ACTIVE (after the email click).
+          try { localStorage.setItem('oracle-dao-email', email); } catch (e) {}
           daoIdentityEmail.disabled = true;
           daoIdentitySubmit.disabled = true;
-          daoIdentitySubmit.textContent = 'Linked';
-
-          // Collapse the link form, show the linked confirmation + single CV link
-          const slug = await publicKeyToSlug(publicKey);
-          applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
+          daoIdentitySubmit.textContent = 'Sent';
+          // Show the PENDING state — make it clear the inbox step is required.
+          showPendingState(email);
 
         } catch (err) {
           console.error('[DAO Identity Link]', err);
@@ -5148,13 +5160,9 @@
             if ((st && st.registered) || (er && (er.activated || er.already_consumed))) {
               localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
               var slug = await publicKeyToSlug(pub);
-              applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
-              setLinkedPanelMessage('✓ Verified — ' + (((st && st.contributor_email) || em)) + '. Your name will appear on the credential page.');
+              showVerifiedState(((st && st.contributor_email) || em), 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
             } else if (st && st.pending_verification) {
-              if (daoIdentityPanel) daoIdentityPanel.hidden = true;
-              if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
-              if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
-              setLinkedPanelMessage('Verification received — activating. Refresh in a moment if this doesn’t update.');
+              showPendingState((st && st.contributor_email) || em);
             } else {
               setDaoIdentityStatus('This oracle key isn’t registered to that email yet. If you re-created your oracle key after registering, click “Link to DAO Identity” to start again.', 'error');
               daoIdentitySubmit.disabled = false;
@@ -5181,17 +5189,13 @@
         if (data && data.registered) {
           try { localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true'); } catch (e) {}
           var slug = await publicKeyToSlug(pub);
-          applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
-          setLinkedPanelMessage('✓ Verified — ' + (data.contributor_email || 'your email') + '. Your name will appear on the credential page.');
+          showVerifiedState(data.contributor_email, 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
         } else if (data && data.pending_verification) {
-          if (daoIdentityPanel) daoIdentityPanel.hidden = true;
-          if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
-          if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
-          setLinkedPanelMessage('Check your email' + (data.contributor_email ? ' (' + data.contributor_email + ')' : '') + ' for the verification link to finish linking.');
+          showPendingState(data.contributor_email || localStorage.getItem('oracle-dao-email'));
         } else if (isEmailLinked()) {
           // Edgar unreachable/transient — optimistic collapse from local flag.
           var slug2 = await publicKeyToSlug(pub);
-          applyLinkedUI('https://truesight.me/programs/truesight-grounding/credentials/#' + slug2);
+          showVerifiedState(localStorage.getItem('oracle-dao-email'), 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug2);
         }
       })();
 
