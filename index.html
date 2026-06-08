@@ -4960,8 +4960,7 @@
         }
 
         const publicKey = localStorage.getItem('publicKey');
-        const privateKey = localStorage.getItem('privateKey');
-        if (!publicKey || !privateKey) {
+        if (!publicKey) {
           setDaoIdentityStatus('No oracle keypair found. Cast a reading first to generate keys.', 'error');
           return;
         }
@@ -4971,65 +4970,7 @@
         setDaoIdentityStatus('Submitting to Edgar...', 'info');
 
         try {
-          // The SIGNED payload is the event body UP TO AND INCLUDING the
-          // "--------" separator. Edgar's SignatureVerifier verifies against
-          // exactly that (.strip()-ed) — nothing after it. Two consequences:
-          //  1. A nonce that must vary the signature goes INSIDE the body,
-          //     before --------, so it's part of the verified bytes. The oracle
-          //     reuses ONE persistent key, so without a nonce the same email
-          //     always signs identical bytes → identical Request Transaction ID
-          //     → Edgar 409 "duplicate" on any retry. The Timestamp line gives
-          //     that uniqueness AND still verifies (it's before --------).
-          //  2. Things Edgar parses from the wrapper but must NOT be signed
-          //     (generation source, verify link) go AFTER the signature in the
-          //     share text — never appended into requestText. Appending the
-          //     generation-source there was the original bug: signed bytes ≠
-          //     verified bytes → signature_verification failed.
-          var nonce = new Date().toISOString();
-          const requestText = [
-            '[EMAIL REGISTERED EVENT]',
-            '- Email: ' + email,
-            '- Timestamp: ' + nonce,
-            '--------'
-          ].join('\n');
-
-          // Sign with the existing private key
-          const privateKeyObj = await window.crypto.subtle.importKey(
-            'pkcs8',
-            base64ToArrayBuffer(privateKey),
-            { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-            false,
-            ['sign']
-          );
-          const encoder = new TextEncoder();
-          const sig = await window.crypto.subtle.sign(
-            'RSASSA-PKCS1-v1_5',
-            privateKeyObj,
-            encoder.encode(requestText)
-          );
-          const sigBase64 = arrayBufferToBase64(sig);
-
-          // Generation source = wherever this page is actually served (origin +
-          // path, no query/hash), like dapp create_signature.html derives it
-          // from window.location. Edgar's GAS mailer appends ?em=&vk= to this to
-          // build the verification email link, so it returns to the same origin
-          // the user registered from — localhost when testing here, oracle in prod.
-          const generationSource = window.location.origin + window.location.pathname;
-          const shareText = requestText
-            + '\n\nMy Digital Signature: ' + publicKey
-            + '\n\nRequest Transaction ID: ' + sigBase64
-            + '\n\nThis submission was generated using ' + generationSource
-            + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html';
-
-          const formData = new FormData();
-          formData.append('text', shareText);
-
-          const resp = await fetch(EDGAR_SUBMIT_URL, { method: 'POST', body: formData });
-
-          if (!resp.ok) {
-            const errText = await resp.text().catch(() => '');
-            throw new Error('HTTP ' + resp.status + ': ' + errText.slice(0, 120));
-          }
+          await client.registerEmail(email);
 
           // Registered, NOT verified yet. Remember the email (for the pending
           // message + a future resend) but do NOT set the "linked" flag — that
