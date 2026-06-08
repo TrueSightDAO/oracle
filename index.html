@@ -2421,6 +2421,25 @@
         </article>
       </section>
 
+      <article class="dao-advisory-panel" id="emailLinkPanel">
+        <h2>Link Your DAO Identity</h2>
+        <p class="dao-advisory-status">
+          Connect your browser keypair to an email address so your name appears on the credential page.
+        </p>
+        <div id="emailLinkForm">
+          <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+            <input
+              type="email"
+              id="emailLinkInput"
+              placeholder="your@email.com"
+              style="flex:1;min-width:200px;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border);font-size:1rem;color:var(--ink);background:white;"
+            />
+            <button type="button" id="emailLinkButton">Link to my DAO identity</button>
+          </div>
+          <p class="dao-advisory-status" id="emailLinkStatus" style="margin-top:8px;" hidden></p>
+        </div>
+      </article>
+
       <footer>
         <strong>Note:</strong> Lines highlighted in amber indicate changing energy—flip them to unveil the relating hexagram.
       </footer>
