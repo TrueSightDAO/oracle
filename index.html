@@ -5012,7 +5012,12 @@
         }
 
         await client.ensureKeys();
-        const publicKey = client.publicKey || localStorage.getItem('publicKey');
+        // Sync dao-client's truesight_dao_* keys to bare publicKey/privateKey
+        var daoPub = localStorage.getItem('truesight_dao_public_key');
+        var daoPriv = localStorage.getItem('truesight_dao_private_key');
+        if (daoPub) localStorage.setItem('publicKey', daoPub);
+        if (daoPriv) localStorage.setItem('privateKey', daoPriv);
+        const publicKey = client.publicKey || localStorage.getItem('publicKey') || daoPub;
         if (!publicKey) {
           setDaoIdentityStatus('Keypair generation failed. Please refresh and try again.', 'error');
           return;
@@ -5067,8 +5072,13 @@
             var _c = new DaoClient();
             try { await _c.ensureKeys(); } catch (e) { /* fall through */ }
           }
-          var pub = localStorage.getItem('publicKey');
-          var priv = localStorage.getItem('privateKey');
+          // Sync dao-client's truesight_dao_* keys to bare publicKey/privateKey
+          var daoPub = localStorage.getItem('truesight_dao_public_key');
+          var daoPriv = localStorage.getItem('truesight_dao_private_key');
+          if (daoPub) localStorage.setItem('publicKey', daoPub);
+          if (daoPriv) localStorage.setItem('privateKey', daoPriv);
+          var pub = localStorage.getItem('publicKey') || daoPub;
+          var priv = localStorage.getItem('privateKey') || daoPriv;
           if (!pub || !priv) {
             setDaoIdentityStatus('Verification link opened but no keys found in this browser. Please start registration again from this page.', 'error');
             return;
@@ -5165,7 +5175,7 @@
       (async function initDaoIdentityState() {
         var hasVerifyParams = /[?&](em|vk)=/.test(window.location.search || '');
         if (hasVerifyParams) return;
-        var pub = localStorage.getItem('publicKey');
+        var pub = localStorage.getItem('publicKey') || localStorage.getItem('truesight_dao_public_key');
         if (!pub) return;
         var data = await checkDaoRegistration(pub);
         if (data && data.registered) {

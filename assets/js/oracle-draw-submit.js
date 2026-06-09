@@ -37,6 +37,22 @@
 
   // ---- keypair management ----
 
+  // DaoClient 1.x stores keys under truesight_dao_public_key /
+  // truesight_dao_private_key, but the dapp ecosystem (create_signature,
+  // stores_nearby, view_inventory_holdings, etc.) reads from bare
+  // publicKey / privateKey. Sync to both namespaces so existing code works.
+  const LS_DAO_PUBLIC_KEY = 'truesight_dao_public_key';
+  const LS_DAO_PRIVATE_KEY = 'truesight_dao_private_key';
+
+  function syncKeysToDappNamespace() {
+    try {
+      const pub = localStorage.getItem(LS_DAO_PUBLIC_KEY);
+      const priv = localStorage.getItem(LS_DAO_PRIVATE_KEY);
+      if (pub) localStorage.setItem(LS_PUBLIC_KEY, pub);
+      if (priv) localStorage.setItem(LS_PRIVATE_KEY, priv);
+    } catch (e) { /* non-fatal */ }
+  }
+
   async function ensureKeypair() {
     // Reuse existing keys if present — generateKeyPair() always creates a new
     // RSA-2048 keypair and overwrites localStorage, which breaks the email
@@ -44,11 +60,12 @@
     // new keypair, then signs with the new key — Edgar sees pubkey mismatch).
     // ensureKeys() checks localStorage first and only generates if missing.
     await client.ensureKeys();
+    syncKeysToDappNamespace();
     return client.publicKey;
   }
 
   function getStoredPublicKey() {
-    return localStorage.getItem(LS_PUBLIC_KEY) || null;
+    return localStorage.getItem(LS_PUBLIC_KEY) || localStorage.getItem(LS_DAO_PUBLIC_KEY) || null;
   }
 
   async function getCvUrl() {
