@@ -4875,6 +4875,19 @@
         });
       }
 
+      function arrayBufferToBase64(buffer) {
+        return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
+      }
+
+      function base64ToArrayBuffer(base64) {
+        var binary = atob(base64);
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes.buffer;
+      }
+
       // ---- DAO Identity Link ----
       const LS_EMAIL_LINKED_KEY = 'truesight-oracle-email-linked';
       const EDGAR_SUBMIT_URL = 'https://edgar.truesight.me/dao/submit_contribution';
