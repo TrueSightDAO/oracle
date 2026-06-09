@@ -5011,9 +5011,10 @@
           return;
         }
 
-        const publicKey = localStorage.getItem('publicKey');
+        await client.ensureKeys();
+        const publicKey = client.publicKey || localStorage.getItem('publicKey');
         if (!publicKey) {
-          setDaoIdentityStatus('No oracle keypair found. Cast a reading first to generate keys.', 'error');
+          setDaoIdentityStatus('Keypair generation failed. Please refresh and try again.', 'error');
           return;
         }
 
@@ -5058,12 +5059,20 @@
         cleanUrl.searchParams.delete('em');
         window.history.replaceState({}, document.title, cleanUrl.pathname + cleanUrl.search + cleanUrl.hash);
 
-        var pub = localStorage.getItem('publicKey');
-        var priv = localStorage.getItem('privateKey');
-        if (!pub || !priv) {
-          setDaoIdentityStatus('Verification link opened but no keys found in this browser. Please start registration again from this page.', 'error');
-          return;
-        }
+        // Defer until DaoClient and keypair init are ready, then verify.
+        // oracle-draw-submit.js calls ensureKeypair() on DOMContentLoaded; we
+        // wait for that to settle before checking localStorage.
+        (async function verifyWhenReady() {
+          if (typeof DaoClient !== 'undefined') {
+            var _c = new DaoClient();
+            try { await _c.ensureKeys(); } catch (e) { /* fall through */ }
+          }
+          var pub = localStorage.getItem('publicKey');
+          var priv = localStorage.getItem('privateKey');
+          if (!pub || !priv) {
+            setDaoIdentityStatus('Verification link opened but no keys found in this browser. Please start registration again from this page.', 'error');
+            return;
+          }
 
         setDaoIdentityStatus('Verifying email link...', 'info');
         daoIdentityPanel.hidden = false;
@@ -5146,6 +5155,7 @@
             daoIdentitySubmit.disabled = false;
             daoIdentitySubmit.textContent = 'Retry';
           }
+        })();
         })();
       })();
 
