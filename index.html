@@ -2846,6 +2846,36 @@
 
       const textDecoder = new TextDecoder();
 
+      // Inverse of arrayBufferToBase64 — used during email verification
+      // to convert the stored base64 private key back into an ArrayBuffer
+      // for window.crypto.subtle.importKey().
+      function base64ToArrayBuffer(base64) {
+        var binary = atob(base64);
+        var bytes = new Uint8Array(binary.length);
+        for (var i = 0; i < binary.length; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes.buffer;
+      }
+
+      // Derive a URL-safe slug from the public key for credential page links.
+      // Mirrors the logic in dao-client's getSlug() but works client-side
+      // without an async call (used in showVerifiedState / initDaoIdentityState
+      // where the client may not be fully initialized).
+      async function publicKeyToSlug(publicKey) {
+        if (!publicKey) return '';
+        try {
+          var encoder = new TextEncoder();
+          var data = encoder.encode(publicKey);
+          var hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+          var hashArray = Array.from(new Uint8Array(hashBuffer));
+          var hashHex = hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+          return 'pk-' + hashHex.slice(0, 16);
+        } catch (e) {
+          return 'pk-' + publicKey.slice(0, 16).replace(/[^a-zA-Z0-9]/g, '');
+        }
+      }
+
       function linesToSignature(lines) {
         if (!Array.isArray(lines)) return "";
         const ordered = [...lines].sort((a, b) => (a.lineNumber || 0) - (b.lineNumber || 0));
