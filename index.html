@@ -4911,6 +4911,9 @@
         if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
         setLinkedPanelMessage('✓ Verified — ' + (email || 'your email') + '. Your name now appears on your credential page.');
         if (daoIdentityLink) { daoIdentityLink.textContent = '✓ Identity verified'; daoIdentityLink.disabled = true; }
+        // Show the Practice Credentials section with the 'My Credentials →' link
+        var credSection = document.getElementById('credentialsSection');
+        if (credSection) credSection.hidden = false;
       }
 
       // Pending: registered but the email link hasn't been clicked yet. Make it
