@@ -2435,6 +2435,9 @@
         <h2>DAO Identity</h2>
         <p class="dao-advisory-status" id="daoIdentityLinkedStatus">This oracle key is linked to your DAO identity. Your name will appear on the credential page.</p>
         <a id="daoIdentityCvLink" href="#" target="_blank" rel="noopener noreferrer" hidden>My Credentials →</a>
+        <div style="margin-top:12px">
+          <button id="daoIdentityUnlink" type="button" class="ghost" style="color:var(--danger,#c0392b)">Unlink Identity</button>
+        </div>
       </article>
 
       <footer>
@@ -4909,6 +4912,7 @@
       const daoIdentityStatus = document.getElementById('daoIdentityStatus');
       const daoIdentityLinkedPanel = document.getElementById('daoIdentityLinkedPanel');
       const daoIdentityCvLink = document.getElementById('daoIdentityCvLink');
+      const daoIdentityUnlink = document.getElementById('daoIdentityUnlink');
 
       // DaoClient instance for high-level methods
       const client = new DaoClient({ publicKeyKey: 'publicKey', privateKeyKey: 'privateKey' });
@@ -4928,13 +4932,15 @@
       function showVerifiedState(email, cvUrl) {
         if (daoIdentityPanel) daoIdentityPanel.hidden = true;
         if (daoIdentityStatus) { daoIdentityStatus.hidden = true; daoIdentityStatus.textContent = ''; }
-        var practiceCvLink = document.getElementById('cvLink');
-        if (cvUrl && practiceCvLink) { practiceCvLink.href = cvUrl; practiceCvLink.hidden = false; }
-        if (daoIdentityCvLink) daoIdentityCvLink.hidden = true;
-        if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = false;
+        if (daoIdentityCvLink) { daoIdentityCvLink.hidden = true; }
+        // Linked panel: collapsed by default; expands when user clicks the link button
+        if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = true;
         setLinkedPanelMessage('✓ Verified — ' + (email || 'your email') + '. Your name now appears on your credential page.');
-        if (daoIdentityLink) { daoIdentityLink.textContent = '✓ Identity verified'; daoIdentityLink.disabled = true; }
-        // Show the Practice Credentials section with the 'My Credentials →' link
+        if (daoIdentityLink) {
+          daoIdentityLink.textContent = 'DAO Identity ✓';
+          daoIdentityLink.disabled = false;
+          daoIdentityLink.dataset.verified = 'true';
+        }
         var credSection = document.getElementById('credentialsSection');
         if (credSection) credSection.hidden = false;
       }
@@ -5124,15 +5130,53 @@
         }
       })();
 
+      // Unlink identity: delete keys from localStorage and reset UI
+      function handleUnlinkIdentity() {
+        if (!confirm('Unlink your DAO identity? This deletes your oracle keypair from this browser. You can re-link at any time.')) return;
+        try {
+          localStorage.removeItem('publicKey');
+          localStorage.removeItem('privateKey');
+          localStorage.removeItem('truesight_dao_public_key');
+          localStorage.removeItem('truesight_dao_private_key');
+          localStorage.removeItem(LS_EMAIL_LINKED_KEY);
+          localStorage.removeItem('oracle-dao-email');
+        } catch (e) { /* non-fatal */ }
+        // Reset UI
+        if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = true;
+        if (daoIdentityLink) {
+          daoIdentityLink.textContent = 'Link to DAO Identity';
+          daoIdentityLink.disabled = false;
+          delete daoIdentityLink.dataset.verified;
+        }
+        if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+        if (daoIdentityEmail) { daoIdentityEmail.value = ''; daoIdentityEmail.disabled = false; }
+        if (daoIdentitySubmit) { daoIdentitySubmit.disabled = false; daoIdentitySubmit.textContent = 'Link'; }
+        if (daoIdentityStatus) daoIdentityStatus.hidden = true;
+        var credSection = document.getElementById('credentialsSection');
+        if (credSection) credSection.hidden = true;
+        var cvLink = document.getElementById('cvLink');
+        if (cvLink) cvLink.hidden = true;
+      }
+
       // Wire up the link button
       if (daoIdentityLink) {
         daoIdentityLink.addEventListener('click', function() {
-          if (isEmailLinked()) return;
-          daoIdentityPanel.hidden = !daoIdentityPanel.hidden;
-          if (!daoIdentityPanel.hidden) {
-            daoIdentityEmail.focus();
+          var verified = daoIdentityLink.dataset.verified === 'true';
+          if (verified) {
+            // Toggle the linked panel (contains unlink button)
+            if (daoIdentityLinkedPanel) daoIdentityLinkedPanel.hidden = !daoIdentityLinkedPanel.hidden;
+          } else {
+            // Toggle the registration panel (existing flow)
+            daoIdentityPanel.hidden = !daoIdentityPanel.hidden;
+            if (!daoIdentityPanel.hidden) {
+              daoIdentityEmail.focus();
+            }
           }
         });
+      }
+
+      if (daoIdentityUnlink) {
+        daoIdentityUnlink.addEventListener('click', handleUnlinkIdentity);
       }
 
       if (daoIdentitySubmit) {
