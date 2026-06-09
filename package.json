@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -11,5 +11,9 @@
   "description": "",
   "dependencies": {
     "cheerio": "^1.1.2"
+  },
+  "devDependencies": {
+    "happy-dom": "^17.4.4",
+    "vitest": "^3.1.1"
   }
 }
