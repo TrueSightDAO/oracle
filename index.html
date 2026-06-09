@@ -39,7 +39,7 @@
       https://cdn.jsdelivr.net/npm/qimen-dunjia@2.1.0/dist/qimen.standalone.min.js
     -->
     <script src="assets/vendor/qimen-dunjia/qimen.standalone.patched.min.js" defer></script>
-    <script src="https://unpkg.com/@truesight_dao/dao-client@1.1.0-rc.3/dist/dao-client.min.js"></script>
+    <script src="https://unpkg.com/@truesight_dao/dao-client@1.1.0-rc.4/dist/dao-client.min.js"></script>
     <script src="assets/js/oracle-draw-submit.js" defer></script>
     <style>
       :root {
@@ -4937,7 +4937,7 @@
       const daoIdentityCvLink = document.getElementById('daoIdentityCvLink');
 
       // DaoClient instance for high-level methods
-      const client = new DaoClient();
+      const client = new DaoClient({ publicKeyKey: 'publicKey', privateKeyKey: 'privateKey' });
 
       function isEmailLinked() {
         try {
@@ -5012,12 +5012,7 @@
         }
 
         await client.ensureKeys();
-        // Sync dao-client's truesight_dao_* keys to bare publicKey/privateKey
-        var daoPub = localStorage.getItem('truesight_dao_public_key');
-        var daoPriv = localStorage.getItem('truesight_dao_private_key');
-        if (daoPub) localStorage.setItem('publicKey', daoPub);
-        if (daoPriv) localStorage.setItem('privateKey', daoPriv);
-        const publicKey = client.publicKey || localStorage.getItem('publicKey') || daoPub;
+        const publicKey = client.publicKey || localStorage.getItem('publicKey');
         if (!publicKey) {
           setDaoIdentityStatus('Keypair generation failed. Please refresh and try again.', 'error');
           return;
@@ -5069,16 +5064,11 @@
         // wait for that to settle before checking localStorage.
         (async function verifyWhenReady() {
           if (typeof DaoClient !== 'undefined') {
-            var _c = new DaoClient();
+            var _c = new DaoClient({ publicKeyKey: 'publicKey', privateKeyKey: 'privateKey' });
             try { await _c.ensureKeys(); } catch (e) { /* fall through */ }
           }
-          // Sync dao-client's truesight_dao_* keys to bare publicKey/privateKey
-          var daoPub = localStorage.getItem('truesight_dao_public_key');
-          var daoPriv = localStorage.getItem('truesight_dao_private_key');
-          if (daoPub) localStorage.setItem('publicKey', daoPub);
-          if (daoPriv) localStorage.setItem('privateKey', daoPriv);
-          var pub = localStorage.getItem('publicKey') || daoPub;
-          var priv = localStorage.getItem('privateKey') || daoPriv;
+          var pub = localStorage.getItem('publicKey');
+          var priv = localStorage.getItem('privateKey');
           if (!pub || !priv) {
             setDaoIdentityStatus('Verification link opened but no keys found in this browser. Please start registration again from this page.', 'error');
             return;
@@ -5175,7 +5165,7 @@
       (async function initDaoIdentityState() {
         var hasVerifyParams = /[?&](em|vk)=/.test(window.location.search || '');
         if (hasVerifyParams) return;
-        var pub = localStorage.getItem('publicKey') || localStorage.getItem('truesight_dao_public_key');
+        var pub = localStorage.getItem('publicKey');
         if (!pub) return;
         var data = await checkDaoRegistration(pub);
         if (data && data.registered) {
