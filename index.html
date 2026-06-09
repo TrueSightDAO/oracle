@@ -4930,7 +4930,12 @@
       // The Practice Credentials link is the single "My Credentials →"; the
       // duplicate in the DAO-identity panel stays hidden.
       function showVerifiedState(email, cvUrl) {
-        if (daoIdentityPanel) daoIdentityPanel.hidden = true;
+        if (daoIdentityPanel) {
+          daoIdentityPanel.hidden = true;
+          // Clear registration form so it doesn't reappear with stale data
+          if (daoIdentityEmail) { daoIdentityEmail.value = ''; daoIdentityEmail.disabled = false; }
+          if (daoIdentitySubmit) { daoIdentitySubmit.textContent = 'Link'; daoIdentitySubmit.disabled = false; }
+        }
         if (daoIdentityStatus) { daoIdentityStatus.hidden = true; daoIdentityStatus.textContent = ''; }
         if (daoIdentityCvLink) { daoIdentityCvLink.hidden = true; }
         // Linked panel: collapsed by default; expands when user clicks the link button
@@ -5027,11 +5032,15 @@
       // the email verification link and landed back on this page.
       // The keys are in THIS origin's localStorage, so we can verify here
       // instead of redirecting to create_signature.html (cross-origin).
+      var _verificationInProgress = false;
+
       (function handleVerificationParams() {
         var vp = new URLSearchParams(window.location.search || '');
         var vk = (vp.get('vk') || '').trim();
         var em = (vp.get('em') || '').trim().toLowerCase();
         if (!vk || !em) return;
+
+        _verificationInProgress = true;
 
         // Clean params from URL
         var cleanUrl = new URL(window.location.href);
@@ -5051,6 +5060,7 @@
           var priv = localStorage.getItem('privateKey');
           if (!pub || !priv) {
             setDaoIdentityStatus('Verification link opened but no keys found in this browser. Please start registration again from this page.', 'error');
+            _verificationInProgress = false;
             return;
           }
 
@@ -5103,6 +5113,8 @@
             setDaoIdentityStatus('Verification failed: ' + (err.message || err) + '. Try again or start over.', 'error');
             daoIdentitySubmit.disabled = false;
             daoIdentitySubmit.textContent = 'Retry';
+          } finally {
+            _verificationInProgress = false;
           }
         })();
         })();
@@ -5112,6 +5124,9 @@
       // (mirrors create_signature.html). The verification callback above owns
       // the render when ?em/&vk are present, so skip then.
       (async function initDaoIdentityState() {
+        // Skip when ?em/&vk params are present OR when handleVerificationParams
+        // is still running (URL was already cleaned but flow hasn't finished).
+        if (_verificationInProgress) return;
         var hasVerifyParams = /[?&](em|vk)=/.test(window.location.search || '');
         if (hasVerifyParams) return;
         var pub = localStorage.getItem('publicKey');
