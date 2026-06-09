@@ -2852,18 +2852,6 @@
         return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
       }
 
-      // Inverse of arrayBufferToBase64 — used during email verification
-      // to convert the stored base64 private key back into an ArrayBuffer
-      // for window.crypto.subtle.importKey().
-      function base64ToArrayBuffer(base64) {
-        var binary = atob(base64);
-        var bytes = new Uint8Array(binary.length);
-        for (var i = 0; i < binary.length; i++) {
-          bytes[i] = binary.charCodeAt(i);
-        }
-        return bytes.buffer;
-      }
-
       // Derive a URL-safe slug from the public key for credential page links.
       // Mirrors the logic in dao-client's getSlug() but works client-side
       // without an async call (used in showVerifiedState / initDaoIdentityState
@@ -4911,22 +4899,8 @@
         });
       }
 
-      function arrayBufferToBase64(buffer) {
-        return btoa(String.fromCharCode.apply(null, new Uint8Array(buffer)));
-      }
-
-      function base64ToArrayBuffer(base64) {
-        var binary = atob(base64);
-        var bytes = new Uint8Array(binary.length);
-        for (var i = 0; i < binary.length; i++) {
-          bytes[i] = binary.charCodeAt(i);
-        }
-        return bytes.buffer;
-      }
-
       // ---- DAO Identity Link ----
       const LS_EMAIL_LINKED_KEY = 'truesight-oracle-email-linked';
-      const EDGAR_SUBMIT_URL = 'https://edgar.truesight.me/dao/submit_contribution';
 
       const daoIdentityLink = document.getElementById('daoIdentityLink');
       const daoIdentityPanel = document.getElementById('daoIdentityPanel');
@@ -5081,69 +5055,38 @@
         daoIdentitySubmit.disabled = true;
         daoIdentitySubmit.textContent = 'Verifying...';
 
-        // Submit [EMAIL VERIFICATION EVENT] using the same pattern as create_signature.html
+        // Submit [EMAIL VERIFICATION EVENT] using DaoClient.verifyEmail()
+        // which injects Timestamp to avoid dedup on retry.
         (async function() {
           try {
-            // Signed payload = canonical body up to "--------" only (see the
-            // EMAIL REGISTERED block above). Generation source + verify link
-            // go in the wrapper after the signature, not in the signed bytes.
-            var requestText = [
-              '[EMAIL VERIFICATION EVENT]',
-              '- Email: ' + em,
-              '- Verification Key: ' + vk,
-              '--------'
-            ].join('\n');
+            var result = await client.verifyEmail(em, vk);
+            var er = result.emailRegistration;
 
-            var privateKeyObj = await window.crypto.subtle.importKey(
-              'pkcs8',
-              base64ToArrayBuffer(priv),
-              { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-              false,
-              ['sign']
-            );
-            var encoder = new TextEncoder();
-            var sig = await window.crypto.subtle.sign(
-              'RSASSA-PKCS1-v1_5',
-              privateKeyObj,
-              encoder.encode(requestText)
-            );
-            var sigBase64 = arrayBufferToBase64(sig);
-
-            var generationSource = window.location.origin + window.location.pathname;
-            var shareText = requestText
-              + '\n\nMy Digital Signature: ' + pub
-              + '\n\nRequest Transaction ID: ' + sigBase64
-              + '\n\nThis submission was generated using ' + generationSource
-              + '\n\nVerify submission here: https://dapp.truesight.me/verify_request.html';
-
-            var formData = new FormData();
-            formData.append('text', shareText);
-
-            var resp = await fetch(EDGAR_SUBMIT_URL, { method: 'POST', body: formData });
-            var data = await resp.json();
-
-            if (!resp.ok) {
-              throw new Error(data.error || 'HTTP ' + resp.status);
+            if (!result.ok && result.status !== 'duplicate') {
+              throw new Error(result.error || 'Verification submit failed');
             }
 
-            // Render from Edgar's authoritative status, not just the submit
-            // reply — activation can lag a beat (mirrors create_signature.html,
-            // which re-checks check_digital_signature after verifying).
+            // Success or accepted duplicate — now poll Edgar for registration
+            // status (activation can lag a beat; mirrors create_signature.html).
             daoIdentitySubmit.textContent = 'Verified';
-            var er = data && data.email_registration;
             var st = null;
             for (var i = 0; i < 6; i++) {
               st = await checkDaoRegistration(pub);
               if (st && st.registered) break;
-              if (er && (er.activated || er.already_consumed)) break;
+              if (er && (er.status === 'activated' || er.status === 'already_consumed')) break;
               await new Promise(function(r) { setTimeout(r, 1500); });
             }
-            if ((st && st.registered) || (er && (er.activated || er.already_consumed))) {
+            if ((st && st.registered) || (er && (er.status === 'activated' || er.status === 'already_consumed'))) {
               localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
               var slug = await publicKeyToSlug(pub);
               showVerifiedState(((st && st.contributor_email) || em), 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug);
             } else if (st && st.pending_verification) {
               showPendingState((st && st.contributor_email) || em);
+            } else if (result.status === 'duplicate') {
+              // Already consumed — treat as verified
+              localStorage.setItem(LS_EMAIL_LINKED_KEY, 'true');
+              var slug2 = await publicKeyToSlug(pub);
+              showVerifiedState(em, 'https://truesight.me/programs/truesight-grounding/credentials/#' + slug2);
             } else {
               setDaoIdentityStatus('This oracle key isn’t registered to that email yet. If you re-created your oracle key after registering, click “Link to DAO Identity” to start again.', 'error');
               daoIdentitySubmit.disabled = false;
