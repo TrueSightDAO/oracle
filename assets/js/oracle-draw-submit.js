@@ -38,8 +38,13 @@
   // ---- keypair management ----
 
   async function ensureKeypair() {
-    const kp = await client.generateKeyPair();
-    return kp.publicKey;
+    // Reuse existing keys if present — generateKeyPair() always creates a new
+    // RSA-2048 keypair and overwrites localStorage, which breaks the email
+    // verification flow (the verification link opens this page, generates a
+    // new keypair, then signs with the new key — Edgar sees pubkey mismatch).
+    // ensureKeys() checks localStorage first and only generates if missing.
+    await client.ensureKeys();
+    return client.publicKey;
   }
 
   function getStoredPublicKey() {
