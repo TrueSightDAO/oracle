@@ -207,7 +207,8 @@
       await client.ensureKeys();
       const publicKey = client.publicKey;
 
-      // Build fields for the PRACTICE EVENT
+      // Build fields for the PRACTICE EVENT using canonical labels
+      // matching the GAS practice_event_processing.js parser.
       const primary = reading.primaryHexagram || {};
       const related = reading.relatedHexagram || null;
       const lines = reading.lines || [];
@@ -226,19 +227,29 @@
       const advisoryBody = document.getElementById('daoAdvisoryBody');
       const advisorySummary = advisoryBody ? advisoryBody.textContent.trim().slice(0, 500) : '';
 
-      const fields = {
+      // QMDJ card from panel
+      const qmdjMeta = document.getElementById('qmdjMeta');
+      const qmdjCard = qmdjMeta ? qmdjMeta.textContent.trim().slice(0, 200) : '';
+
+      // Put all reading-specific data into Payload JSON so the canonical
+      // labels (Program, Practice Type, etc.) are at the top level where
+      // the GAS event processor expects them.
+      const payload = {
         hexagrams: hexagrams,
         advisory_summary: advisorySummary || 'Morning oracle grounding session.',
-        qmdj_card: '',
+        qmdj_card: qmdjCard,
         total_minutes: 15,
         mood: 'reflective',
       };
 
-      // Try to get QMDJ card from the panel
-      const qmdjMeta = document.getElementById('qmdjMeta');
-      if (qmdjMeta && qmdjMeta.textContent.trim()) {
-        fields.qmdj_card = qmdjMeta.textContent.trim().slice(0, 200);
-      }
+      const fields = {
+        'Program': PROGRAM,
+        'Practice Type': PRACTICE_TYPE,
+        'Practitioner Public Key': publicKey,
+        'Captured At': new Date().toISOString(),
+        'Source URL': window.location.href,
+        'Payload JSON': JSON.stringify(payload, null, 2),
+      };
 
       if (statusEl) {
         statusEl.textContent = 'Submitting to Edgar...';
