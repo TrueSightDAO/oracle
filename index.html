@@ -715,6 +715,8 @@
         position: relative;
         overflow: hidden;
         transition: background var(--transition), transform var(--transition);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
 
       .mini-line.solid {
@@ -1657,6 +1659,8 @@
         border-radius: 6px;
         background: rgba(36, 22, 11, 0.12);
         overflow: hidden;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
 
       .hexagram-line.solid {
@@ -1884,6 +1888,20 @@
         footer {
           font-size: 0.82rem;
           text-align: left;
+        }
+      }
+
+      /* Hexagram lines (.hexagram-line / .mini-line) are drawn purely with
+         CSS background/linear-gradient, no border. Browsers strip
+         background by default when printing or exporting to PDF unless
+         explicitly told to keep it — without this, every solid/broken line
+         renders as an empty outline (the "missing hexagrams in the printed
+         PDF" bug). */
+      @media print {
+        * {
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+          color-adjust: exact !important;
         }
       }
     </style>
