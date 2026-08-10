@@ -1659,24 +1659,38 @@
         border-radius: 6px;
         background: rgba(36, 22, 11, 0.12);
         overflow: hidden;
+        display: flex;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
 
-      .hexagram-line.solid {
+      /* Broken (yin) lines used to be a single element with a CSS gradient
+         whose middle stop was `transparent` to fake the gap. Safari/WebKit's
+         print rasterizer doesn't reliably honor `transparent` gradient stops
+         under print-color-adjust: exact — the gap printed solid black
+         instead of showing the page background through it (reported
+         2026-08-10). Two real, separately-painted segments with an actual
+         empty gap between them side-steps the whole gradient-in-print
+         problem: there's nothing painted in the gap for the rasterizer to
+         get wrong. */
+      .hexagram-line .seg {
+        height: 100%;
         background: rgba(36, 22, 11, 0.88);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .hexagram-line.solid .seg {
+        width: 100%;
+        border-radius: 6px;
       }
 
       .hexagram-line.broken {
-        background: linear-gradient(
-          to right,
-          rgba(36, 22, 11, 0.88) 0%,
-          rgba(36, 22, 11, 0.88) 33%,
-          transparent 33%,
-          transparent 67%,
-          rgba(36, 22, 11, 0.88) 67%,
-          rgba(36, 22, 11, 0.88) 100%
-        );
+        justify-content: space-between;
+      }
+
+      .hexagram-line.broken .seg {
+        width: 33%;
       }
 
       .hexagram-line.changing {
@@ -3481,6 +3495,18 @@
             ariaParts.push("changing");
           }
           lineDiv.setAttribute("aria-label", ariaParts.join(" · "));
+          if (isSolid) {
+            const seg = document.createElement("div");
+            seg.className = "seg";
+            lineDiv.appendChild(seg);
+          } else {
+            const segLeft = document.createElement("div");
+            segLeft.className = "seg";
+            const segRight = document.createElement("div");
+            segRight.className = "seg";
+            lineDiv.appendChild(segLeft);
+            lineDiv.appendChild(segRight);
+          }
           diagram.appendChild(lineDiv);
         }
 
