@@ -1917,6 +1917,26 @@
           print-color-adjust: exact !important;
           color-adjust: exact !important;
         }
+
+        /* The full hexagram text lives inside a collapsed
+           <details class="hexagram-fulltext">. Its body is force-opened by the
+           beforeprint handler in the script below (CSS alone cannot open a
+           <details>), and these rules keep the revealed text from splitting
+           awkwardly across pages. The "Read the full text" toggle label is
+           meaningless on paper, so it is hidden. */
+        .hexagram-fulltext > summary {
+          display: none !important;
+        }
+        .hexagram-fulltext {
+          break-inside: avoid;
+        }
+        .hexagram-fulltext .fulltext-section,
+        .hexagram-fulltext .line-text-entry {
+          break-inside: avoid;
+        }
+        .hexagram-card {
+          break-inside: avoid;
+        }
       }
     </style>
   </head>
@@ -5252,6 +5272,52 @@
         daoIdentityEmail.addEventListener('keydown', function(e) {
           if (e.key === 'Enter') handleDaoIdentityLink();
         });
+      }
+
+      // --- Print support ---------------------------------------------------
+      // The full hexagram text (Intro / Judgment / Image / Lines) is rendered
+      // inside a collapsed <details class="hexagram-fulltext"> ("Read the full
+      // text"). Browsers do NOT render the contents of a collapsed <details>
+      // when printing, so printed / Save-as-PDF output used to omit the full
+      // text entirely. CSS cannot force a <details> open, so we open every
+      // fulltext panel for the duration of the print and restore its prior
+      // state afterwards.
+      function openFulltextForPrint() {
+        document.querySelectorAll("details.hexagram-fulltext").forEach((el) => {
+          if (!el.open) {
+            el.dataset.printWasClosed = "1";
+            el.open = true;
+          }
+        });
+      }
+
+      function restoreFulltextAfterPrint() {
+        document.querySelectorAll("details.hexagram-fulltext").forEach((el) => {
+          if (el.dataset.printWasClosed === "1") {
+            el.open = false;
+            delete el.dataset.printWasClosed;
+          }
+        });
+      }
+
+      window.addEventListener("beforeprint", openFulltextForPrint);
+      window.addEventListener("afterprint", restoreFulltextAfterPrint);
+      // Belt-and-suspenders for engines that prefer matchMedia over the events
+      // (older Safari / iOS): open when a print media query becomes active.
+      if (typeof window.matchMedia === "function") {
+        const printMediaQuery = window.matchMedia("print");
+        const onPrintMediaChange = (mql) => {
+          if (mql.matches) {
+            openFulltextForPrint();
+          } else {
+            restoreFulltextAfterPrint();
+          }
+        };
+        if (typeof printMediaQuery.addEventListener === "function") {
+          printMediaQuery.addEventListener("change", onPrintMediaChange);
+        } else if (typeof printMediaQuery.addListener === "function") {
+          printMediaQuery.addListener(onPrintMediaChange);
+        }
       }
 
       const storedReading = loadStoredReading();
