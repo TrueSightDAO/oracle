@@ -10,7 +10,7 @@
     <meta property="og:title" content="TrueSight Daily Oracle" />
     <meta
       property="og:description"
-      content="Cast the I Ching with the TrueSight Daily Oracle. Toss coins, trace changing lines, and explore Wilhelm/Baynes insights in a calm, mobile-first experience."
+      content="Cast the I Ching with the TrueSight Daily Oracle. Toss coins, trace changing lines, and explore the Brian Browne Walker translation in a calm, mobile-first experience."
     />
     <meta property="og:image" content="https://oracle.truesight.me/assets/truesight-logo.png" />
     <meta property="og:image:alt" content="TrueSight DAO Daily Oracle emblem" />
@@ -18,10 +18,10 @@
     <meta name="twitter:title" content="TrueSight Daily Oracle" />
     <meta
       name="twitter:description"
-      content="Cast the I Ching with the TrueSight Daily Oracle. Toss coins, trace changing lines, and explore Wilhelm/Baynes insights in a calm, mobile-first experience."
+      content="Cast the I Ching with the TrueSight Daily Oracle. Toss coins, trace changing lines, and explore the Brian Browne Walker translation in a calm, mobile-first experience."
     />
     <meta name="twitter:image" content="https://oracle.truesight.me/assets/truesight-logo.png" />
-    <script src="scripts/hexagram_texts.js" defer></script>
+    <script src="scripts/hexagram_texts_walker.js" defer></script>
     <!--
       qimen-dunjia 2.1.0, vendored + patched locally.
 
@@ -1932,7 +1932,7 @@
         <div class="hero-content">
         <h1>I Ching Daily Guidance</h1>
         <p class="lead">
-            Tune into the moment with the Wilhelm/Baynes three-coin method. Set each line from the ground up
+            Tune into the moment with the three-coin method. Set each line from the ground up
             or let the oracle toss for you—insight arrives either way.
           </p>
           <div class="hero-actions">
@@ -3531,15 +3531,19 @@
         heading.textContent = `${hexagram.number} – ${hexagram.name}`;
         info.appendChild(heading);
 
+        // When a translation corpus supplies the reading, it is authoritative:
+        // do not fall back to the inline (Wilhelm/Baynes) summary, which would
+        // otherwise be shown uncredited beneath a differently-attributed text.
+        const corpusAuthoritative = Boolean(fullText);
         const infoBlocks = [
           {
             label: "Judgment",
-            text: hexagram.judgment,
+            text: corpusAuthoritative ? "" : hexagram.judgment,
             fullText: judgmentText
           },
           {
             label: "Image",
-            text: hexagram.image,
+            text: corpusAuthoritative ? "" : hexagram.image,
             fullText: imageText
           }
         ];
