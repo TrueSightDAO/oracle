@@ -1548,6 +1548,14 @@
         color: var(--ink);
       }
 
+      .hexagram-fulltext .fulltext-intro p {
+        margin: 0;
+      }
+
+      .hexagram-fulltext .fulltext-intro p + p {
+        margin-top: 0.6em;
+      }
+
       .hexagram-fulltext .line-text-list {
         margin: 0;
         padding-left: 20px;
@@ -3596,7 +3604,21 @@
           if (introText) {
             const introSection = document.createElement("div");
             introSection.className = "fulltext-section";
-            introSection.innerHTML = `<strong>Intro:</strong><div>${introText}</div>`;
+            const introLabel = document.createElement("strong");
+            introLabel.textContent = "Intro:";
+            introSection.appendChild(introLabel);
+            // The corpus joins paragraphs with a blank line (\n\n). Render
+            // each paragraph as its own <p> so multi-paragraph intros are not
+            // flattened into one run-on block. textContent (not innerHTML) so
+            // any stray character in the source text is shown verbatim.
+            const introBody = document.createElement("div");
+            introBody.className = "fulltext-intro";
+            introText.split(/\n{2,}/).forEach((para) => {
+              const p = document.createElement("p");
+              p.textContent = para.trim();
+              if (p.textContent) introBody.appendChild(p);
+            });
+            introSection.appendChild(introBody);
             body.appendChild(introSection);
           }
 
