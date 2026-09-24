@@ -13,11 +13,59 @@ describe('hexagram intro renders as paragraphs', () => {
     resolve(__dirname, '..', 'scripts', 'hexagram_texts_hybrid.js'),
     'utf-8'
   );
-  // the JS assigns `window.hexagramTexts = {...};` (indented one level)
+  // the JS assigns `window.hexagramTexts = {...};` (indented one level).
+  // Walk brace depth (string-aware) to find the object's *actual* close,
+  // rather than string-matching a fixed tail -- a hardcoded `lastIndexOf`
+  // silently passes even when a stray extra/missing brace corrupts the file
+  // (exactly what shipped in #69: an extra "}" threw a SyntaxError on load
+  // and dropped window.hexagramTexts -- and every reading with it --
+  // sitewide, while this test's old string-slice kept "parsing" fine because
+  // it depended on that exact buggy tail shape). See scripts/parse_walker_corpus.py.
+  function extractBalancedObject(src: string, openBraceIndex: number) {
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let i = openBraceIndex; i < src.length; i += 1) {
+      const ch = src[i];
+      if (inString) {
+        if (escaped) escaped = false;
+        else if (ch === '\\') escaped = true;
+        else if (ch === '"') inString = false;
+        continue;
+      }
+      if (ch === '"') {
+        inString = true;
+      } else if (ch === '{') {
+        depth += 1;
+      } else if (ch === '}') {
+        depth -= 1;
+        if (depth === 0) {
+          return { text: src.slice(openBraceIndex, i + 1), endIndex: i + 1 };
+        }
+      }
+    }
+    throw new Error('unbalanced braces while extracting corpus object');
+  }
   const anchor = js.indexOf('hexagramTexts');
-  const corpus = JSON.parse(
-    js.slice(js.indexOf('{', anchor), js.lastIndexOf('\n};'))
-  );
+  const { text: corpusText, endIndex } = extractBalancedObject(js, js.indexOf('{', anchor));
+  const corpus = JSON.parse(corpusText);
+
+  it('scripts/hexagram_texts_hybrid.js is syntactically valid and attaches window.hexagramTexts', () => {
+    // The direct regression guard for #69's real bug: a stray extra "}"
+    // made this file throw a SyntaxError on load, silently dropping every
+    // reading sitewide with no visible error to a user. Executing the file
+    // for real (not just slicing a substring out of it) is the only check
+    // that actually catches that failure mode.
+    const win: any = {};
+    // eslint-disable-next-line no-new-func
+    new Function('window', js)(win);
+    expect(Object.keys(win.hexagramTexts ?? {})).toHaveLength(64);
+  });
+
+  it('the JSON object is exactly what remains after the assignment (no stray trailing braces)', () => {
+    const tail = js.slice(endIndex);
+    expect(tail.trimStart().startsWith(';')).toBe(true);
+  });
 
   it('renders each intro paragraph as its own <p>, not one run-on block', () => {
     // split on blank line(s) into <p> elements
