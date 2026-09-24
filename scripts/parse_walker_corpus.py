@@ -123,7 +123,12 @@ def write_js(data, path='scripts/hexagram_texts_hybrid.js'):
           " *     \"The I Ching or Book of Changes\" (Princeton/Bollingen, 1950/1967).\n"
           " * Auto-generated from data/hexagram_texts_hybrid.json - do not edit manually.\n"
           " */\n(function attachCorpus() {\n  window.hexagramTexts =\n"
-          + '\n'.join('  ' + l for l in body.split('\n')) + "\n};\n})();\n")
+          # `body` (json.dumps output) already ends with its own closing "}" --
+          # appending another one here corrupted every regeneration (#69) with
+          # an extra brace, throwing a SyntaxError on load and silently
+          # dropping window.hexagramTexts (and therefore every intro/line
+          # reading) sitewide. Only the assignment's semicolon belongs here.
+          + '\n'.join('  ' + l for l in body.split('\n')) + "\n;\n})();\n")
     open(path, 'w', encoding='utf-8').write(js)
 
 
