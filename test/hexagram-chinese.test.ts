@@ -20,7 +20,7 @@ describe('hexagram Chinese characters', () => {
     const win: any = {};
     // eslint-disable-next-line no-new-func
     new Function('window', mapJs)(win);
-    return win.hexagramChinese ?? {};
+    return win.HEXAGRAM_CHINESE ?? {};
   }
 
   it('maps every King Wen number 1..64 to a Chinese character', () => {
@@ -54,6 +54,17 @@ describe('hexagram Chinese characters', () => {
     const mapIdx = html.indexOf('scripts/hexagram_chinese.js');
     expect(mapIdx).toBeGreaterThan(-1);
     expect(mapIdx).toBeLessThan(html.indexOf('scripts/hexagram_texts_hybrid.js'));
+  });
+
+  it('the map global does not collide with any inline helper name', () => {
+    // Regression (2026-09-25): the map attached window.hexagramChinese, which
+    // clobbered the inline `function hexagramChinese` global once the deferred
+    // script ran -> "hexagramChinese is not a function" on Toss All Lines.
+    const mapGlobals = [...mapJs.matchAll(/window\.([A-Za-z0-9_$]+)\s*=/g)].map((m) => m[1]);
+    const inlineHelpers = [...html.matchAll(/(?:^|\n)\s*function\s+([A-Za-z0-9_$]+)\s*\(/g)].map((m) => m[1]);
+    expect(mapGlobals.length).toBeGreaterThan(0);
+    expect(mapGlobals.filter((g) => inlineHelpers.includes(g))).toEqual([]);
+    expect(html).toContain(`window.${mapGlobals[0]}`);
   });
 
   it('index.html renders the character (heading + reference grid)', () => {

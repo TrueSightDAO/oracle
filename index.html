@@ -3809,10 +3809,10 @@
       }
 
       // Classical Chinese hexagram character (卦名), e.g. 1 -> 乾. Sourced from
-      // scripts/hexagram_chinese.js (window.hexagramChinese), a small standalone
+      // scripts/hexagram_chinese.js (window.HEXAGRAM_CHINESE), a small standalone
       // map keyed by King Wen number. Tolerates a missing map/number -> "".
       function hexagramChinese(number) {
-        const map = window.hexagramChinese;
+        const map = window.HEXAGRAM_CHINESE;
         if (!map || number === undefined || number === null) return "";
         const cn = map[number] !== undefined ? map[number] : map[String(number)];
         return typeof cn === "string" ? cn.trim() : "";
