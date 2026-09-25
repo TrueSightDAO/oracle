@@ -7,7 +7,7 @@
  * Auto-checked by test/hexagram-chinese.test.ts.
  */
 (function attachHexagramChinese() {
-  window.hexagramChinese = {
+  window.HEXAGRAM_CHINESE = {
     "1": "乾",
     "2": "坤",
     "3": "屯",
