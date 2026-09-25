@@ -21,6 +21,7 @@
       content="Cast the I Ching with the TrueSight Daily Oracle. Toss coins, trace changing lines, and explore a hybrid I Ching reading (Brian Browne Walker description & lines, with Wilhelm/Baynes Judgment & Image) in a calm, mobile-first experience."
     />
     <meta name="twitter:image" content="https://oracle.truesight.me/assets/truesight-logo.png" />
+    <script src="scripts/hexagram_chinese.js" defer></script>
     <script src="scripts/hexagram_texts_hybrid.js" defer></script>
     <!--
       qimen-dunjia 2.1.0, vendored + patched locally.
@@ -418,6 +419,25 @@
       .reference-cell span {
         font-size: 0.78rem;
         color: var(--ink-soft);
+      }
+
+      .reference-cell-chinese {
+        font-size: 1.05rem;
+        line-height: 1.15;
+        color: var(--accent-strong);
+      }
+
+      .hexagram-name-chinese {
+        display: block;
+        margin-bottom: 0.08em;
+        font-size: 1.9rem;
+        line-height: 1.1;
+        letter-spacing: 0.08em;
+        color: var(--accent-strong);
+      }
+
+      .hexagram-name-english {
+        display: block;
       }
 
       .overview-panel summary {
@@ -3556,7 +3576,21 @@
         const info = document.createElement("div");
         info.className = "hexagram-info";
         const heading = document.createElement("h3");
-        heading.textContent = `${hexagram.number} – ${hexagram.name}`;
+        // Surface the classical Chinese name (卦名) above the English label,
+        // the way printed I Ching books do. Sourced from the standalone
+        // scripts/hexagram_chinese.js map.
+        const headingCn = hexagramChinese(hexagram.number);
+        if (headingCn) {
+          const cnSpan = document.createElement("span");
+          cnSpan.className = "hexagram-name-chinese";
+          cnSpan.lang = "zh-Hant";
+          cnSpan.textContent = headingCn;
+          heading.appendChild(cnSpan);
+        }
+        const headingEn = document.createElement("span");
+        headingEn.className = "hexagram-name-english";
+        headingEn.textContent = `${hexagram.number} – ${hexagram.name}`;
+        heading.appendChild(headingEn);
         info.appendChild(heading);
 
         // When a translation corpus supplies the reading, it is authoritative:
@@ -3750,9 +3784,15 @@
           row.forEach((hex, upperIndex) => {
             const cell = document.createElement("td");
             const [classicalName, modernName] = hex.name.split("/").map((part) => part.trim());
+            const cellCn = hexagramChinese(hex.number);
             cell.innerHTML = `
               <div class="reference-cell">
                 <strong>${hex.number}</strong>
+                ${
+                  cellCn
+                    ? `<span class="reference-cell-chinese" lang="zh-Hant">${cellCn}</span>`
+                    : ""
+                }
                 <span>${modernName || classicalName}</span>
               </div>
             `;
@@ -3768,10 +3808,21 @@
         table.append(thead, tbody);
       }
 
+      // Classical Chinese hexagram character (卦名), e.g. 1 -> 乾. Sourced from
+      // scripts/hexagram_chinese.js (window.hexagramChinese), a small standalone
+      // map keyed by King Wen number. Tolerates a missing map/number -> "".
+      function hexagramChinese(number) {
+        const map = window.hexagramChinese;
+        if (!map || number === undefined || number === null) return "";
+        const cn = map[number] !== undefined ? map[number] : map[String(number)];
+        return typeof cn === "string" ? cn.trim() : "";
+      }
+
       function formatHexagramTitle(hexagram) {
         if (!hexagram) return "";
         const [classicalName, modernName] = hexagram.name.split("/").map((part) => part.trim());
-        return `${hexagram.number} – ${modernName || classicalName}`;
+        const cn = hexagramChinese(hexagram.number);
+        return `${hexagram.number} – ${cn ? cn + " " : ""}${modernName || classicalName}`;
       }
 
       function buildReadingPayload({ lines, primaryHexagram, relatedHexagram }) {
@@ -3977,10 +4028,16 @@
         params.set("primary_number", String(primary?.number || ""));
         params.set("primary_name", toHexagramShortName(primary?.name || ""));
         params.set("primary_judgment", getJudgmentText(primary));
+        // Pass the classical Chinese characters through to the advisor so it can
+        // ground the reading in the original 卦名 as well as the English gloss.
+        const primaryCn = hexagramChinese(primary?.number);
+        if (primaryCn) params.set("primary_chinese", primaryCn);
         if (related) {
           params.set("related_number", String(related.number));
           params.set("related_name", toHexagramShortName(related.name || ""));
           params.set("related_judgment", getJudgmentText(related));
+          const relatedCn = hexagramChinese(related.number);
+          if (relatedCn) params.set("related_chinese", relatedCn);
         }
         params.set("changing_lines", changing || "none");
         params.set("timestamp_utc", reading?.timestamp || new Date().toISOString());
