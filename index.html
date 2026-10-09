@@ -3720,27 +3720,37 @@
 
       function syncHexagramHeights() {
         const cards = Array.from(hexagramDisplay.querySelectorAll(".hexagram-card"));
-        // Print reflows the cards to the paper width, so heights measured from
-        // the on-screen layout no longer describe the content; pinning them
-        // would only pad the shorter reading with empty vertical space. Clear
-        // any pins and skip syncing while the print media query is active.
-        const printing =
-          typeof window.matchMedia === "function" && window.matchMedia("print").matches;
-        if (printing) {
+        const clearPins = () => {
           cards.forEach((card) => {
             card.style.minHeight = "";
             card.querySelectorAll(".hexagram-info-block").forEach((block) => {
               block.style.minHeight = "";
             });
           });
+        };
+        clearPins();
+        // Print reflows the cards to the paper width, so heights measured from
+        // the on-screen layout no longer describe the content; pinning them
+        // would only pad the shorter reading with empty vertical space.
+        const printing =
+          typeof window.matchMedia === "function" && window.matchMedia("print").matches;
+        if (printing) {
           return;
         }
-        cards.forEach((card) => {
-          card.style.minHeight = "";
-        });
         if (cards.length <= 1) return;
 
         requestAnimationFrame(() => {
+          // Only equalise heights when the cards sit SIDE BY SIDE. On a stacked
+          // single-column layout (mobile / narrow viewports) the two readings
+          // are one above the other, so forcing the shorter card - and each
+          // Judgment/Image block - up to the taller one's height only pads them
+          // with empty vertical space (reported 2026-10-09). Cards sharing a
+          // grid row have the same offsetTop; stacked cards do not. This must
+          // be checked here (after layout) because the first render happens
+          // while the results section is still collapsed and unmeasured.
+          if (cards.some((card) => card.offsetTop !== cards[0].offsetTop)) {
+            return;
+          }
           const tallest = cards.reduce((acc, card) => Math.max(acc, card.offsetHeight), 0);
           cards.forEach((card) => {
             card.style.minHeight = `${tallest}px`;
