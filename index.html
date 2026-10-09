@@ -1965,6 +1965,27 @@
         .hexagram-card {
           break-inside: avoid;
         }
+        /* syncHexagramHeights() writes inline min-heights measured from the
+           on-screen layout so the primary and related hexagram cards - and
+           their Judgment/Image blocks - line up evenly on screen. Print
+           reflows to the paper width, so those pinned measurements no longer
+           describe the content and every reading keeps a slab of empty
+           vertical space beneath it (reported 2026-10-09). A stylesheet
+           !important declaration outranks the inline style, so reset them
+           for paper. */
+        .hexagram-card,
+        .hexagram-info-block {
+          min-height: 0 !important;
+        }
+        /* Tighter paper spacing so the readings and their full text pack
+           without gratuitous vertical whitespace. */
+        .hexagram-layout {
+          gap: 12px !important;
+        }
+        .hexagram-card {
+          padding: 14px !important;
+          gap: 10px !important;
+        }
       }
     </style>
   </head>
@@ -3699,6 +3720,21 @@
 
       function syncHexagramHeights() {
         const cards = Array.from(hexagramDisplay.querySelectorAll(".hexagram-card"));
+        // Print reflows the cards to the paper width, so heights measured from
+        // the on-screen layout no longer describe the content; pinning them
+        // would only pad the shorter reading with empty vertical space. Clear
+        // any pins and skip syncing while the print media query is active.
+        const printing =
+          typeof window.matchMedia === "function" && window.matchMedia("print").matches;
+        if (printing) {
+          cards.forEach((card) => {
+            card.style.minHeight = "";
+            card.querySelectorAll(".hexagram-info-block").forEach((block) => {
+              block.style.minHeight = "";
+            });
+          });
+          return;
+        }
         cards.forEach((card) => {
           card.style.minHeight = "";
         });
